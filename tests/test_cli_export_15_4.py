@@ -6,16 +6,14 @@ from click.testing import CliRunner
 
 from osxphotos.cli import export
 
-TEST_LIBRARY = "tests/Test-15.4.1.photoslibrary"
+from .conftest import fixture_path
+
+TEST_LIBRARY = fixture_path("tests/Test-15.4.1.photoslibrary")
 
 
-def test_export():
+def test_export(isolated_fs):
     """test basic export"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            export, [".", "--library", os.path.join(cwd, TEST_LIBRARY), "-V"]
-        )
-        assert result.exit_code == 0
+
+    result = runner.invoke(export, [".", "--library", TEST_LIBRARY, "-V"])
+    assert result.exit_code == 0

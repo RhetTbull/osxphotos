@@ -76,6 +76,7 @@ UUID_BURSTS = {
 
 @pytest.fixture(scope="module")
 def photosdb():
+    """PhotosDB fixture for local library."""
     return osxphotos.PhotosDB(dbfile=PHOTOS_DB_LOCAL)
 
 
@@ -249,31 +250,30 @@ def test_burst_albums(photosdb):
         assert sorted(photo.burst_albums) == sorted(UUID_BURSTS[uuid]["burst_albums"])
 
 
-def test_export_skip_live_photokit():
+def test_export_skip_live_photokit(isolated_fs):
     """test that --skip-live works with --use-photokit (issue #537)"""
 
     runner = CliRunner()
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     for uuid in UUID_SKIP_LIVE_PHOTOKIT:
-        with runner.isolated_filesystem():
-            result = runner.invoke(
-                export,
-                [
-                    ".",
-                    "--library",
-                    os.path.join(cwd, PHOTOS_DB_LOCAL),
-                    "-V",
-                    "-F",
-                    "--uuid",
-                    uuid,
-                    "--use-photos-export",
-                    "--use-photokit",
-                    "--skip-live",
-                    "--skip-original-if-edited",
-                    "--convert-to-jpeg",
-                ],
-            )
-            assert result.exit_code == 0
-            files = [str(p) for p in pathlib.Path(".").glob("IMG*")]
-            assert sorted(files) == sorted(UUID_SKIP_LIVE_PHOTOKIT[uuid])
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_LOCAL),
+                "-V",
+                "-F",
+                "--uuid",
+                uuid,
+                "--use-photos-export",
+                "--use-photokit",
+                "--skip-live",
+                "--skip-original-if-edited",
+                "--convert-to-jpeg",
+            ],
+        )
+        assert result.exit_code == 0
+        files = [str(p) for p in pathlib.Path(".").glob("IMG*")]
+        assert sorted(files) == sorted(UUID_SKIP_LIVE_PHOTOKIT[uuid])

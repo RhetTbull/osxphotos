@@ -2,7 +2,6 @@
 
 import glob
 import json
-import os
 
 import pytest
 from click.testing import CliRunner
@@ -21,248 +20,240 @@ except FileNotFoundError:
 
 
 @pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
-def test_export_exiftool():
+def test_export_exiftool(isolated_fs):
     """Test osxphotos exiftool"""
     runner = CliRunner()
-    cwd = os.getcwd()
 
-    with runner.isolated_filesystem() as temp_dir:
-        uuid_option = []
-        for uuid in CLI_EXIFTOOL:
-            uuid_option.extend(("--uuid", uuid))
+    uuid_option = []
+    for uuid in CLI_EXIFTOOL:
+        uuid_option.extend(("--uuid", uuid))
 
-        # first, export without --exiftool
-        result = runner.invoke(
-            export,
-            [
-                "--db",
-                os.path.join(cwd, PHOTOS_DB_15_7),
-                temp_dir,
-                "-V",
-                *uuid_option,
-            ],
-        )
-        assert result.exit_code == 0
-        files = glob.glob("*")
-        assert sorted(files) == sorted(
-            [CLI_EXIFTOOL[uuid]["File:FileName"] for uuid in CLI_EXIFTOOL]
-        )
+    # first, export without --exiftool
+    result = runner.invoke(
+        export,
+        [
+            "--db",
+            PHOTOS_DB_15_7,
+            ".",
+            "-V",
+            *uuid_option,
+        ],
+    )
+    assert result.exit_code == 0
+    files = glob.glob("*")
+    assert sorted(files) == sorted(
+        [CLI_EXIFTOOL[uuid]["File:FileName"] for uuid in CLI_EXIFTOOL]
+    )
 
-        # now, run exiftool command to update exiftool metadata
-        result = runner.invoke(
-            exiftool,
-            ["--db", os.path.join(cwd, PHOTOS_DB_15_7), "-V", "--db-config", temp_dir],
-        )
-        assert result.exit_code == 0
+    # now, run exiftool command to update exiftool metadata
+    result = runner.invoke(
+        exiftool,
+        ["--db", PHOTOS_DB_15_7, "-V", "--db-config", "."],
+    )
+    assert result.exit_code == 0
 
-        exif = ExifTool(CLI_EXIFTOOL[uuid]["File:FileName"]).asdict()
-        for key in CLI_EXIFTOOL[uuid]:
-            if type(exif[key]) == list:
-                assert sorted(exif[key]) == sorted(CLI_EXIFTOOL[uuid][key])
-            else:
-                assert exif[key] == CLI_EXIFTOOL[uuid][key]
+    exif = ExifTool(CLI_EXIFTOOL[uuid]["File:FileName"]).asdict()
+    for key in CLI_EXIFTOOL[uuid]:
+        if isinstance(exif[key], list):
+            assert sorted(exif[key]) == sorted(CLI_EXIFTOOL[uuid][key])
+        else:
+            assert exif[key] == CLI_EXIFTOOL[uuid][key]
 
-        # now, export with --exiftool --update, no files should be updated
-        result = runner.invoke(
-            export,
-            [
-                "--db",
-                os.path.join(cwd, PHOTOS_DB_15_7),
-                temp_dir,
-                "-V",
-                "--exiftool",
-                "--update",
-                *uuid_option,
-            ],
-        )
-        assert result.exit_code == 0
-        assert f"exported: 0, updated: 0, skipped: {len(CLI_EXIFTOOL)}" in result.output
+    # now, export with --exiftool --update, no files should be updated
+    result = runner.invoke(
+        export,
+        [
+            "--db",
+            PHOTOS_DB_15_7,
+            ".",
+            "-V",
+            "--exiftool",
+            "--update",
+            *uuid_option,
+        ],
+    )
+    assert result.exit_code == 0
+    assert f"exported: 0, updated: 0, skipped: {len(CLI_EXIFTOOL)}" in result.output
 
 
 @pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
-def test_export_exiftool_album_keyword():
+def test_export_exiftool_album_keyword(isolated_fs):
     """Test osxphotos exiftool with --album-template."""
     runner = CliRunner()
-    cwd = os.getcwd()
 
-    with runner.isolated_filesystem() as temp_dir:
-        # first, export without --exiftool
-        result = runner.invoke(
-            export,
-            [
-                "--db",
-                os.path.join(cwd, PHOTOS_DB_15_7),
-                temp_dir,
-                "-V",
-                "--album",
-                "Pumpkin Farm",
-            ],
-        )
-        assert result.exit_code == 0
-        files = glob.glob("*")
-        assert len(files) == 3
+    # first, export without --exiftool
+    result = runner.invoke(
+        export,
+        [
+            "--db",
+            PHOTOS_DB_15_7,
+            ".",
+            "-V",
+            "--album",
+            "Pumpkin Farm",
+        ],
+    )
+    assert result.exit_code == 0
+    files = glob.glob("*")
+    assert len(files) == 3
 
-        # now, run exiftool command to update exiftool metadata
-        result = runner.invoke(
-            exiftool,
-            [
-                "--db",
-                os.path.join(cwd, PHOTOS_DB_15_7),
-                "-V",
-                "--db-config",
-                "--report",
-                "exiftool.json",
-                "--album-keyword",
-                temp_dir,
-            ],
-        )
-        assert result.exit_code == 0
-        with open("exiftool.json") as fp:
-            report = json.load(fp)
-        assert len(report) == 3
+    # now, run exiftool command to update exiftool metadata
+    result = runner.invoke(
+        exiftool,
+        [
+            "--db",
+            PHOTOS_DB_15_7,
+            "-V",
+            "--db-config",
+            "--report",
+            "exiftool.json",
+            "--album-keyword",
+            ".",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("exiftool.json") as fp:
+        report = json.load(fp)
+    assert len(report) == 3
 
-        # verify exiftool metadata was updated
-        for file in report:
-            exif = ExifTool(file["filename"]).asdict()
-            assert "Pumpkin Farm" in exif["IPTC:Keywords"]
+    # verify exiftool metadata was updated
+    for file in report:
+        exif = ExifTool(file["filename"]).asdict()
+        assert "Pumpkin Farm" in exif["IPTC:Keywords"]
 
-        # now, export with --exiftool --update, no files should be updated
-        result = runner.invoke(
-            export,
-            [
-                "--db",
-                os.path.join(cwd, PHOTOS_DB_15_7),
-                temp_dir,
-                "-V",
-                "--exiftool",
-                "--update",
-                "--album",
-                "Pumpkin Farm",
-                "--album-keyword",
-            ],
-        )
-        assert result.exit_code == 0
-        assert f"exported: 0, updated: 0, skipped: 3" in result.output
+    # now, export with --exiftool --update, no files should be updated
+    result = runner.invoke(
+        export,
+        [
+            "--db",
+            PHOTOS_DB_15_7,
+            ".",
+            "-V",
+            "--exiftool",
+            "--update",
+            "--album",
+            "Pumpkin Farm",
+            "--album-keyword",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "exported: 0, updated: 0, skipped: 3" in result.output
 
 
 @pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
-def test_export_exiftool_keyword_template():
+def test_export_exiftool_keyword_template(isolated_fs):
     """Test osxphotos exiftool with --keyword-template."""
     runner = CliRunner()
-    cwd = os.getcwd()
 
-    with runner.isolated_filesystem() as temp_dir:
-        uuid_option = []
-        for uuid in CLI_EXIFTOOL:
-            uuid_option.extend(("--uuid", uuid))
+    uuid_option = []
+    for uuid in CLI_EXIFTOOL:
+        uuid_option.extend(("--uuid", uuid))
 
-        # first, export without --exiftool
-        result = runner.invoke(
-            export,
-            [
-                "--db",
-                os.path.join(cwd, PHOTOS_DB_15_7),
-                temp_dir,
-                "-V",
-                *uuid_option,
-            ],
-        )
-        assert result.exit_code == 0
+    # first, export without --exiftool
+    result = runner.invoke(
+        export,
+        [
+            "--db",
+            PHOTOS_DB_15_7,
+            str(isolated_fs),
+            "-V",
+            *uuid_option,
+        ],
+    )
+    assert result.exit_code == 0
 
-        # now, run exiftool command to update exiftool metadata
-        result = runner.invoke(
-            exiftool,
-            [
-                "--db",
-                os.path.join(cwd, PHOTOS_DB_15_7),
-                "-V",
-                "--db-config",
-                "--keyword-template",
-                "FOO",
-                temp_dir,
-                "--report",
-                "exiftool.json",
-            ],
-        )
-        assert result.exit_code == 0
+    # now, run exiftool command to update exiftool metadata
+    result = runner.invoke(
+        exiftool,
+        [
+            "--db",
+            PHOTOS_DB_15_7,
+            "-V",
+            "--db-config",
+            "--keyword-template",
+            "FOO",
+            str(isolated_fs),
+            "--report",
+            "exiftool.json",
+        ],
+    )
+    assert result.exit_code == 0
 
-        with open("exiftool.json") as fp:
-            report = json.load(fp)
-        for file in report:
-            exif = ExifTool(file["filename"]).asdict()
-            assert "FOO" in exif["IPTC:Keywords"]
+    with open("exiftool.json") as fp:
+        report = json.load(fp)
+    for file in report:
+        exif = ExifTool(file["filename"]).asdict()
+        assert "FOO" in exif["IPTC:Keywords"]
 
-        # now, export with --exiftool --update, no files should be updated
-        result = runner.invoke(
-            export,
-            [
-                "--db",
-                os.path.join(cwd, PHOTOS_DB_15_7),
-                temp_dir,
-                "-V",
-                "--exiftool",
-                "--keyword-template",
-                "FOO",
-                "--update",
-                *uuid_option,
-            ],
-        )
-        assert result.exit_code == 0
-        assert f"exported: 0, updated: 0, skipped: {len(CLI_EXIFTOOL)}" in result.output
+    # now, export with --exiftool --update, no files should be updated
+    result = runner.invoke(
+        export,
+        [
+            "--db",
+            PHOTOS_DB_15_7,
+            str(isolated_fs),
+            "-V",
+            "--exiftool",
+            "--keyword-template",
+            "FOO",
+            "--update",
+            *uuid_option,
+        ],
+    )
+    assert result.exit_code == 0
+    assert f"exported: 0, updated: 0, skipped: {len(CLI_EXIFTOOL)}" in result.output
 
 
 @pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
-def test_export_exiftool_load_config():
+def test_export_exiftool_load_config(isolated_fs):
     """Test osxphotos exiftool with --load-config"""
     runner = CliRunner()
-    cwd = os.getcwd()
 
-    with runner.isolated_filesystem() as temp_dir:
-        uuid_option = []
-        for uuid in CLI_EXIFTOOL:
-            uuid_option.extend(("--uuid", uuid))
+    uuid_option = []
+    for uuid in CLI_EXIFTOOL:
+        uuid_option.extend(("--uuid", uuid))
 
-        # first, export without --exiftool
-        result = runner.invoke(
-            export,
-            [
-                "--db",
-                os.path.join(cwd, PHOTOS_DB_15_7),
-                temp_dir,
-                "-V",
-                "--save-config",
-                "config.toml",
-                *uuid_option,
-            ],
-        )
-        assert result.exit_code == 0
+    # first, export without --exiftool
+    result = runner.invoke(
+        export,
+        [
+            "--db",
+            PHOTOS_DB_15_7,
+            str(isolated_fs),
+            "-V",
+            "--save-config",
+            "config.toml",
+            *uuid_option,
+        ],
+    )
+    assert result.exit_code == 0
 
-        # now, run exiftool command to update exiftool metadata
-        result = runner.invoke(
-            exiftool,
-            ["-V", "--load-config", "config.toml", temp_dir],
-        )
-        assert result.exit_code == 0
+    # now, run exiftool command to update exiftool metadata
+    result = runner.invoke(
+        exiftool,
+        ["-V", "--load-config", "config.toml", str(isolated_fs)],
+    )
+    assert result.exit_code == 0
 
-        exif = ExifTool(CLI_EXIFTOOL[uuid]["File:FileName"]).asdict()
-        for key in CLI_EXIFTOOL[uuid]:
-            if type(exif[key]) == list:
-                assert sorted(exif[key]) == sorted(CLI_EXIFTOOL[uuid][key])
-            else:
-                assert exif[key] == CLI_EXIFTOOL[uuid][key]
+    exif = ExifTool(CLI_EXIFTOOL[uuid]["File:FileName"]).asdict()
+    for key in CLI_EXIFTOOL[uuid]:
+        if isinstance(exif[key], list):
+            assert sorted(exif[key]) == sorted(CLI_EXIFTOOL[uuid][key])
+        else:
+            assert exif[key] == CLI_EXIFTOOL[uuid][key]
 
-        # now, export with --exiftool --update, no files should be updated
-        result = runner.invoke(
-            export,
-            [
-                "--db",
-                os.path.join(cwd, PHOTOS_DB_15_7),
-                temp_dir,
-                "-V",
-                "--exiftool",
-                "--update",
-                *uuid_option,
-            ],
-        )
-        assert result.exit_code == 0
-        assert f"exported: 0, updated: 0, skipped: {len(CLI_EXIFTOOL)}" in result.output
+    # now, export with --exiftool --update, no files should be updated
+    result = runner.invoke(
+        export,
+        [
+            "--db",
+            PHOTOS_DB_15_7,
+            str(isolated_fs),
+            "-V",
+            "--exiftool",
+            "--update",
+            *uuid_option,
+        ],
+    )
+    assert result.exit_code == 0
+    assert f"exported: 0, updated: 0, skipped: {len(CLI_EXIFTOOL)}" in result.output

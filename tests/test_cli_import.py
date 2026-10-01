@@ -13,7 +13,6 @@ import pathlib
 import re
 import shutil
 import sqlite3
-import sys
 import unicodedata
 from tempfile import TemporaryDirectory
 from zoneinfo import ZoneInfo
@@ -28,6 +27,8 @@ from osxphotos.datetime_utils import datetime_remove_tz, get_local_tz
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.platform import is_macos
 
+from .conftest import fixture_path
+
 if is_macos:
     from photoscript import Photo
 
@@ -40,23 +41,23 @@ else:
 
 TERMINAL_WIDTH = 250
 
-TEST_EXPORT_LIBRARY = "tests/Test-13.0.0.photoslibrary"
+TEST_EXPORT_LIBRARY = fixture_path("tests/Test-13.0.0.photoslibrary")
 
-TEST_IMAGES_DIR = "tests/test-images"
-TEST_IMAGE_1 = "tests/test-images/IMG_4179.jpeg"
-TEST_IMAGE_2 = "tests/test-images/faceinfo/exif1.jpg"
-TEST_IMAGE_NO_EXIF = "tests/test-images/IMG_NO_EXIF.jpeg"
-TEST_VIDEO_1 = "tests/test-images/Jellyfish.mov"
-TEST_VIDEO_2 = "tests/test-images/IMG_0670B_NOGPS.MOV"
-TEST_NOT_LIVE_PHOTO = "tests/test-images/not_live.jpeg"
-TEST_NOT_LIVE_VIDEO = "tests/test-images/not_live.mov"
-TEST_IMAGE_INVALID_AAE = "tests/test-images/St James Park.jpg"
-TEST_AAE_INVALID_AAE = "tests/test-images/St James Park.AAE"
-TEST_IMAGE_VALID_AAE = "tests/test-images/wedding.jpg"
-TEST_AAE_VALID_AAE = "tests/test-images/wedding.AAE"
-TEST_IMAGE_WITH_EDIT_ORIGINAL = "tests/test-images/wedding.jpg"
-TEST_IMAGE_WITH_EDIT_EDITED = "tests/test-images/wedding_edited.jpg"
-TEST_IMAGE_WITH_EDIT_AAE = "tests/test-images/wedding.aae"
+TEST_IMAGES_DIR = fixture_path("tests/test-images")
+TEST_IMAGE_1 = fixture_path("tests/test-images/IMG_4179.jpeg")
+TEST_IMAGE_2 = fixture_path("tests/test-images/faceinfo/exif1.jpg")
+TEST_IMAGE_NO_EXIF = fixture_path("tests/test-images/IMG_NO_EXIF.jpeg")
+TEST_VIDEO_1 = fixture_path("tests/test-images/Jellyfish.mov")
+TEST_VIDEO_2 = fixture_path("tests/test-images/IMG_0670B_NOGPS.MOV")
+TEST_NOT_LIVE_PHOTO = fixture_path("tests/test-images/not_live.jpeg")
+TEST_NOT_LIVE_VIDEO = fixture_path("tests/test-images/not_live.mov")
+TEST_IMAGE_INVALID_AAE = fixture_path("tests/test-images/St James Park.jpg")
+TEST_AAE_INVALID_AAE = fixture_path("tests/test-images/St James Park.AAE")
+TEST_IMAGE_VALID_AAE = fixture_path("tests/test-images/wedding.jpg")
+TEST_AAE_VALID_AAE = fixture_path("tests/test-images/wedding.AAE")
+TEST_IMAGE_WITH_EDIT_ORIGINAL = fixture_path("tests/test-images/wedding.jpg")
+TEST_IMAGE_WITH_EDIT_EDITED = fixture_path("tests/test-images/wedding_edited.jpg")
+TEST_IMAGE_WITH_EDIT_AAE = fixture_path("tests/test-images/wedding.aae")
 TEST_LIVE_PHOTO_ORIGINAL_PHOTO = "IMG_1853.HEIC"
 TEST_LIVE_PHOTO_EDITED_PHOTO = "IMG_E1853.heic"
 TEST_LIVE_PHOTO_ORIGINAL_VIDEO = "IMG_1853.MOV"
@@ -254,8 +255,7 @@ def file_md5(file_path):
 @pytest.mark.test_import
 def test_import():
     """Test basic import"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -275,8 +275,7 @@ def test_import():
 @pytest.mark.test_import
 def test_import_dry_run():
     """Test import with --dry-run"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -308,8 +307,7 @@ def test_import_dup_check():
     """Test basic import with --dup-check"""
     say("Please click Import when prompted by Photos to import duplicate photo.")
 
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
 
     # import first to ensure photo is in library
@@ -338,9 +336,8 @@ def test_import_dup_check():
 @pytest.mark.test_import
 def test_import_skip_dups():
     """Test basic import with --skip_dups"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
-    test_image_2 = os.path.join(cwd, TEST_VIDEO_1)
+    test_image_1 = TEST_IMAGE_1
+    test_image_2 = TEST_VIDEO_1
     runner = CliRunner()
     # import first to ensure photo is in library
     result = runner.invoke(
@@ -364,9 +361,8 @@ def test_import_skip_dups():
 @pytest.mark.test_import
 def test_import_skip_dups_signature():
     """Test basic import with --skip_dups with --signature"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
-    test_image_2 = os.path.join(cwd, TEST_VIDEO_1)
+    test_image_1 = TEST_IMAGE_1
+    test_image_2 = TEST_VIDEO_1
     runner = CliRunner()
 
     # import first to ensure photo is in library
@@ -401,8 +397,7 @@ def test_import_skip_dups_signature():
 def test_import_skip_dups_dup_albums():
     """Test basic import with --skip_dups and --dup-albums"""
 
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     # import first to ensure photo is in library
     result = runner.invoke(
@@ -434,8 +429,7 @@ def test_import_skip_dups_dup_albums():
 @pytest.mark.test_import
 def test_import_album():
     """Test basic import to an album"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -459,8 +453,7 @@ def test_import_album():
 @pytest.mark.test_import
 def test_import_album_2():
     """Test basic import to an album with a "/" in it"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -485,8 +478,7 @@ def test_import_album_2():
 @pytest.mark.test_import
 def test_import_album_split_folder():
     """Test basic import to an album with a "/" in it and --split-folder"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -519,7 +511,7 @@ def test_import_album_split_folder():
 def test_import_album_relative_to():
     """Test import with --relative-to"""
     cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -553,8 +545,7 @@ def test_import_album_relative_to():
 @pytest.mark.test_import
 def test_import_clear_metadata():
     """Test import with --clear-metadata"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -583,8 +574,7 @@ def test_import_clear_metadata():
 @pytest.mark.test_import
 def test_import_exiftool():
     """Test import file with --exiftool"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -617,8 +607,8 @@ def test_import_exiftool():
 @pytest.mark.test_import
 def test_import_exiftool_video():
     """Test import video file with --exiftool"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_VIDEO_1)
+
+    test_image_1 = TEST_VIDEO_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -651,8 +641,7 @@ def test_import_exiftool_video():
 @pytest.mark.test_import
 def test_import_exiftool_video_no_metadata():
     """Test import video file with --exiftool that has no metadata"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_VIDEO_2)
+    test_image_1 = TEST_VIDEO_2
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -684,8 +673,7 @@ def test_import_exiftool_video_no_metadata():
 @pytest.mark.test_import
 def test_import_title():
     """Test import with --title"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -714,8 +702,7 @@ def test_import_title():
 @pytest.mark.test_import
 def test_import_description():
     """Test import with --description"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -743,8 +730,7 @@ def test_import_description():
 @pytest.mark.test_import
 def test_import_keyword():
     """Test import with --keyword"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -774,8 +760,7 @@ def test_import_keyword():
 @pytest.mark.test_import
 def test_import_keyword_merge():
     """Test import with --keyword and --merge-keywords"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -810,8 +795,7 @@ def test_import_keyword_merge():
 @pytest.mark.test_import
 def test_import_keyword_merge_unicode():
     """Test import with --keyword and --merge-keywords with unicode keywords (#1085)"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -849,8 +833,7 @@ def test_import_keyword_merge_unicode():
 @pytest.mark.test_import
 def test_import_location():
     """Test import file with --location"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -881,8 +864,7 @@ def test_import_location():
 @pytest.mark.test_import
 def test_import_sidecar():
     """Test import file with --sidecar"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -916,8 +898,7 @@ def test_import_sidecar():
 @pytest.mark.test_import
 def test_import_sidecar_ignore_date():
     """Test import file with --sidecar --sidecar-ignore-date"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -940,8 +921,7 @@ def test_import_sidecar_ignore_date():
 @pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
 def test_import_sidecar_filename():
     """Test import file with --sidecar-filename"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -976,8 +956,7 @@ def test_import_sidecar_filename():
 @pytest.mark.test_import
 def test_import_favorite_rating():
     """Test import file with --favorite-rating"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -1007,12 +986,10 @@ def test_import_favorite_rating():
 @pytest.mark.test_import
 def test_import_glob():
     """Test import with --glob"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
         import_main,
-        ["--verbose", f"{cwd}/{TEST_IMAGES_DIR}/", "--walk", "--glob", "Pumpk*.jpg"],
+        ["--verbose", TEST_IMAGES_DIR, "--walk", "--glob", "Pumpk*.jpg"],
         terminal_width=TERMINAL_WIDTH,
     )
 
@@ -1023,21 +1000,20 @@ def test_import_glob():
 @pytest.mark.test_import
 def test_import_glob_walk():
     """Test import with --walk --glob"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
         [
             "--verbose",
-            f"{cwd}/{TEST_IMAGES_DIR}/",
+            TEST_IMAGES_DIR,
             "--walk",
             "--glob",
             "exif*.jpg",
             "--album",
             "{filepath.parent.name}",
             "--relative-to",
-            f"{cwd}/{TEST_IMAGES_DIR}",
+            TEST_IMAGES_DIR,
         ],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -1057,8 +1033,7 @@ def test_import_glob_walk():
 @pytest.mark.test_import
 def test_import_check_templates():
     """Test import file with --check-templates"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -1074,7 +1049,7 @@ def test_import_check_templates():
             "--album",
             "{filepath.parent}",
             "--relative-to",
-            f"{cwd}/tests",
+            fixture_path("tests"),
             "--check-templates",
             test_image_1,
         ],
@@ -1092,9 +1067,8 @@ def test_import_check_templates():
 @pytest.mark.test_import
 def test_import_function_template():
     """Test import with a function template"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
-    function = os.path.join(cwd, "examples/template_function_import.py")
+    test_image_1 = TEST_IMAGE_1
+    function = fixture_path("examples/template_function_import.py")
     with TemporaryDirectory() as tempdir:
         test_image = shutil.copy(
             test_image_1, os.path.join(tempdir, "MyAlbum_IMG_0001.jpg")
@@ -1124,255 +1098,245 @@ def test_import_function_template():
 
 
 @pytest.mark.test_import
-def test_import_report():
+def test_import_report(isolated_fs):
     """test import with --report option"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
 
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            import_main,
-            [
-                test_image_1,
-                "--report",
-                "report.csv",
-                "--verbose",
-            ],
-        )
-        assert result.exit_code == 0
-        assert "Wrote import report" in result.output
-        assert os.path.exists("report.csv")
-        with open("report.csv", "r") as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
-        assert filenames == [pathlib.Path(TEST_IMAGE_1).name]
+    result = runner.invoke(
+        import_main,
+        [
+            test_image_1,
+            "--report",
+            "report.csv",
+            "--verbose",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "Wrote import report" in result.output
+    assert os.path.exists("report.csv")
+    with open("report.csv", "r") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+    assert filenames == [pathlib.Path(TEST_IMAGE_1).name]
 
-        # test report gets overwritten
-        result = runner.invoke(
-            import_main,
-            [
-                test_image_1,
-                "--report",
-                "report.csv",
-                "--verbose",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("report.csv", "r") as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
-        assert filenames == [pathlib.Path(TEST_IMAGE_1).name]
+    # test report gets overwritten
+    result = runner.invoke(
+        import_main,
+        [
+            test_image_1,
+            "--report",
+            "report.csv",
+            "--verbose",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("report.csv", "r") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+    assert filenames == [pathlib.Path(TEST_IMAGE_1).name]
 
-        # test report with --append
-        result = runner.invoke(
-            import_main,
-            [
-                test_image_1,
-                "--report",
-                "report.csv",
-                "--append",
-                "--verbose",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("report.csv", "r") as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
-        assert filenames == [
-            pathlib.Path(TEST_IMAGE_1).name,
-            pathlib.Path(TEST_IMAGE_1).name,
-        ]
+    # test report with --append
+    result = runner.invoke(
+        import_main,
+        [
+            test_image_1,
+            "--report",
+            "report.csv",
+            "--append",
+            "--verbose",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("report.csv", "r") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+    assert filenames == [
+        pathlib.Path(TEST_IMAGE_1).name,
+        pathlib.Path(TEST_IMAGE_1).name,
+    ]
 
 
 @pytest.mark.test_import
-def test_import_report_append():
+def test_import_report_append(isolated_fs):
     """test import with --report --append option when report doesn't exist (#1835)"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
 
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            import_main,
-            [
-                test_image_1,
-                "--report",
-                "report.json",
-                "--append",
-                "--verbose",
-            ],
-        )
-        assert result.exit_code == 0
-        assert "Wrote import report" in result.output
-        assert os.path.exists("report.json")
-        with open("report.json", "r") as f:
-            records = json.load(f)
-        assert records[0]["filename"] == pathlib.Path(TEST_IMAGE_1).name
+    result = runner.invoke(
+        import_main,
+        [
+            test_image_1,
+            "--report",
+            "report.json",
+            "--append",
+            "--verbose",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "Wrote import report" in result.output
+    assert os.path.exists("report.json")
+    with open("report.json", "r") as f:
+        records = json.load(f)
+    assert records[0]["filename"] == pathlib.Path(TEST_IMAGE_1).name
 
 
 @pytest.mark.test_import
-def test_import_report_json():
+def test_import_report_json(isolated_fs):
     """test import with --report option with json output"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
 
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            import_main,
-            [
-                test_image_1,
-                "--report",
-                "report.json",
-                "--verbose",
-            ],
-        )
-        assert result.exit_code == 0
-        assert "Wrote import report" in result.output
-        assert os.path.exists("report.json")
-        with open("report.json", "r") as f:
-            rows = json.load(f)
-        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
-        assert filenames == [pathlib.Path(TEST_IMAGE_1).name]
+    result = runner.invoke(
+        import_main,
+        [
+            test_image_1,
+            "--report",
+            "report.json",
+            "--verbose",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "Wrote import report" in result.output
+    assert os.path.exists("report.json")
+    with open("report.json", "r") as f:
+        rows = json.load(f)
+    filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+    assert filenames == [pathlib.Path(TEST_IMAGE_1).name]
 
-        # test report gets overwritten
-        result = runner.invoke(
-            import_main,
-            [
-                test_image_1,
-                "--report",
-                "report.json",
-                "--verbose",
-            ],
-        )
-        assert result.exit_code == 0
-        assert "Wrote import report" in result.output
-        assert os.path.exists("report.json")
-        with open("report.json", "r") as f:
-            rows = json.load(f)
-        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
-        assert filenames == [pathlib.Path(TEST_IMAGE_1).name]
+    # test report gets overwritten
+    result = runner.invoke(
+        import_main,
+        [
+            test_image_1,
+            "--report",
+            "report.json",
+            "--verbose",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "Wrote import report" in result.output
+    assert os.path.exists("report.json")
+    with open("report.json", "r") as f:
+        rows = json.load(f)
+    filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+    assert filenames == [pathlib.Path(TEST_IMAGE_1).name]
 
-        # test report with --append
-        result = runner.invoke(
-            import_main,
-            [
-                test_image_1,
-                "--report",
-                "report.json",
-                "--append",
-                "--verbose",
-            ],
-        )
-        assert result.exit_code == 0
-        assert "Wrote import report" in result.output
-        assert os.path.exists("report.json")
-        with open("report.json", "r") as f:
-            rows = json.load(f)
-        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
-        assert filenames == [
-            pathlib.Path(TEST_IMAGE_1).name,
-            pathlib.Path(TEST_IMAGE_1).name,
-        ]
+    # test report with --append
+    result = runner.invoke(
+        import_main,
+        [
+            test_image_1,
+            "--report",
+            "report.json",
+            "--append",
+            "--verbose",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "Wrote import report" in result.output
+    assert os.path.exists("report.json")
+    with open("report.json", "r") as f:
+        rows = json.load(f)
+    filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+    assert filenames == [
+        pathlib.Path(TEST_IMAGE_1).name,
+        pathlib.Path(TEST_IMAGE_1).name,
+    ]
 
 
 @pytest.mark.test_import
 @pytest.mark.parametrize("report_file", ["report.db", "report.sqlite"])
-def test_import_report_sqlite(report_file):
+def test_import_report_sqlite(report_file, isolated_fs):
     """test import with --report option with sqlite output"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
 
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            import_main,
-            [
-                test_image_1,
-                "--report",
-                report_file,
-                "--verbose",
-            ],
-        )
-        assert result.exit_code == 0
-        assert "Wrote import report" in result.output
-        assert os.path.exists(report_file)
-        conn = sqlite3.connect(report_file)
-        c = conn.cursor()
-        c.execute("SELECT filename FROM report")
-        filenames = [str(pathlib.Path(row[0]).name) for row in c.fetchall()]
-        assert filenames == [pathlib.Path(TEST_IMAGE_1).name]
+    result = runner.invoke(
+        import_main,
+        [
+            test_image_1,
+            "--report",
+            report_file,
+            "--verbose",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "Wrote import report" in result.output
+    assert os.path.exists(report_file)
+    conn = sqlite3.connect(report_file)
+    c = conn.cursor()
+    c.execute("SELECT filename FROM report")
+    filenames = [str(pathlib.Path(row[0]).name) for row in c.fetchall()]
+    assert filenames == [pathlib.Path(TEST_IMAGE_1).name]
 
-        # test report gets overwritten
-        result = runner.invoke(
-            import_main,
-            [
-                test_image_1,
-                "--report",
-                report_file,
-                "--verbose",
-            ],
-        )
-        assert result.exit_code == 0
-        assert "Wrote import report" in result.output
-        assert os.path.exists(report_file)
-        conn = sqlite3.connect(report_file)
-        c = conn.cursor()
-        c.execute("SELECT filename FROM report")
-        filenames = [str(pathlib.Path(row[0]).name) for row in c.fetchall()]
-        assert filenames == [pathlib.Path(TEST_IMAGE_1).name]
+    # test report gets overwritten
+    result = runner.invoke(
+        import_main,
+        [
+            test_image_1,
+            "--report",
+            report_file,
+            "--verbose",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "Wrote import report" in result.output
+    assert os.path.exists(report_file)
+    conn = sqlite3.connect(report_file)
+    c = conn.cursor()
+    c.execute("SELECT filename FROM report")
+    filenames = [str(pathlib.Path(row[0]).name) for row in c.fetchall()]
+    assert filenames == [pathlib.Path(TEST_IMAGE_1).name]
 
-        # test report with --append
-        result = runner.invoke(
-            import_main,
-            [
-                test_image_1,
-                "--report",
-                report_file,
-                "--append",
-                "--verbose",
-            ],
-        )
-        assert result.exit_code == 0
-        assert "Wrote import report" in result.output
-        assert os.path.exists(report_file)
-        conn = sqlite3.connect(report_file)
-        c = conn.cursor()
-        c.execute("SELECT filename FROM report")
-        filenames = [str(pathlib.Path(row[0]).name) for row in c.fetchall()]
-        assert filenames == [
-            pathlib.Path(TEST_IMAGE_1).name,
-            pathlib.Path(TEST_IMAGE_1).name,
-        ]
+    # test report with --append
+    result = runner.invoke(
+        import_main,
+        [
+            test_image_1,
+            "--report",
+            report_file,
+            "--append",
+            "--verbose",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "Wrote import report" in result.output
+    assert os.path.exists(report_file)
+    conn = sqlite3.connect(report_file)
+    c = conn.cursor()
+    c.execute("SELECT filename FROM report")
+    filenames = [str(pathlib.Path(row[0]).name) for row in c.fetchall()]
+    assert filenames == [
+        pathlib.Path(TEST_IMAGE_1).name,
+        pathlib.Path(TEST_IMAGE_1).name,
+    ]
 
 
 @pytest.mark.test_import
-def test_import_report_invalid_name():
+def test_import_report_invalid_name(isolated_fs):
     """test import with --report option with invalid report"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
 
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            import_main,
-            [
-                test_image_1,
-                "--report",
-                "report",  # invalid filename, no extension
-                "--verbose",
-            ],
-        )
-        assert result.exit_code != 0
+    result = runner.invoke(
+        import_main,
+        [
+            test_image_1,
+            "--report",
+            "report",  # invalid filename, no extension
+            "--verbose",
+        ],
+    )
+    assert result.exit_code != 0
 
 
 @pytest.mark.test_import
@@ -1382,8 +1346,7 @@ def test_import_resume(monkeypatch: MonkeyPatch, tmpdir):
     monkeypatch.delenv("XDG_DATA_HOME", raising=False)
     monkeypatch.setenv("XDG_DATA_HOME", os.fspath(str(tmpdir)))
 
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
     runner = CliRunner()
     result = runner.invoke(
         import_main,
@@ -1401,7 +1364,7 @@ def test_import_resume(monkeypatch: MonkeyPatch, tmpdir):
     assert photo_1.filename == file_1
 
     # test resume
-    test_image_2 = os.path.join(cwd, TEST_IMAGE_2)
+    test_image_2 = TEST_IMAGE_2
     result = runner.invoke(
         import_main,
         ["--verbose", "--resume", test_image_1, test_image_2],
@@ -1422,8 +1385,7 @@ def test_import_parse_date(tmp_path: pathlib.Path, data: tuple[str, datetime.dat
     date = data[1]
 
     # set up test images
-    cwd = os.getcwd()
-    test_image_source = os.path.join(cwd, TEST_IMAGE_NO_EXIF)
+    test_image_source = TEST_IMAGE_NO_EXIF
 
     test_file = tmp_path / img_name
     shutil.copy(test_image_source, test_file)
@@ -1458,8 +1420,7 @@ def test_import_parse_folder_date(tmp_path: pathlib.Path):
     """Test import with --parse-folder-date"""
 
     # set up test images
-    cwd = os.getcwd()
-    test_image_source = os.path.join(cwd, TEST_IMAGE_NO_EXIF)
+    test_image_source = TEST_IMAGE_NO_EXIF
 
     test_dir = tmp_path / "2021-12-11"
     img_name = "123457.jpg"
@@ -1499,8 +1460,7 @@ def test_import_parse_date_set_timezone(tmp_path: pathlib.Path):
     """Test import with --parse-date with --set-timezone"""
 
     # set up test images
-    cwd = os.getcwd()
-    test_image_source = os.path.join(cwd, TEST_IMAGE_NO_EXIF)
+    test_image_source = TEST_IMAGE_NO_EXIF
 
     img_name = "IMG_2023-06-01T010203-0400.jpg"
     test_file = tmp_path / img_name
@@ -1544,46 +1504,44 @@ def test_import_parse_date_set_timezone(tmp_path: pathlib.Path):
 
 
 @pytest.mark.test_import
-def test_import_post_function():
+def test_import_post_function(isolated_fs):
     """Test import with --post-function"""
 
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_1 = TEST_IMAGE_1
 
     runner = CliRunner()
     # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        with open("foo1.py", "w") as f:
-            f.writelines(
-                [
-                    "def foo(photo, filepath, verbose, report_record, **kwargs):\n",
-                    "    verbose('FOO BAR')\n",
-                ]
-            )
 
-        tempdir = os.getcwd()
-        result = runner.invoke(
-            import_main,
+    with open("foo1.py", "w") as f:
+        f.writelines(
             [
-                "import",
-                "--verbose",
-                test_image_1,
-                "--post-function",
-                f"{tempdir}/foo1.py::foo",
-            ],
+                "def foo(photo, filepath, verbose, report_record, **kwargs):\n",
+                "    verbose('FOO BAR')\n",
+            ]
         )
-        assert result.exit_code == 0
-        assert "FOO BAR" in result.output
+
+    tempdir = os.getcwd()
+    result = runner.invoke(
+        import_main,
+        [
+            "import",
+            "--verbose",
+            test_image_1,
+            "--post-function",
+            f"{tempdir}/foo1.py::foo",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "FOO BAR" in result.output
 
 
 @pytest.mark.test_import
 def test_import_check():
     """test import with --check option"""
-    cwd = os.getcwd()
     runner = CliRunner()
     result = runner.invoke(
         import_main,
-        [f"{cwd}/{TEST_IMAGES_DIR}", "--walk", "--check", "--verbose"],
+        [TEST_IMAGES_DIR, "--walk", "--check", "--verbose"],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
@@ -1594,11 +1552,10 @@ def test_import_check():
 @pytest.mark.test_import
 def test_import_check_not():
     """test import with --check-not option"""
-    cwd = os.getcwd()
     runner = CliRunner()
     result = runner.invoke(
         import_main,
-        [f"{cwd}/{TEST_IMAGES_DIR}", "--walk", "--check-not", "--verbose"],
+        [TEST_IMAGES_DIR, "--walk", "--check-not", "--verbose"],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
@@ -1608,9 +1565,8 @@ def test_import_check_not():
 @pytest.mark.test_import
 def test_import_auto_live(tmp_path):
     """Test import with --auto-live"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_NOT_LIVE_PHOTO)
-    test_video_1 = os.path.join(cwd, TEST_NOT_LIVE_VIDEO)
+    test_image_1 = TEST_NOT_LIVE_PHOTO
+    test_video_1 = TEST_NOT_LIVE_VIDEO
 
     shutil.copy(test_image_1, tmp_path)
     shutil.copy(test_video_1, tmp_path)
@@ -2208,7 +2164,6 @@ def test_import_exportdb_sidecar_sidecar_ignore_date(tmp_path):
 @pytest.mark.test_import
 def test_import_aae(tmp_path):
     """Test import with aae files; test that invalid AAE are ignored during import"""
-    cwd = os.getcwd()
     shutil.copy(TEST_IMAGE_VALID_AAE, os.path.join(tmp_path, "valid_aae.jpg"))
     shutil.copy(TEST_AAE_VALID_AAE, os.path.join(tmp_path, "valid_aae.aae"))
     shutil.copy(TEST_IMAGE_INVALID_AAE, os.path.join(tmp_path, "invalid_aae.jpg"))
@@ -2233,9 +2188,8 @@ def test_import_aae(tmp_path):
 @pytest.mark.test_import
 def test_import_same_stem(tmp_path):
     """Test import of two files with same stem"""
-    cwd = os.getcwd()
-    test_image_1 = os.path.join(cwd, TEST_NOT_LIVE_PHOTO)
-    test_video_1 = os.path.join(cwd, TEST_NOT_LIVE_VIDEO)
+    test_image_1 = TEST_NOT_LIVE_PHOTO
+    test_video_1 = TEST_NOT_LIVE_VIDEO
 
     shutil.copy(test_image_1, tmp_path)
     shutil.copy(test_video_1, tmp_path)
@@ -2267,10 +2221,9 @@ def test_import_same_stem(tmp_path):
 def test_import_edited_with_aae(tmp_path):
     """Test import of image with edited file and AAE sidecar"""
 
-    cwd = os.getcwd()
-    source_image_original = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_ORIGINAL)
-    source_image_edited = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_EDITED)
-    source_image_aae = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_AAE)
+    source_image_original = TEST_IMAGE_WITH_EDIT_ORIGINAL
+    source_image_edited = TEST_IMAGE_WITH_EDIT_EDITED
+    source_image_aae = TEST_IMAGE_WITH_EDIT_AAE
 
     test_image_original = str(tmp_path / "IMG_1234.jpg")
     test_image_edited = str(tmp_path / "IMG_E1234.jpg")
@@ -2304,9 +2257,8 @@ def test_import_edited_with_aae(tmp_path):
 def test_import_edited_without_aae(tmp_path):
     """Test import of image with edited file without AAE sidecar"""
 
-    cwd = os.getcwd()
-    source_image_original = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_ORIGINAL)
-    source_image_edited = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_EDITED)
+    source_image_original = TEST_IMAGE_WITH_EDIT_ORIGINAL
+    source_image_edited = TEST_IMAGE_WITH_EDIT_EDITED
 
     test_image_original = str(tmp_path / "IMG_1234.jpg")
     test_image_edited = str(tmp_path / "IMG_E1234.jpg")
@@ -2339,10 +2291,9 @@ def test_import_edited_renamed_with_aae(tmp_path):
     # reset the counter in import_cli
     import_cli._global_image_counter = 1
 
-    cwd = os.getcwd()
-    source_image_original = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_ORIGINAL)
-    source_image_edited = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_EDITED)
-    source_image_aae = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_AAE)
+    source_image_original = TEST_IMAGE_WITH_EDIT_ORIGINAL
+    source_image_edited = TEST_IMAGE_WITH_EDIT_EDITED
+    source_image_aae = TEST_IMAGE_WITH_EDIT_AAE
 
     shutil.copy(source_image_original, str(tmp_path))
     shutil.copy(source_image_edited, str(tmp_path))
@@ -2378,10 +2329,9 @@ def test_import_edited_renamed_with_aae(tmp_path):
 def test_import_edited_renamed_with_aae_2(tmp_path):
     """Test import of image with edited file and AAE sidecar that needs to be renamed to be recognized by Photos as edited pair"""
 
-    cwd = os.getcwd()
-    source_image_original = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_ORIGINAL)
-    source_image_edited = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_EDITED)
-    source_image_aae = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_AAE)
+    source_image_original = TEST_IMAGE_WITH_EDIT_ORIGINAL
+    source_image_edited = TEST_IMAGE_WITH_EDIT_EDITED
+    source_image_aae = TEST_IMAGE_WITH_EDIT_AAE
 
     original_name = "IMG_1234.jpg"
     edited_name = "IMG_1234_edited.jpg"
