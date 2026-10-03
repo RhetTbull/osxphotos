@@ -58,3 +58,31 @@ def test_error_message_includes_asset_id(monkeypatch):
     event = threading.Event()
     with pytest.raises(PhotoKitTimeoutError, match="TEST-ASSET-ID"):
         _wait_for_event_or_timeout(event, "TEST-ASSET-ID")
+
+
+# --- _run_event_loop_with_timeout: the live photo request's bounded run-loop wait ---
+
+
+def test_event_loop_wait_times_out_when_never_stopped():
+    """Nothing stops the loop (live photo callback never arrives) -> returns True at ~timeout."""
+    start = time.monotonic()
+    assert photokit._run_event_loop_with_timeout(0.3) is True
+    assert 0.25 < time.monotonic() - start < 3.0
+
+
+def test_event_loop_wait_returns_false_when_stopped_first():
+    """The request's own completion stops the loop first -> returns False promptly."""
+    photokit.AppHelper.callLater(0.1, photokit.AppHelper.stopEventLoop)
+    start = time.monotonic()
+    assert photokit._run_event_loop_with_timeout(5.0) is False
+    assert time.monotonic() - start < 2.0
+
+
+def test_event_loop_wait_timer_does_not_leak_into_next_loop():
+    """A completed wait must not leave its timer armed to stop a LATER request's loop."""
+    photokit.AppHelper.callLater(0.05, photokit.AppHelper.stopEventLoop)
+    assert photokit._run_event_loop_with_timeout(0.4) is False
+    # if the first timer leaked, it would fire ~0.35s into this loop and return True early
+    start = time.monotonic()
+    assert photokit._run_event_loop_with_timeout(1.0) is True
+    assert time.monotonic() - start > 0.9
