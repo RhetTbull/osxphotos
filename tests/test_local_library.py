@@ -250,7 +250,7 @@ def test_burst_albums(photosdb):
         assert sorted(photo.burst_albums) == sorted(UUID_BURSTS[uuid]["burst_albums"])
 
 
-def test_export_skip_live_photokit(isolated_fs):
+def test_export_skip_live_photokit(isolated_fs, clean_isolated_fs):
     """test that --skip-live works with --use-photokit (issue #537)"""
 
     runner = CliRunner()
@@ -262,7 +262,7 @@ def test_export_skip_live_photokit(isolated_fs):
             [
                 ".",
                 "--library",
-                os.path.join(cwd, PHOTOS_DB_LOCAL),
+                PHOTOS_DB_LOCAL,
                 "-V",
                 "-F",
                 "--uuid",
@@ -277,3 +277,6 @@ def test_export_skip_live_photokit(isolated_fs):
         assert result.exit_code == 0
         files = [str(p) for p in pathlib.Path(".").glob("IMG*")]
         assert sorted(files) == sorted(UUID_SKIP_LIVE_PHOTOKIT[uuid])
+
+        clean_isolated_fs()
+

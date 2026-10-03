@@ -71,7 +71,7 @@ SCREENRECORDING_PHOTOS_DB_13 = fixture_path(
     "tests/Test-Screen-Recording-12.0.1.photoslibrary"
 )
 PHOTOS_DB_15_7 = fixture_path("tests/Test-10.15.7.photoslibrary")
-PHOTOS_DB_TOUCH = fixture_path(PHOTOS_DB_15_7)
+PHOTOS_DB_TOUCH = PHOTOS_DB_15_7
 PHOTOS_DB_14_6 = fixture_path("tests/Test-10.14.6.photoslibrary")
 PHOTOS_DB_MOVIES = fixture_path("tests/Test-Movie-5_0.photoslibrary")
 IPHOTO_LIBRARY = fixture_path("tests/Test-iPhoto-9.6.1.photolibrary")
@@ -1785,24 +1785,21 @@ def test_export_tmpdir(isolated_fs):
     """test basic export with --tmpdir"""
     runner = CliRunner()
 
-    tmpdir = tempfile.TemporaryDirectory()
-    # Replace the current working directory with the temporary directory
-    # Avoids using soon to be deprecated Click.runner.isolated_filesystem
-    # library_fixture_file = FIXTURES_PATH / CLI_PHOTOS_DB
-    result = runner.invoke(
-        export,
-        [
-            ".",
-            "--library",
-            CLI_PHOTOS_DB,
-            "-V",
-            "--tmpdir",
-            tmpdir.name,
-        ],
-    )
-    assert result.exit_code == 0
-    files = glob.glob("*")
-    assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--library",
+                CLI_PHOTOS_DB,
+                "-V",
+                "--tmpdir",
+                tmpdir,
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
 
 
 def test_export_checkpoint(isolated_fs):
@@ -2165,21 +2162,11 @@ def test_export_preview_update(isolated_fs):
     assert len(files) == 2  # preview + original
 
 
-@contextlib.contextmanager
-def isolated_filesystem_here():
-    """Create a temporary directory and change to it for the duration of the test."""
-    cwd = os.getcwd()
-    tempdir = tempfile.mkdtemp(dir=cwd)  # type: ignore[type-var]
-    os.chdir(tempdir)
-
-    try:
-        yield tempdir
-    finally:
-        os.chdir(cwd)
-        shutil.rmtree(tempdir)
-
-
 def test_export_as_hardlink(isolated_fs):
+    # TODO: There is a risk that exporting to /tmp via hard links may fail 
+    # with a cross-device error when /tmp is on a separate filesystem, 
+    # particularly when running locally.
+    # TODO: Consider using assert os.path.samefile(f1, f2). in test_*_hardlink cases.
     """test export with --export-as-hardlink (#526)"""
     runner = CliRunner()
 
@@ -2202,7 +2189,6 @@ def test_export_as_hardlink_samefile(isolated_fs):
     """test export with --export-as-hardlink and --uuid (#526)"""
     # test that --export-as-hardlink actually creates a hardlink
     # src and dest should be same file
-
     runner = CliRunner()
 
     photosdb = osxphotos.PhotosDB(dbfile=CLI_PHOTOS_DB)
@@ -7353,7 +7339,7 @@ def test_export_cleanup_empty_album(isolated_fs):
         assert "Deleted: 1 file" in result.output
 
 
-def test_export_cleanup_accented_album_name(isolated_fs):
+def test_export_cleanup_accented_album_name():
     """test export with --cleanup flag and photos in album with accented unicode characters (#561, #618)"""
 
     runner = CliRunner()
@@ -7390,6 +7376,9 @@ def test_export_cleanup_accented_album_name(isolated_fs):
                 "--update",
             ],
         )
+
+        assert "exported: 0, updated: 0" in result.output
+        assert "Deleted: 0 files, 0 directories" in result.output
 
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
@@ -8868,7 +8857,7 @@ def test_export_jpeg_ext(isolated_fs, clean_isolated_fs):
             clean_isolated_fs()
 
 
-def test_export_jpeg_ext_not_jpeg(isolated_fs):
+def test_export_jpeg_ext_not_jpeg(isolated_fs, clean_isolated_fs):
     """test --jpeg-ext with non-jpeg files"""
 
     runner = CliRunner()
@@ -8891,6 +8880,8 @@ def test_export_jpeg_ext_not_jpeg(isolated_fs):
         filename, ext = fileinfo
         assert f"{filename}.{ext}" in files
 
+        clean_isolated_fs()
+
     for jpeg_ext in ["jpg", "JPG", "jpeg", "JPEG"]:
         for uuid, fileinfo in UUID_JPEGS_DICT_NOT_JPEG.items():
             result = runner.invoke(
@@ -8911,6 +8902,8 @@ def test_export_jpeg_ext_not_jpeg(isolated_fs):
             files = glob.glob("*")
             filename, ext = fileinfo
             assert f"{filename}.{ext}" in files
+
+            clean_isolated_fs()
 
 
 def test_export_jpeg_ext_edited_movie(isolated_fs, clean_isolated_fs):
@@ -9029,7 +9022,7 @@ def test_export_jpeg_ext_convert_to_jpeg_movie(isolated_fs):
     "OSXPHOTOS_TEST_LOCAL_V2" not in os.environ,
     reason="Skip if not running on author's personal library.",
 )
-def test_export_burst_folder_album(local_photosdb, isolated_fs):
+def test_export_burst_folder_album(local_photosdb, isolated_fs, clean_isolated_fs):
     """test non-selected burst photos are exported with the album their key photo is in, issue #401"""
 
     runner = CliRunner()
@@ -9061,6 +9054,8 @@ def test_export_burst_folder_album(local_photosdb, isolated_fs):
             paths, _ = p.render_template("{folder_album}/{photo.original_filename}")
             expected.extend(paths)
         assert sorted(files) == sorted(expected)
+
+        clean_isolated_fs()
 
 
 @pytest.mark.skipif(
