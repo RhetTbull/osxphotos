@@ -189,6 +189,88 @@ def test_sidecarwriter_update_skips_render_when_sidecar_inputs_unchanged(
     assert len(results.sidecar_xmp_skipped) == 1
 
 
+def _shift_mtime(path: pathlib.Path, seconds: float):
+    """Move a file's mtime forward without touching its content, the way a delayed
+    write-back flush on a network share does."""
+    st = path.stat()
+    os.utime(path, (st.st_atime, st.st_mtime + seconds))
+
+
+def test_sidecarwriter_update_sig_drift_unchanged_content_not_rewritten(
+    photosdb: PhotosDB, tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+):
+    """A sidecar whose mtime moved after it was recorded but whose content is unchanged
+    must be skipped, not rewritten, and its stored signature refreshed so the next run
+    takes the fast path."""
+    photo = photosdb.get_photo(UUID_ALL_METADATA)
+    sidecar_writer = SidecarWriter(photo)
+    from osxphotos.export_db import ExportDBTemp
+
+    export_db = ExportDBTemp()
+    dest = tmp_path / "test.jpg"
+    dest.write_text("image")
+
+    options = ExportOptions(sidecar=SIDECAR_JSON | SIDECAR_XMP, export_db=export_db)
+    sidecar_writer.write_sidecar_files(dest, options, ExportResults())
+    with export_db.create_or_get_file_record(dest, photo.uuid) as record:
+        record.digest = photo.hexdigest
+
+    sidecars = [tmp_path / "test.jpg.json", tmp_path / "test.jpg.xmp"]
+    for sidecar in sidecars:
+        _shift_mtime(sidecar, 40)
+    drifted_mtimes = [sidecar.stat().st_mtime for sidecar in sidecars]
+
+    update_options = dataclasses.replace(options, update=True)
+    results = sidecar_writer.write_sidecar_files(dest, update_options, ExportResults())
+
+    assert not results.sidecar_json_written
+    assert not results.sidecar_xmp_written
+    assert len(results.sidecar_json_skipped) == 1
+    assert len(results.sidecar_xmp_skipped) == 1
+    # not rewritten: a write would have reset the mtime
+    assert [sidecar.stat().st_mtime for sidecar in sidecars] == drifted_mtimes
+
+    # the refreshed signature lets the next run skip without rendering at all
+    def _unexpected_render(*args, **kwargs):
+        raise AssertionError("sidecar content should not have been rendered")
+
+    monkeypatch.setattr("osxphotos.sidecars.exiftool_json_sidecar", _unexpected_render)
+    monkeypatch.setattr(sidecar_writer, "xmp_sidecar", _unexpected_render)
+    results = sidecar_writer.write_sidecar_files(dest, update_options, ExportResults())
+    assert len(results.sidecar_json_skipped) == 1
+    assert len(results.sidecar_xmp_skipped) == 1
+
+
+def test_sidecarwriter_update_sig_drift_changed_content_rewritten(
+    photosdb: PhotosDB, tmp_path: pathlib.Path
+):
+    """A sidecar whose content on disk no longer matches what osxphotos wrote is still
+    rewritten on --update."""
+    photo = photosdb.get_photo(UUID_ALL_METADATA)
+    sidecar_writer = SidecarWriter(photo)
+    from osxphotos.export_db import ExportDBTemp
+
+    export_db = ExportDBTemp()
+    dest = tmp_path / "test.jpg"
+    dest.write_text("image")
+
+    options = ExportOptions(sidecar=SIDECAR_JSON, export_db=export_db)
+    sidecar_writer.write_sidecar_files(dest, options, ExportResults())
+    with export_db.create_or_get_file_record(dest, photo.uuid) as record:
+        record.digest = photo.hexdigest
+
+    sidecar = tmp_path / "test.jpg.json"
+    expected = sidecar.read_text()
+    sidecar.write_text("[]")
+    _shift_mtime(sidecar, 40)
+
+    update_options = dataclasses.replace(options, update=True)
+    results = sidecar_writer.write_sidecar_files(dest, update_options, ExportResults())
+
+    assert len(results.sidecar_json_written) == 1
+    assert sidecar.read_text() == expected
+
+
 def test_exiftool_json_sidecar(photosdb: PhotosDB):
     """Test exiftool_json_sidecar()"""
     photo = photosdb.get_photo(UUID_ALL_METADATA)
