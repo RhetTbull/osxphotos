@@ -256,8 +256,11 @@ class ExportDB:
         with self.lock:
             conn = self.connection
             c = conn.cursor()
-            # Query all records in directory with LIKE prefix match
-            # The pattern matches files in the directory (not subdirectories)
+            # Query all records in the directory (not subdirectories).
+            # The prefix is a range on filepath_normalized ("0" sorts right after "/")
+            # so the query uses the index; a LIKE prefix can't, because the index
+            # isn't NOCASE, and LIKE would also treat "_" and "%" in folder names as
+            # wildcards. Both sides are already lower-cased by _normalize_filepath.
             # Special case for root directory (dir_normalized is ".")
             if dir_normalized == ".":
                 # Root directory: match files without "/" (directly in root)
@@ -272,8 +275,13 @@ class ExportDB:
                     """SELECT filepath_normalized, uuid, digest, exifdata, export_options,
                               dest_mode, dest_size, dest_mtime, error, date_modified
                        FROM export_data
-                       WHERE filepath_normalized LIKE ? AND filepath_normalized NOT LIKE ?;""",
-                    (f"{dir_normalized}/%", f"{dir_normalized}/%/%"),
+                       WHERE filepath_normalized >= ? AND filepath_normalized < ?
+                         AND filepath_normalized NOT LIKE ?;""",
+                    (
+                        f"{dir_normalized}/",
+                        f"{dir_normalized}0",
+                        f"{dir_normalized}/%/%",
+                    ),
                 ).fetchall()
 
         # Build cache for this directory
