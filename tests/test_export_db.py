@@ -537,3 +537,37 @@ def test_export_db_old_version_no_export_data_table(tmp_path):
     assert export_db.version == OSXPHOTOS_EXPORTDB_VERSION
     assert export_db.connection.execute(table_query).fetchall()
     assert export_db.connection.execute(INDEX_QUERY).fetchall()
+
+
+def test_export_db_prefetch_directory_records(tmp_path):
+    """Test prefetch_directory_records loads only the files directly in that directory"""
+    test_db = tmp_path / "osxphotos_export.db"
+    export_db = ExportDB(test_db, tmp_path)
+    for path in [
+        "2024_01/a.jpg",
+        "2024_01/b.jpg",
+        "2024_01/sub/c.jpg",
+        "2024x01/d.jpg",
+        "2024_010/e.jpg",
+        "2024_01-extra/f.jpg",
+        "root.jpg",
+    ]:
+        export_db.create_file_record(tmp_path / path, "uuid")
+
+    assert export_db.prefetch_directory_records(tmp_path / "2024_01") == 2
+    assert export_db.get_file_record(tmp_path / "2024_01" / "a.jpg")
+    assert not export_db.get_file_record(tmp_path / "2024_01" / "d.jpg")
+    assert export_db.prefetch_directory_records(tmp_path) == 1
+
+
+def test_export_db_prefetch_directory_records_uses_index(tmp_path):
+    """Test the directory prefetch query is an index search, not a table scan"""
+    test_db = tmp_path / "osxphotos_export.db"
+    export_db = ExportDB(test_db, tmp_path)
+    queries = []
+    export_db.connection.set_trace_callback(queries.append)
+    export_db.prefetch_directory_records(tmp_path / "folder")
+    export_db.connection.set_trace_callback(None)
+    query = next(q for q in queries if "FROM export_data" in q)
+    plan = export_db.connection.execute(f"EXPLAIN QUERY PLAN {query}").fetchall()
+    assert "USING INDEX idx_export_data_filepath_normalized" in str(plan)
