@@ -18,6 +18,7 @@ exporting assets from the library.
 # make burst/live methods get uuid from self instead of passing as arg
 
 import copy
+import logging
 import os
 import pathlib
 import sys
@@ -41,6 +42,8 @@ from wurlitzer import pipes
 from .fileutil import FileUtil
 from .uti import get_preferred_uti_extension
 from .utils import increment_filename
+
+logger = logging.getLogger("osxphotos")
 
 __all__ = [
     "AVAssetData",
@@ -216,6 +219,36 @@ def _wait_for_event_or_timeout(event, asset_id):
             f"PhotoKit request timed out after {PHOTOKIT_REQUEST_TIMEOUT}s for asset "
             f"{asset_id} (the iCloud download may have stalled)"
         )
+
+
+def _run_event_loop_with_timeout(timeout):
+    """Run the console event loop until something calls AppHelper.stopEventLoop() or
+    `timeout` seconds pass, whichever comes first. Returns True if the timeout fired.
+
+    The live photo request completes by posting a notification that stops the event loop,
+    so it cannot use _wait_for_event_or_timeout. When PhotoKit never calls back (or, as
+    with a shared-album live photo whose shared record has no video, calls back only after
+    its own ~300s internal timeout) the loop would otherwise run for that long. The timer
+    is scheduled on the same run loop and always invalidated, so it can never fire into a
+    later request's loop. A timeout of 0 restores the legacy unbounded wait.
+    """
+    state = {"timed_out": False}
+
+    def _on_timeout(_timer):
+        state["timed_out"] = True
+        AppHelper.stopEventLoop()
+
+    timer = None
+    if timeout:
+        timer = Foundation.NSTimer.scheduledTimerWithTimeInterval_repeats_block_(
+            timeout, False, _on_timeout
+        )
+    try:
+        AppHelper.runConsoleEventLoop(installInterrupt=True)
+    finally:
+        if timer is not None:
+            timer.invalidate()
+    return state["timed_out"]
 
 
 ### helper classes
@@ -1046,29 +1079,46 @@ class LivePhotoRequest(NSObject):
             )
 
             self.live_photo = None
+            request_state = {"abandoned": False}
 
             def handler(result, info):
                 """result handler for requestLivePhotoForAsset:targetSize:contentMode:options:resultHandler:"""
-                if not info["PHImageResultIsDegradedKey"]:
+                if request_state["abandoned"]:
+                    # late callback for a request that already timed out: posting the
+                    # notification now would stop some later request's event loop
+                    return
+                if not info.get("PHImageResultIsDegradedKey"):
                     self.live_photo = result
                     self.info = info
                     self.nc.postNotificationName_object_(
                         PHOTOKIT_NOTIFICATION_FINISHED_REQUEST, self
                     )
 
+            timed_out = False
             try:
-                self.manager.requestLivePhotoForAsset_targetSize_contentMode_options_resultHandler_(
+                request_id = self.manager.requestLivePhotoForAsset_targetSize_contentMode_options_resultHandler_(
                     self.asset,
                     Photos.PHImageManagerMaximumSize,
                     Photos.PHImageContentModeDefault,
                     options,
                     handler,
                 )
-                AppHelper.runConsoleEventLoop(installInterrupt=True)
+                timed_out = _run_event_loop_with_timeout(PHOTOKIT_REQUEST_TIMEOUT)
             except KeyboardInterrupt:
                 AppHelper.stopEventLoop()
             finally:
                 pass
+
+            if timed_out:
+                # Same outcome as PhotoKit's own eventual failure (no resources, so the
+                # caller reports the live photo as missing), just without the long wait.
+                request_state["abandoned"] = True
+                self.manager.cancelImageRequest_(request_id)
+                logger.warning(
+                    f"PhotoKit live photo request timed out after {PHOTOKIT_REQUEST_TIMEOUT}s "
+                    f"for asset {self.asset.localIdentifier()}; treating it as missing"
+                )
+                return []
 
             asset_resources = Photos.PHAssetResource.assetResourcesForLivePhoto_(
                 self.live_photo
