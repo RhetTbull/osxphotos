@@ -2163,8 +2163,8 @@ def test_export_preview_update(isolated_fs):
 
 
 def test_export_as_hardlink(isolated_fs):
-    # TODO: There is a risk that exporting to /tmp via hard links may fail 
-    # with a cross-device error when /tmp is on a separate filesystem, 
+    # TODO: There is a risk that exporting to /tmp via hard links may fail
+    # with a cross-device error when /tmp is on a separate filesystem,
     # particularly when running locally.
     # TODO: Consider using assert os.path.samefile(f1, f2). in test_*_hardlink cases.
     """test export with --export-as-hardlink (#526)"""

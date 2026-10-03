@@ -279,4 +279,3 @@ def test_export_skip_live_photokit(isolated_fs, clean_isolated_fs):
         assert sorted(files) == sorted(UUID_SKIP_LIVE_PHOTOKIT[uuid])
 
         clean_isolated_fs()
-
