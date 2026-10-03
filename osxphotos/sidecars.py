@@ -248,13 +248,31 @@ class SidecarWriter(_ExifMixin):
 
             sidecar_str = render_sidecar()
             sidecar_digest = hexdigest(sidecar_str)
+            # The file's signature can drift without its content changing: on a network
+            # share (SMB, some NFS setups) or in a synced folder the mtime is set again when
+            # the write is flushed, after the signature was recorded. Rewriting on signature
+            # alone then records another premature mtime, so the same sidecars are rewritten
+            # on every --update run. If the file on disk still holds exactly the expected
+            # content, refresh the stored signature instead of rewriting it.
+            sidecar_content_matches = False
+            verified_sig = None
+            if (
+                (options.update or options.force_update)
+                and sidecar_exists
+                and not sidecar_sig_matches
+                and sidecar_digest == sidecar_record.digest
+            ):
+                file_digest, verified_sig = self._verify_sidecar_file(
+                    sidecar_filename, fileutil
+                )
+                sidecar_content_matches = file_digest == sidecar_digest
             write_sidecar = (
                 not (options.update or options.force_update)
                 or ((options.update or options.force_update) and not sidecar_exists)
                 or (
                     (options.update or options.force_update)
                     and (sidecar_digest != sidecar_record.digest)
-                    or not sidecar_sig_matches
+                    or (not sidecar_sig_matches and not sidecar_content_matches)
                 )
             )
             if write_sidecar:
@@ -280,6 +298,10 @@ class SidecarWriter(_ExifMixin):
                 files_skipped.append(str(sidecar_filename))
                 with sidecar_record:
                     sidecar_record.export_options = sidecar_options
+                    if sidecar_content_matches:
+                        sidecar_record.dest_sig = verified_sig
+                if sidecar_content_matches and options.stat_cache is not None:
+                    options.stat_cache.update_file(sidecar_filename)
 
         results = ExportResults(
             sidecar_json_written=sidecar_json_files_written,
@@ -719,6 +741,28 @@ class SidecarWriter(_ExifMixin):
             location=latlon,
             rating=rating,
         )
+
+    def _verify_sidecar_file(
+        self, filename, fileutil
+    ) -> tuple[str | None, tuple | None]:
+        """Return (digest, signature) of an existing sidecar file, or (None, None) if it
+        can't be read or changed while being read.
+
+        The signature is taken uncached before and after the read, so it is recorded only
+        for exactly the content that was hashed. The file is read the way _write_sidecar
+        writes it (default encoding, no newline translation) so an unchanged file hashes to
+        the digest recorded when it was written.
+        """
+        try:
+            sig_before = fileutil.file_sig(filename)
+            with open(filename, newline="") as f:
+                content = f.read()
+            sig_after = fileutil.file_sig(filename)
+        except (OSError, UnicodeDecodeError):
+            return None, None
+        if sig_before != sig_after:
+            return None, None
+        return hexdigest(content), sig_after
 
     def _write_sidecar(self, filename, sidecar_str):
         """write sidecar_str to filename
