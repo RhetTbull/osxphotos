@@ -1636,6 +1636,12 @@ def _get_pathlib_value(field, value, quote):
         value: the value for the path component
         quote: bool; if true, quotes the returned path for safe execution in the shell
     """
+    # value may be None when the path isn't known yet, e.g. {filepath} used in a
+    # filename_template (the export path is still being computed). Resolve to an
+    # empty value instead of crashing or rendering the literal "None". See #1541.
+    if value is None:
+        return ""
+
     parts = field.split(".")
     if len(parts) == 1:
         return shlex.quote(str(value)) if quote else str(value)
