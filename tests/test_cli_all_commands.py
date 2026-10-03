@@ -19,9 +19,9 @@ from click.testing import CliRunner
 
 import osxphotos.cli.common as cli_common
 
-from .conftest import fixture_path
+from .conftest import test_repo_path
 
-TEST_DB = fixture_path("tests/Test-13.0.0.photoslibrary")
+TEST_DB = test_repo_path("tests/Test-13.0.0.photoslibrary")
 # TODO: Seems not to be used anywhere.
 # TEST_RUN_SCRIPT = "examples/cli_example_1.py"
 

@@ -5,7 +5,7 @@ import os
 import pytest
 from click.testing import CliRunner
 
-from .conftest import fixture_path
+from .conftest import test_repo_path
 
 UUID_INCLOUD = "F73D96B2-24A6-40B2-B37C-5F82CF3F79E1"  # IMG_0008.MOV
 UUID_NOT_INCLOUD = "C64A019E-7BB6-4A20-8540-686B5DF7BC1A"  # 6E81F4CA-B7D9-4121-96E3-7667EFB7B310.JPG  # shared images show as not in cloud
@@ -14,8 +14,8 @@ UUID_CLOUDASSET = (
 )
 UUID_NOT_CLOUDASSET = "DC99FBDD-7A52-4100-A5BB-344131646C30"  # St James Park.jpg
 
-PHOTOS_DB_CLOUD = fixture_path("tests/Test-Cloud-13.1.photoslibrary")
-PHOTOS_DB_NOT_CLOUD = fixture_path("tests/Test-13.0.0.photoslibrary")
+PHOTOS_DB_CLOUD = test_repo_path("tests/Test-Cloud-13.1.photoslibrary")
+PHOTOS_DB_NOT_CLOUD = test_repo_path("tests/Test-13.0.0.photoslibrary")
 
 from osxphotos.cli import export
 

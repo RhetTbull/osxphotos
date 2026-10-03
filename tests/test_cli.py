@@ -43,7 +43,7 @@ from osxphotos.utils import noop
 if is_macos:
     from osxmetadata import OSXMetaData, Tag
 
-from .conftest import copy_photos_library_to_path, fixture_path
+from .conftest import copy_photos_library_to_path, test_repo_path
 from .locale_util import setlocale
 
 
@@ -59,30 +59,30 @@ def get_exiftool_location(path: str | os.PathLike):
     return lat, lon
 
 
-CLI_PHOTOS_DB = fixture_path("tests/Test-10.15.7.photoslibrary")
-LIVE_PHOTOS_DB = fixture_path("tests/Test-Cloud-10.15.1.photoslibrary")
-RAW_PHOTOS_DB = fixture_path("tests/Test-RAW-10.15.1.photoslibrary")
-COMMENTS_PHOTOS_DB = fixture_path("tests/Test-Cloud-10.15.6.photoslibrary")
-PLACES_PHOTOS_DB = fixture_path("tests/Test-Places-Catalina-10_15_1.photoslibrary")
-PLACES_PHOTOS_DB_13 = fixture_path(
+CLI_PHOTOS_DB = test_repo_path("tests/Test-10.15.7.photoslibrary")
+LIVE_PHOTOS_DB = test_repo_path("tests/Test-Cloud-10.15.1.photoslibrary")
+RAW_PHOTOS_DB = test_repo_path("tests/Test-RAW-10.15.1.photoslibrary")
+COMMENTS_PHOTOS_DB = test_repo_path("tests/Test-Cloud-10.15.6.photoslibrary")
+PLACES_PHOTOS_DB = test_repo_path("tests/Test-Places-Catalina-10_15_1.photoslibrary")
+PLACES_PHOTOS_DB_13 = test_repo_path(
     "tests/Test-Places-High-Sierra-10.13.6.photoslibrary"
 )
-SCREENRECORDING_PHOTOS_DB_13 = fixture_path(
+SCREENRECORDING_PHOTOS_DB_13 = test_repo_path(
     "tests/Test-Screen-Recording-12.0.1.photoslibrary"
 )
-PHOTOS_DB_15_7 = fixture_path("tests/Test-10.15.7.photoslibrary")
+PHOTOS_DB_15_7 = test_repo_path("tests/Test-10.15.7.photoslibrary")
 PHOTOS_DB_TOUCH = PHOTOS_DB_15_7
-PHOTOS_DB_14_6 = fixture_path("tests/Test-10.14.6.photoslibrary")
-PHOTOS_DB_MOVIES = fixture_path("tests/Test-Movie-5_0.photoslibrary")
-IPHOTO_LIBRARY = fixture_path("tests/Test-iPhoto-9.6.1.photolibrary")
+PHOTOS_DB_14_6 = test_repo_path("tests/Test-10.14.6.photoslibrary")
+PHOTOS_DB_MOVIES = test_repo_path("tests/Test-Movie-5_0.photoslibrary")
+IPHOTO_LIBRARY = test_repo_path("tests/Test-iPhoto-9.6.1.photolibrary")
 
 # my personal library which some tests require
 LOCAL_PHOTOSDB = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
 
 UUID_DOWNLOAD_MISSING = "38E8347F-0D43-411E-B797-004C9DCBDA4E"  # IMG_8844.JPG
 
-UUID_FILE = fixture_path("tests/uuid_from_file.txt")
-SKIP_UUID_FILE = fixture_path("tests/skip_uuid_from_file.txt")
+UUID_FILE = test_repo_path("tests/uuid_from_file.txt")
+SKIP_UUID_FILE = test_repo_path("tests/skip_uuid_from_file.txt")
 
 CLI_OUTPUT_QUERY_UUID = '[{"uuid": "D79B8D77-BFFC-460B-9312-034F2877D35B", "filename": "D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg", "original_filename": "Pumkins2.jpg", "date": "2018-09-28T16:07:07-04:00", "description": "Girl holding pumpkin", "title": "I found one!", "keywords": ["Kids"], "albums": ["Pumpkin Farm", "Test Album", "Multi Keyword"], "persons": ["Katie"], "path": "/tests/Test-10.15.7.photoslibrary/originals/D/D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg", "ismissing": false, "hasadjustments": false, "external_edit": false, "favorite": false, "hidden": false, "latitude": 41.256566, "longitude": -95.940257, "path_edited": null, "shared": false, "isphoto": true, "ismovie": false, "uti": "public.jpeg", "burst": false, "live_photo": false, "path_live_photo": null, "iscloudasset": false, "incloud": null}]'
 
@@ -1189,7 +1189,7 @@ UUID_NOT_SCREEN_RECORDING = [
     "DC99FBDD-7A52-4100-A5BB-344131646C30",
 ]
 
-PHOTOS_DB_LIVE_PHOTO = fixture_path("tests/Test-Media-Types-15.7.2.photoslibrary")
+PHOTOS_DB_LIVE_PHOTO = test_repo_path("tests/Test-Media-Types-15.7.2.photoslibrary")
 UUID_LIVE_PHOTO = "D562F353-7A22-4367-9A7F-153A4D9F149C"  # IMG_4580.HEIC
 LIVE_PHOTO_FILENAME = "IMG_4580.HEIC"
 LIVE_PHOTO_LOCATION = (41, -86)  # location modified for the live photo
@@ -10127,7 +10127,7 @@ def test_export_post_function_results(isolated_fs):
             "wedding",
             "-V",
             "--post-function",
-            fixture_path("examples/post_function.py::post_function"),
+            test_repo_path("examples/post_function.py::post_function"),
         ],
     )
     assert result.exit_code == 0
@@ -10147,7 +10147,7 @@ def test_export_post_function_results(isolated_fs):
             "wedding",
             "-V",
             "--post-function",
-            fixture_path("examples/post_function.py::post_function"),
+            test_repo_path("examples/post_function.py::post_function"),
             "--update",
             "--cleanup",
         ],

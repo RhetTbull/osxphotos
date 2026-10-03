@@ -133,12 +133,12 @@ elif not is_macos or int(OS_VER[0]) >= 13:
     TEST_LIBRARY_ADD_LOCATIONS = "tests/Test-13.0.0.photoslibrary"
 
 # Fixtures for photos library paths. See isolated_fs fixture
-FIXTURES_PATH = pathlib.Path(__file__).resolve().parent.parent
+TEST_REPOSITORY_PATH = pathlib.Path(__file__).resolve().parent.parent
 
 
-def fixture_path(name: str) -> str:
-    """Fixture to get path to a test fixture file."""
-    return str(FIXTURES_PATH / name)
+def test_repo_path(name: str) -> str:
+    """Get the path to a test fixture in the repository."""
+    return str(TEST_REPOSITORY_PATH / name)
 
 
 @pytest.fixture

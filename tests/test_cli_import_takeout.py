@@ -14,7 +14,7 @@ from osxphotos._constants import UUID_PATTERN
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.platform import is_macos
 
-from .conftest import fixture_path
+from .conftest import test_repo_path
 
 if is_macos:
     from photoscript import Photo
@@ -25,8 +25,8 @@ else:
 
 TERMINAL_WIDTH = 250
 
-TEST_IMAGES_DIR = fixture_path("tests/test-images")
-TAKEOUT_ARCHIVE = fixture_path("tests/test-images/Takeout/Google Photos")
+TEST_IMAGES_DIR = test_repo_path("tests/test-images")
+TAKEOUT_ARCHIVE = test_repo_path("tests/test-images/Takeout/Google Photos")
 
 
 # set timezone to avoid issues with comparing dates

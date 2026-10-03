@@ -4,11 +4,11 @@ from importlib import import_module
 
 from click.testing import CliRunner
 
-from .conftest import fixture_path
+from .conftest import test_repo_path
 
 export_module = import_module("osxphotos.cli.export")
 
-TEST_LIBRARY = fixture_path("./tests/Test-10.14.5.photoslibrary")
+TEST_LIBRARY = test_repo_path("./tests/Test-10.14.5.photoslibrary")
 
 
 def test_add_exported_to_album(monkeypatch, isolated_fs):

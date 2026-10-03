@@ -5,9 +5,9 @@ from click.testing import CliRunner
 
 from osxphotos.cli import export
 
-from .conftest import fixture_path
+from .conftest import test_repo_path
 
-PHOTOS_DB_PROJECTS = fixture_path("./tests/Test-iPhoto-Projects-10.15.7.photoslibrary")
+PHOTOS_DB_PROJECTS = test_repo_path("./tests/Test-iPhoto-Projects-10.15.7.photoslibrary")
 
 
 def test_export_projects(isolated_fs):
