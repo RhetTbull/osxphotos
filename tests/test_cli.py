@@ -4330,34 +4330,34 @@ def test_export_sidecar_update(isolated_fs):
     assert "Skipped up to date XMP sidecar" not in result.output
     assert "Skipped up to date JSON sidecar" not in result.output
 
-        # touch a file without changing its content: the signature drifts but the content
-        # still matches, so the sidecar is skipped and its stored signature refreshed
-        ts = datetime.datetime.now().timestamp() + 1000
-        fileutil.utime(CLI_EXPORT_SIDECAR_FILENAMES[2], (ts, ts))
+    # touch a file without changing its content: the signature drifts but the content
+    # still matches, so the sidecar is skipped and its stored signature refreshed
+    ts = datetime.datetime.now().timestamp() + 1000
+    fileutil.utime(CLI_EXPORT_SIDECAR_FILENAMES[2], (ts, ts))
 
-        result = runner.invoke(
-            cli_main,
-            [
-                "export",
-                "--db",
-                os.path.join(cwd, CLI_PHOTOS_DB),
-                ".",
-                "--sidecar=json",
-                "--sidecar=xmp",
-                f"--uuid={CLI_EXPORT_UUID}",
-                "-V",
-                "--update",
-            ],
-        )
-        assert result.exit_code == 0
-        assert "Writing XMP sidecar" not in result.output
-        assert "Writing JSON sidecar" not in result.output
+    result = runner.invoke(
+        cli_main,
+        [
+            "export",
+            "--db",
+            os.path.join(cwd, CLI_PHOTOS_DB),
+            ".",
+            "--sidecar=json",
+            "--sidecar=xmp",
+            f"--uuid={CLI_EXPORT_UUID}",
+            "-V",
+            "--update",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "Writing XMP sidecar" not in result.output
+    assert "Writing JSON sidecar" not in result.output
 
-        # change a file's content and export again
-        with open(CLI_EXPORT_SIDECAR_FILENAMES[2], "a") as fd:
-            fd.write("\n")
-        ts = datetime.datetime.now().timestamp() + 2000
-        fileutil.utime(CLI_EXPORT_SIDECAR_FILENAMES[2], (ts, ts))
+    # change a file's content and export again
+    with open(CLI_EXPORT_SIDECAR_FILENAMES[2], "a") as fd:
+        fd.write("\n")
+    ts = datetime.datetime.now().timestamp() + 2000
+    fileutil.utime(CLI_EXPORT_SIDECAR_FILENAMES[2], (ts, ts))
 
     result = runner.invoke(
         cli_main,
