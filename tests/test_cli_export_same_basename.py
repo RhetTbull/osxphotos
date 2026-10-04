@@ -9,9 +9,9 @@ from click.testing import CliRunner
 
 from osxphotos.cli import export
 
-from .conftest import test_repo_path
+from .conftest import repo_path
 
-TEST_LIBRARY = test_repo_path("tests/Test-Live-15.7.2.photoslibrary")
+TEST_LIBRARY = repo_path("tests/Test-Live-15.7.2.photoslibrary")
 
 EXPORT_RESULTS = {
     "ACF2FC98-C2AA-429E-A3CF-257230F29188": ["IMG_1994 (2).cr2"],

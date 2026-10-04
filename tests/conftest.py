@@ -136,7 +136,7 @@ elif not is_macos or int(OS_VER[0]) >= 13:
 TEST_REPOSITORY_PATH = pathlib.Path(__file__).resolve().parent.parent
 
 
-def test_repo_path(name: str) -> str:
+def repo_path(name: str) -> str:
     """Get the path to a test fixture in the repository."""
     return str(TEST_REPOSITORY_PATH / name)
 

@@ -18,18 +18,18 @@ from osxphotos.exiftool import get_exiftool_path
 from osxphotos.iphoto import iPhotoPhotoInfo, is_iphoto_library
 from osxphotos.platform import is_macos
 
-from .conftest import test_repo_path
+from .conftest import repo_path
 
 logger = logging.getLogger("osxphotos")
 
-IPHOTO_LIBRARY = test_repo_path("tests/Test-iPhoto-9.6.1.photolibrary")
-PHOTO_LIBRARY = test_repo_path("tests/Test-10.15.7.photoslibrary")
+IPHOTO_LIBRARY = repo_path("tests/Test-iPhoto-9.6.1.photolibrary")
+PHOTO_LIBRARY = repo_path("tests/Test-10.15.7.photoslibrary")
 ALBUM_TITLES = ["Test Album", "Pumpkin Farm", "Last Import", "AlbumInFolder"]
 
 # Test data for iPhoto library
 # Created with `osxphotos query --library tests/Test-iPhoto-9.6.1.photolibrary --json | json_pp > tests/iphoto_test_data.json`
 # Then replace the path to the library with `IPHOTO_LIBRARY_ROOT`
-TEST_DATA = test_repo_path("tests/iphoto_test_data.json")
+TEST_DATA = repo_path("tests/iphoto_test_data.json")
 
 # determine if exiftool installed so exiftool tests can be skipped
 try:

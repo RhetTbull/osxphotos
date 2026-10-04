@@ -6,9 +6,9 @@ from click.testing import CliRunner
 
 from osxphotos.cli import export
 
-from .conftest import test_repo_path
+from .conftest import repo_path
 
-TEST_LIBRARY = test_repo_path("tests/Test-15.4.1.photoslibrary")
+TEST_LIBRARY = repo_path("tests/Test-15.4.1.photoslibrary")
 
 
 def test_export(isolated_fs):

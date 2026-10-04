@@ -27,7 +27,7 @@ from osxphotos.datetime_utils import datetime_remove_tz, get_local_tz
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.platform import is_macos
 
-from .conftest import test_repo_path
+from .conftest import repo_path
 
 if is_macos:
     from photoscript import Photo
@@ -41,23 +41,23 @@ else:
 
 TERMINAL_WIDTH = 250
 
-TEST_EXPORT_LIBRARY = test_repo_path("tests/Test-13.0.0.photoslibrary")
+TEST_EXPORT_LIBRARY = repo_path("tests/Test-13.0.0.photoslibrary")
 
-TEST_IMAGES_DIR = test_repo_path("tests/test-images")
-TEST_IMAGE_1 = test_repo_path("tests/test-images/IMG_4179.jpeg")
-TEST_IMAGE_2 = test_repo_path("tests/test-images/faceinfo/exif1.jpg")
-TEST_IMAGE_NO_EXIF = test_repo_path("tests/test-images/IMG_NO_EXIF.jpeg")
-TEST_VIDEO_1 = test_repo_path("tests/test-images/Jellyfish.mov")
-TEST_VIDEO_2 = test_repo_path("tests/test-images/IMG_0670B_NOGPS.MOV")
-TEST_NOT_LIVE_PHOTO = test_repo_path("tests/test-images/not_live.jpeg")
-TEST_NOT_LIVE_VIDEO = test_repo_path("tests/test-images/not_live.mov")
-TEST_IMAGE_INVALID_AAE = test_repo_path("tests/test-images/St James Park.jpg")
-TEST_AAE_INVALID_AAE = test_repo_path("tests/test-images/St James Park.AAE")
-TEST_IMAGE_VALID_AAE = test_repo_path("tests/test-images/wedding.jpg")
-TEST_AAE_VALID_AAE = test_repo_path("tests/test-images/wedding.AAE")
-TEST_IMAGE_WITH_EDIT_ORIGINAL = test_repo_path("tests/test-images/wedding.jpg")
-TEST_IMAGE_WITH_EDIT_EDITED = test_repo_path("tests/test-images/wedding_edited.jpg")
-TEST_IMAGE_WITH_EDIT_AAE = test_repo_path("tests/test-images/wedding.aae")
+TEST_IMAGES_DIR = repo_path("tests/test-images")
+TEST_IMAGE_1 = repo_path("tests/test-images/IMG_4179.jpeg")
+TEST_IMAGE_2 = repo_path("tests/test-images/faceinfo/exif1.jpg")
+TEST_IMAGE_NO_EXIF = repo_path("tests/test-images/IMG_NO_EXIF.jpeg")
+TEST_VIDEO_1 = repo_path("tests/test-images/Jellyfish.mov")
+TEST_VIDEO_2 = repo_path("tests/test-images/IMG_0670B_NOGPS.MOV")
+TEST_NOT_LIVE_PHOTO = repo_path("tests/test-images/not_live.jpeg")
+TEST_NOT_LIVE_VIDEO = repo_path("tests/test-images/not_live.mov")
+TEST_IMAGE_INVALID_AAE = repo_path("tests/test-images/St James Park.jpg")
+TEST_AAE_INVALID_AAE = repo_path("tests/test-images/St James Park.AAE")
+TEST_IMAGE_VALID_AAE = repo_path("tests/test-images/wedding.jpg")
+TEST_AAE_VALID_AAE = repo_path("tests/test-images/wedding.AAE")
+TEST_IMAGE_WITH_EDIT_ORIGINAL = repo_path("tests/test-images/wedding.jpg")
+TEST_IMAGE_WITH_EDIT_EDITED = repo_path("tests/test-images/wedding_edited.jpg")
+TEST_IMAGE_WITH_EDIT_AAE = repo_path("tests/test-images/wedding.aae")
 TEST_LIVE_PHOTO_ORIGINAL_PHOTO = "IMG_1853.HEIC"
 TEST_LIVE_PHOTO_EDITED_PHOTO = "IMG_E1853.heic"
 TEST_LIVE_PHOTO_ORIGINAL_VIDEO = "IMG_1853.MOV"
@@ -1049,7 +1049,7 @@ def test_import_check_templates():
             "--album",
             "{filepath.parent}",
             "--relative-to",
-            test_repo_path("tests"),
+            repo_path("tests"),
             "--check-templates",
             test_image_1,
         ],
@@ -1068,7 +1068,7 @@ def test_import_check_templates():
 def test_import_function_template():
     """Test import with a function template"""
     test_image_1 = TEST_IMAGE_1
-    function = test_repo_path("examples/template_function_import.py")
+    function = repo_path("examples/template_function_import.py")
     with TemporaryDirectory() as tempdir:
         test_image = shutil.copy(
             test_image_1, os.path.join(tempdir, "MyAlbum_IMG_0001.jpg")

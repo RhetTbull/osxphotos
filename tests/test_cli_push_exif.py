@@ -18,7 +18,7 @@ from osxphotos import PhotoInfo, PhotosDB
 from osxphotos.exiftool import ExifTool, get_exiftool_path
 from osxphotos.platform import is_macos
 
-from .conftest import test_repo_path
+from .conftest import repo_path
 
 if not is_macos:
     pytest.skip("Skipping macos-only tests", allow_module_level=True)
@@ -34,7 +34,7 @@ if exiftool is None:
     pytest.skip("could not find exiftool in path", allow_module_level=True)
 
 
-PHOTOS_DB = test_repo_path("tests/Test-13.0.0.photoslibrary")
+PHOTOS_DB = repo_path("tests/Test-13.0.0.photoslibrary")
 CWD = os.getcwd()
 
 UUID_MISSING = "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"  # Pumpkins4.jpg
@@ -44,7 +44,7 @@ UUID_NOT_FAVORITE = UUID_KEYWORDS_PERSONS
 UUID_DATE_MODIFIED = UUID_FAVORITE
 UUID_LOCATION = "3DD2C897-F19E-4CA6-8C22-B027D5A71907"  # IMG_4547.jpg
 
-PHOTOS_DB_LIVE_PHOTO = test_repo_path("tests/Test-Media-Types-15.7.2.photoslibrary")
+PHOTOS_DB_LIVE_PHOTO = repo_path("tests/Test-Media-Types-15.7.2.photoslibrary")
 UUID_LIVE_PHOTO = "D562F353-7A22-4367-9A7F-153A4D9F149C"  # IMG_4580.HEIC
 LIVE_PHOTO_LOCATION = (41, -86)  # location modified for the live photo
 

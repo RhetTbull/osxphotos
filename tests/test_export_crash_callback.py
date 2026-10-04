@@ -17,11 +17,11 @@ from click.testing import CliRunner
 import osxphotos.crash_reporter as crash_reporter_module
 from osxphotos.cli import export
 
-from .conftest import test_repo_path
+from .conftest import repo_path
 
 # The test library is a copy of the Photos library from macOS 10.15.7.
 
-CLI_PHOTOS_DB = test_repo_path("tests/Test-10.15.7.photoslibrary")
+CLI_PHOTOS_DB = repo_path("tests/Test-10.15.7.photoslibrary")
 # a syntactically valid UUID that does not exist in the test library
 NONEXISTENT_UUID = "00000000-0000-0000-0000-000000000000"
 

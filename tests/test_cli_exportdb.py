@@ -11,11 +11,11 @@ from osxphotos.cli.export import export
 from osxphotos.cli.exportdb import exportdb
 from osxphotos.export_db import OSXPHOTOS_EXPORTDB_VERSION
 
-from .conftest import test_repo_path
+from .conftest import repo_path
 from .test_cli import CLI_PHOTOS_DB
 
-LIBRARY1 = test_repo_path("tests/Test-Cloud-10.15.6.photoslibrary")
-LIBRARY2 = test_repo_path("tests/Test-Cloud-13.1.photoslibrary")
+LIBRARY1 = repo_path("tests/Test-Cloud-10.15.6.photoslibrary")
+LIBRARY2 = repo_path("tests/Test-Cloud-13.1.photoslibrary")
 
 
 def test_exportdb_migrate_photos_library(isolated_fs):
