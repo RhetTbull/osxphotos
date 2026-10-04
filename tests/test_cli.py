@@ -64,9 +64,7 @@ LIVE_PHOTOS_DB = repo_path("tests/Test-Cloud-10.15.1.photoslibrary")
 RAW_PHOTOS_DB = repo_path("tests/Test-RAW-10.15.1.photoslibrary")
 COMMENTS_PHOTOS_DB = repo_path("tests/Test-Cloud-10.15.6.photoslibrary")
 PLACES_PHOTOS_DB = repo_path("tests/Test-Places-Catalina-10_15_1.photoslibrary")
-PLACES_PHOTOS_DB_13 = repo_path(
-    "tests/Test-Places-High-Sierra-10.13.6.photoslibrary"
-)
+PLACES_PHOTOS_DB_13 = repo_path("tests/Test-Places-High-Sierra-10.13.6.photoslibrary")
 SCREENRECORDING_PHOTOS_DB_13 = repo_path(
     "tests/Test-Screen-Recording-12.0.1.photoslibrary"
 )
@@ -4340,7 +4338,7 @@ def test_export_sidecar_update(isolated_fs):
         [
             "export",
             "--db",
-            os.path.join(cwd, CLI_PHOTOS_DB),
+            CLI_PHOTOS_DB,
             ".",
             "--sidecar=json",
             "--sidecar=xmp",
