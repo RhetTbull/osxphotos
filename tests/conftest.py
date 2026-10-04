@@ -8,6 +8,7 @@ import re
 import shutil
 import tempfile
 import time
+from collections.abc import Callable
 from contextlib import contextmanager
 
 import pytest
@@ -17,6 +18,7 @@ from osxphotos.datetime_utils import (
     datetime_remove_tz,
     get_local_tz,
 )
+from osxphotos.exiftool import _ExifToolProc
 from osxphotos.platform import is_macos
 
 if is_macos:
@@ -25,8 +27,6 @@ if is_macos:
     from photoscript.utils import ditto
 
     from .test_catalina_10_15_7 import UUID_DICT_LOCAL
-
-from osxphotos.exiftool import _ExifToolProc
 
 # run timewarp tests (configured with --timewarp)
 TEST_TIMEWARP = False
@@ -56,10 +56,11 @@ LIBRARY_COPY_DELAY = 5
 
 
 def get_os_version():
+    """Get OS version as a tuple of strings (e.g. '10.13.6' -> ('10', '13', '6'))"""
     if not is_macos:
         return (None, None, None)
 
-    import platform
+    import platform  # pylint: disable=import-outside-toplevel
 
     # returns tuple containing OS version
     # e.g. 10.13.6 = (10, 13, 6)
@@ -86,6 +87,7 @@ TEST_LIBRARY_SYNC = None
 TEST_LIBRARY_ADD_LOCATIONS = None
 TEST_LIBRARY_TAKEOUT = None
 TEST_LIBRARY_PHOTODATES = None
+TEST_LIBRARY_IMPORT = None
 
 OS_VER = get_os_version() if is_macos else [None, None]
 if is_macos and (OS_VER[0] == "10" and OS_VER[1] in ("15", "16")):
@@ -130,9 +132,57 @@ elif not is_macos or int(OS_VER[0]) >= 13:
     TEST_LIBRARY_PHOTODATES = TEST_LIBRARY
     TEST_LIBRARY_ADD_LOCATIONS = "tests/Test-13.0.0.photoslibrary"
 
+# Fixtures for photos library paths. See isolated_fs fixture
+TEST_REPOSITORY_PATH = pathlib.Path(__file__).resolve().parent.parent
+
+
+def repo_path(name: str) -> str:
+    """Get the path to a test fixture in the repository."""
+    return str(TEST_REPOSITORY_PATH / name)
+
+
+@pytest.fixture
+def isolated_fs(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: str | pathlib.Path
+) -> pathlib.Path:
+    """Fixture to create an isolated filesystem for testing.
+    Changes current working directory to a temporary directory.
+
+    Args:
+        monkeypatch: pytest monkeypatch fixture
+        tmp_path: pytest tmp_path fixture
+
+    Returns:
+        path: Path to the temporary directory
+
+    Remarks:
+        Address Click.runner.isolated_filesystem DeprecationWarning: 'isolated_filesystem'
+        is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory'
+        or pytest's 'tmp_path' fixture with absolute paths instead.
+    """
+    path = pathlib.Path(tmp_path)
+    monkeypatch.chdir(path)
+    return path
+
+
+@pytest.fixture
+def clean_isolated_fs(isolated_fs: pathlib.Path) -> Callable[[], None]:
+    """Clean up the isolated filesystem by removing all files and directories."""
+
+    def clean() -> None:
+        """Clean up the isolated filesystem by removing all files and directories."""
+        for item in isolated_fs.iterdir():
+            if item.is_dir():
+                shutil.rmtree(item)
+            else:
+                item.unlink()
+
+    return clean
+
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_timewarp():
+    """Copy the photos library to a temporary location for timewarp tests."""
     if not TEST_TIMEWARP:
         return
     copy_photos_library(TEST_LIBRARY_TIMEWARP, delay=LIBRARY_COPY_DELAY)
@@ -140,6 +190,7 @@ def setup_photos_timewarp():
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_batchedit():
+    """Copy the photos library to a temporary location for batch edit tests."""
     if not TEST_BATCH_EDIT:
         return
     copy_photos_library(TEST_LIBRARY, delay=LIBRARY_COPY_DELAY)
@@ -147,6 +198,7 @@ def setup_photos_batchedit():
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_photodates():
+    """Copy the photos library to a temporary location for photodates tests."""
     if not TEST_PHOTODATES:
         return
     copy_photos_library(TEST_LIBRARY_PHOTODATES, delay=LIBRARY_COPY_DELAY)
@@ -154,6 +206,7 @@ def setup_photos_photodates():
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_import():
+    """Copy the photos library to a temporary location for import tests."""
     if not TEST_IMPORT:
         return
     copy_photos_library(TEST_LIBRARY_IMPORT, delay=LIBRARY_COPY_DELAY)
@@ -161,6 +214,7 @@ def setup_photos_import():
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_import_takeout():
+    """Copy the photos library to a temporary location for import takeout tests."""
     if not TEST_IMPORT_TAKEOUT:
         return
     copy_photos_library(TEST_LIBRARY_TAKEOUT, delay=LIBRARY_COPY_DELAY)
@@ -168,6 +222,7 @@ def setup_photos_import_takeout():
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_sync():
+    """Copy the photos library to a temporary location for sync tests."""
     if not TEST_SYNC:
         return
     copy_photos_library(TEST_LIBRARY_SYNC, delay=LIBRARY_COPY_DELAY)
@@ -175,6 +230,7 @@ def setup_photos_sync():
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_add_locations():
+    """Copy the photos library to a temporary location for add locations tests."""
     if not TEST_ADD_LOCATIONS:
         return
     copy_photos_library(TEST_LIBRARY_ADD_LOCATIONS, delay=LIBRARY_COPY_DELAY)
@@ -187,6 +243,7 @@ def reset_singletons():
 
 
 def pytest_addoption(parser):
+    """Add options to pytest"""
     parser.addoption(
         "--addalbum",
         action="store_true",
@@ -236,6 +293,7 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
+    """Configure pytest"""
     if (
         sum(
             bool(x)
@@ -318,6 +376,7 @@ def pytest_configure(config):
 
 
 def pytest_collection_modifyitems(config, items):
+    """Modify items based on command line options"""
     if not (config.getoption("--addalbum") and TEST_LIBRARY is not None):
         skip_addalbum = pytest.mark.skip(reason="need --addalbum option to run")
         for item in items:
@@ -386,6 +445,9 @@ def copy_photos_library(photos_library, delay=0, open=True):
     photoslib.quit()
 
     src = pathlib.Path(os.getcwd()) / photos_library
+    if not src.is_dir():
+        pytest.exit(f"Invalid source photos_library: '{src}'")
+
     picture_folder = (
         pathlib.Path(os.environ["PHOTOSCRIPT_PICTURES_FOLDER"])
         if "PHOTOSCRIPT_PICTURES_FOLDER" in os.environ
@@ -427,6 +489,7 @@ def copy_photos_library(photos_library, delay=0, open=True):
 
 @pytest.fixture
 def addalbum_library():
+    """Fixture to copy the addalbum library"""
     copy_photos_library(TEST_LIBRARY, delay=10)
 
 
@@ -450,12 +513,17 @@ def delete_crash_logs():
 
 @pytest.fixture
 def photoslib():
+    """PhotosLibrary fixture for testing"""
     return photoscript.PhotosLibrary()
 
 
 @pytest.fixture
 def suspend_capture(pytestconfig):
+    """Suspend global capture for testing"""
+
     class suspend_guard:
+        """Guard for suspending global capture"""
+
         def __init__(self):
             self.capmanager = pytestconfig.pluginmanager.getplugin("capturemanager")
 
@@ -480,6 +548,8 @@ def output_file():
 
 @contextmanager
 def set_timezone(timezone):
+    """Set the timezone for the duration of the context manager"""
+    old_tz = None
     try:
         old_tz = os.environ.get("TZ")
         os.environ["TZ"] = timezone
@@ -495,6 +565,7 @@ def set_timezone(timezone):
 
 @pytest.fixture
 def set_tz_pacific():
+    """Set the timezone to Pacific Time for the duration of the context manager"""
     timezone = "America/Los_Angeles"
     with set_timezone(timezone):
         yield
@@ -502,6 +573,7 @@ def set_tz_pacific():
 
 @pytest.fixture
 def set_tz_central():
+    """Set the timezone to Central Time for the duration of the context manager"""
     timezone = "America/Chicago"
     with set_timezone(timezone):
         yield
@@ -509,6 +581,7 @@ def set_tz_central():
 
 @pytest.fixture
 def set_tz_cest():
+    """Set the timezone to Central European Summer Time for the duration of the context manager"""
     timezone = "CEST"
     with set_timezone(timezone):
         yield
@@ -516,6 +589,7 @@ def set_tz_cest():
 
 @pytest.fixture
 def set_tz_jerusalem():
+    """Set the timezone to Jerusalem for the duration of the context manager"""
     timezone = "Asia/Jerusalem"
     with set_timezone(timezone):
         yield
