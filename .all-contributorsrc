@@ -1160,6 +1160,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "tomkoelman",
+      "name": "tomkoelman",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1191052?v=4",
+      "profile": "https://github.com/tomkoelman",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
