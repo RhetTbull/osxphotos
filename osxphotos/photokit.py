@@ -739,6 +739,7 @@ class PhotoAsset:
 
             requestdata = PHAssetResourceData()
             event = threading.Event()
+            request_error = None
 
             def handler(data):
                 """result handler for requestImageDataAndOrientationForAsset_options_resultHandler_
@@ -750,10 +751,11 @@ class PhotoAsset:
                 requestdata.data += data
 
             def completion_handler(error):
-                if error:
-                    raise PhotoKitExportError(
-                        "Error requesting data for asset resource"
-                    )
+                # Runs on a PhotoKit dispatch queue: an exception raised here becomes an
+                # uncaught NSException and aborts the process (#2253), so only record the
+                # error and let the calling thread raise it.
+                nonlocal request_error
+                request_error = error
                 event.set()
 
             resource_manager.requestDataForAssetResource_options_dataReceivedHandler_completionHandler_(
@@ -761,6 +763,12 @@ class PhotoAsset:
             )
 
             _wait_for_event_or_timeout(event, self.phasset.localIdentifier())
+            if request_error is not None:
+                raise PhotoKitExportError(
+                    f"Error requesting data for asset resource for asset "
+                    f"{self.phasset.localIdentifier()}: "
+                    f"{request_error.localizedDescription()}"
+                )
 
             # not sure why this is needed -- some weird ref count thing maybe
             # if I don't do this, memory leaks
