@@ -623,7 +623,10 @@ def test_known_raw_code_wins_over_raw_on_disk(tmp_path):
 # keeps the files listed as exported, skipped or missing and deletes the rest.
 # While uti_raw was None the RAW was listed under a guessed <stem>.raw, so the
 # real <stem>.raf or .CR2 on the destination was deleted. These run the CLI
-# with --exportdb, as a scripted backup would.
+# with --exportdb, as a scripted backup would. The CLI's stat cache matches
+# names case-insensitively on macOS, where export runs, and exactly elsewhere,
+# so cli_exported_pair sets the macOS behaviour, as _export does for
+# PhotoExporter, for the .CR2 on the destination to match the check's .cr2.
 
 
 def _cli_export_cleanup(photo, dest_dir):
@@ -658,10 +661,11 @@ def _cli_export_cleanup(photo, dest_dir):
 
 @pytest.fixture
 def cli_exported_pair(
-    raw_photosdb, raw_type, evicted_pair, download, tmp_path, request
+    raw_photosdb, raw_type, evicted_pair, download, tmp_path, request, monkeypatch
 ):
     """Export an evicted RAW+JPEG pair once through the CLI, downloading
     <stem>.JPG and the RAW"""
+    monkeypatch.setattr("osxphotos.stat_cache.is_macos", True)
     uuid, stem = request.param
     photo = raw_photosdb.get_photo(uuid)
     dest_dir = tmp_path / "export"
