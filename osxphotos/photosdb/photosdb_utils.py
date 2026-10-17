@@ -215,3 +215,76 @@ def get_db_path_for_library(photos_library: str | pathlib.Path) -> pathlib.Path:
     elif photos_library.is_dir():
         photos_library = photos_library / "database" / "Photos.sqlite"
     return photos_library
+
+
+# ZINTERNALRESOURCE.ZCOMPACTUTI (Photos 7+, macOS 12+) holds Apple's PLUniformFileType
+# codes, from PhotoLibraryServices.framework:
+# +[PLUniformTypeIdentifierIntegratedLookup compactRepresentationForIdentifier:] /
+# identifierFromCompactRepresentation:, via PLFileTypeFromIdentifier /
+# PLUTTypeFromUniformFileType (table built in populateExtensionFileTypeMappings; read
+# from the macOS 27 dyld shared cache). A UTI without a code is stored as "_" + UTI.
+# Codes agree with test libraries from macOS 12 to 27. Codes 9 to 22 are the RAW
+# types (PLUniformFileTypeIsRawImage); code 2 is unassigned.
+COMPACT_UTI_CODES = {
+    "1": "public.jpeg",
+    "3": "public.heic",
+    "4": "public.heif",
+    "5": "public.avci",
+    "6": "public.png",
+    "7": "com.compuserve.gif",
+    "8": "public.tiff",
+    "9": "com.adobe.raw-image",
+    "10": "com.sony.arw-raw-image",
+    "11": "com.canon.cr2-raw-image",
+    "12": "com.canon.crw-raw-image",
+    "13": "com.olympus.raw-image",
+    "14": "com.panasonic.rw2-raw-image",
+    "15": "com.panasonic.raw-image",
+    "16": "com.pentax.raw-image",
+    "17": "com.nikon.raw-image",
+    "18": "com.samsung.raw-image",
+    "19": "com.leafamerica.raw-image",
+    "20": "com.hasselblad.3fr-raw-image",
+    "21": "com.fuji.raw-image",
+    "22": "com.hasselblad.fff-raw-image",
+    "23": "com.apple.quicktime-movie",
+    "24": "public.mpeg-4",
+    "25": "com.apple.m4v-video",
+    "26": "public.3gpp",
+    "27": "public.avi",
+    "28": "com.apple.m4a-audio",
+    "29": "com.apple.coreaudio-format",
+    "30": "com.microsoft.waveform-audio",
+    "31": "public.aifc-audio",
+    "32": "public.aiff-audio",
+    "33": "public.mp3",
+    "34": "public.ac3-audio",
+    "35": "com.apple.property-list",
+    "36": "public.data",
+    "37": "com.apple.photos.apple-adjustment-envelope",
+    "38": "public.avif",
+    "39": "public.jpeg-xl",
+}
+
+
+def uti_for_compact_uti(compact_uti: str | int | None) -> str | None:
+    """Return the UTI for a ZINTERNALRESOURCE.ZCOMPACTUTI value (Photos 7+)
+
+    Returns: the UTI, or None if the value is None or a code not in COMPACT_UTI_CODES
+    """
+    if compact_uti is None:
+        return None
+    compact_uti = str(compact_uti)
+    if compact_uti.startswith("_"):
+        return compact_uti[1:] or None
+    return COMPACT_UTI_CODES.get(compact_uti)
+
+
+def uti_if_raw(uti: str | None) -> str | None:
+    """Return uti if it is a RAW image type, else None
+
+    Every RAW type in COMPACT_UTI_CODES (codes 9 to 22) has "raw-image" in its UTI,
+    as do the RAW UTIs for file extensions, so this works for codes, "_" + UTI
+    values and UTIs from a file's extension alike.
+    """
+    return uti if uti and "raw-image" in uti else None
