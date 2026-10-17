@@ -1743,6 +1743,32 @@ def values_to_float(values: list[str]) -> list[str]:
     return float_values
 
 
+_STRFTIME_EPOCH_RE = re.compile(r"%%|%s")
+
+
+def _strftime(dt: datetime.datetime, format: str) -> str:
+    """Apply strftime to a datetime, handling the `%s` (epoch seconds) code correctly.
+
+    Python delegates `%s` to the platform C library `strftime`, which computes
+    epoch seconds from the *machine's* local timezone and ignores the tzinfo
+    attached to a timezone-aware datetime. That makes `{created.strftime,%s}`
+    off by the local UTC offset (e.g. one hour during DST). See issue #2157.
+
+    Substitute unescaped `%s` with the epoch computed from `datetime.timestamp()`
+    (which respects the datetime's own timezone, or naive local time) then hand
+    the whole format to the standard strftime so other codes and modifiers
+    (e.g. `%-d`) are preserved.
+    """
+    if "%s" not in format:
+        return dt.strftime(format)
+    epoch = str(int(dt.timestamp()))
+    return dt.strftime(
+        _STRFTIME_EPOCH_RE.sub(
+            lambda m: m.group() if m.group() == "%%" else epoch, format
+        )
+    )
+
+
 def format_date_field(dt: datetime.datetime, field: str, args: list[str]) -> str:
     """Format a date template field in format 'created', 'create.year' etc.
 
@@ -1762,8 +1788,10 @@ def format_date_field(dt: datetime.datetime, field: str, args: list[str]) -> str
         if not args:
             return None
         try:
-            return dt.strftime(args[0])
-        except:
+            return _strftime(dt, args[0])
+        except ValueError:
+            raise
+        except Exception:
             raise ValueError(f"Invalid strftime template: '{args}'")
     else:
         try:
