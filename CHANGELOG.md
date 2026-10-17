@@ -12,6 +12,9 @@ All notable changes to this project will be documented in this file.
 
 #### Fixed
 
+- Fixed `export --update --download-missing` downloading RAW+JPEG pairs on every run when the RAW is in iCloud (Photos 7+): osxphotos now reads the RAW's type from the Photos database, so the update check finds the exported `.cr2`/`.raf` instead of looking for `<name>.raw`.
+- Fixed `export --update --download-missing --cleanup` deleting the RAW of a pair whose RAW is in iCloud: the RAW was recorded as missing under `<name>.raw`, so cleanup removed the real `.cr2`/`.raf`.
+
 #### Contributors
 
 ## [v0.77.2](https://github.com/RhetTbull/osxphotos/compare/v0.77.1...v0.77.2)

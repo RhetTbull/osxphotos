@@ -13,6 +13,7 @@ import platform
 import sqlite3
 import sys
 import tempfile
+from collections import Counter
 from datetime import datetime, timedelta, timezone
 from typing import Any
 from unicodedata import normalize
@@ -59,11 +60,14 @@ from ..platform import is_macos
 from ..rich_utils import add_rich_markup_tag
 from ..sqlite_utils import sqlite_columns, sqlite_db_is_locked, sqlite_open_ro
 from ..unicode import normalize_unicode
+from ..uti import get_uti_for_extension
 from ..utils import _check_file_exists, get_last_library_path, noop
 from .photosdb_utils import (
     get_db_version,
     get_model_version,
     get_photos_version_from_model,
+    uti_for_compact_uti,
+    uti_if_raw,
 )
 
 if is_macos:
@@ -2540,7 +2544,7 @@ class PhotosDB:
             sql_raw = f""" SELECT
                 {asset_table}.ZUUID,
                 ZINTERNALRESOURCE.ZDATALENGTH,
-                null,
+                ZINTERNALRESOURCE.ZCOMPACTUTI,
                 ZINTERNALRESOURCE.ZDATASTORESUBTYPE,
                 ZINTERNALRESOURCE.ZRESOURCETYPE,
                 ZINTERNALRESOURCE.ZFILESYSTEMBOOKMARK
@@ -2601,6 +2605,9 @@ class PhotosDB:
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["raw_volume"] = row[1]
                 self._dbphotos[uuid]["raw_relative_path"] = row[2]
+
+        if self._photos_ver >= 7:
+            self._set_raw_utis_from_compact_uti()
 
         # add faces and keywords to photo data
         for uuid in self._dbphotos:
@@ -2682,6 +2689,44 @@ class PhotosDB:
             self._process_shared_library_info()
 
         verbose("Done processing details from Photos library.")
+
+    def _set_raw_utis_from_compact_uti(self):
+        """Replace the ZCOMPACTUTI value that the Photos 7+ RAW query read into
+        each photo's UTI_raw with the RAW's UTI, or None if it can't be
+        resolved to a RAW type
+
+        A value is resolved from, in order:
+
+        1. COMPACT_UTI_CODES, Apple's table of codes (see photosdb_utils).
+        2. "_" + UTI, which Photos stores for a type without a code.
+        3. For a code not in the table, such as one a later Photos adds, the
+           library's RAWs with that code whose file is on disk: the UTI for the
+           file's extension. So one local RAW of a new type resolves the
+           evicted RAWs of that type.
+        """
+        unresolved = []
+        for uuid, info in self._dbphotos.items():
+            if not info["has_raw"]:
+                continue
+            code = info["UTI_raw"]
+            uti = uti_for_compact_uti(code)
+            info["UTI_raw"] = uti_if_raw(uti)
+            if uti is None and code is not None:
+                unresolved.append((uuid, info, str(code)))
+        if not unresolved:
+            return
+
+        counts = Counter()
+        for uuid, info, code in unresolved:
+            if path_raw := PhotoInfo(db=self, uuid=uuid, info=info).path_raw:
+                if uti := uti_if_raw(
+                    get_uti_for_extension(pathlib.Path(path_raw).suffix)
+                ):
+                    counts[code, uti] += 1
+        # least common first, so the most common UTI for each code wins
+        local_codes = {code: uti for (code, uti), _ in reversed(counts.most_common())}
+        for _, info, code in unresolved:
+            info["UTI_raw"] = local_codes.get(code)
 
     def _process_moments(self):
         """Process data from ZMOMENT table"""
