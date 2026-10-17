@@ -866,7 +866,14 @@ class PhotoExporter:
                 return True  # Needs updating
 
         # Check live photo
-        live_missing = self.photo.live_photo and options.live_photo and not live_photo
+        # AppleScript can't export the video of an edited live photo, so only
+        # require it on the destination when PhotoKit would download it
+        live_missing = (
+            self.photo.live_photo
+            and options.live_photo
+            and not live_photo
+            and (not options.edited or options.use_photokit)
+        )
         if live_missing:
             live_dest = dest.parent / f"{dest.stem}.mov"
             if not _dest_exists(live_dest):
