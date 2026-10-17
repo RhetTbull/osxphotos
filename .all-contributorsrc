@@ -1169,6 +1169,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "TimJDFletcher",
+      "name": "Tim Fletcher",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4928381?v=4",
+      "profile": "https://blog.night-shade.org.uk",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
