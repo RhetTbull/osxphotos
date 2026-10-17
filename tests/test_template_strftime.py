@@ -12,6 +12,7 @@ import datetime
 import pytest
 
 from osxphotos.phototemplate import _strftime, format_date_field
+from tests.conftest import set_timezone
 
 # 2022-05-24 14:20:00 -07:00 (California, DST active). Correct epoch seconds
 # (independent of the machine timezone) is 1653427200.
@@ -21,26 +22,13 @@ _DST_DT = datetime.datetime(
 _CORRECT_EPOCH = "1653427200"
 
 
-@pytest.fixture
-def _machine_timezones(monkeypatch):
-    """Run a check under several machine timezones (where tzset is available)."""
-    time = pytest.importorskip("time")
-    if not hasattr(time, "tzset"):
-        pytest.skip("time.tzset not available on this platform")
-    return time
-
-
 @pytest.mark.parametrize(
     "tz_name", ["UTC", "America/Los_Angeles", "America/New_York", "Asia/Kolkata"]
 )
-def test_strftime_epoch_independent_of_machine_timezone(
-    tz_name, monkeypatch, _machine_timezones
-):
+def test_strftime_epoch_independent_of_machine_timezone(tz_name):
     """`%s` yields the same epoch for a tz-aware datetime regardless of machine tz."""
-    time = _machine_timezones
-    monkeypatch.setenv("TZ", tz_name)
-    time.tzset()
-    assert _strftime(_DST_DT, "%s") == _CORRECT_EPOCH
+    with set_timezone(tz_name):
+        assert _strftime(_DST_DT, "%s") == _CORRECT_EPOCH
 
 
 def test_strftime_epoch_matches_timestamp():
@@ -56,6 +44,19 @@ def test_strftime_epoch_in_mixed_format():
 def test_strftime_escaped_percent_s_is_literal():
     """An escaped `%%s` is a literal percent followed by 's', not epoch seconds."""
     assert _strftime(_DST_DT, "%%s") == "%s"
+
+
+@pytest.mark.parametrize(
+    "format,expected",
+    [
+        ("%%%s", f"%{_CORRECT_EPOCH}"),
+        ("%%s_%s", f"%s_{_CORRECT_EPOCH}"),
+        ("%-d_%s", f"24_{_CORRECT_EPOCH}"),
+    ],
+)
+def test_strftime_epoch_escapes_and_modifiers(format, expected):
+    """`%s` substitution handles escapes and doesn't break modifiers like `%-d`."""
+    assert _strftime(_DST_DT, format) == expected
 
 
 def test_strftime_without_epoch_code_unchanged():

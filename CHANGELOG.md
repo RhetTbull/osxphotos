@@ -12,6 +12,8 @@ All notable changes to this project will be documented in this file.
 
 #### Fixed
 
+- Fixed `{created.strftime,%s}` (and other date fields using `%s`) returning an epoch value offset by the exporting machine's UTC offset, e.g. one hour off for photos taken during Daylight Saving Time. `%s` is now computed from the photo's own timezone. **Note:** this changes `%s` output for anyone exporting from a timezone different from the photo's, so `--update` runs that use `%s` in a filename or directory template may rename previously exported files (#2157, #2246, thanks @mishra-prince for the fix).
+
 #### Contributors
 
 ## [v0.77.2](https://github.com/RhetTbull/osxphotos/compare/v0.77.1...v0.77.2)
