@@ -12,6 +12,8 @@ All notable changes to this project will be documented in this file.
 
 #### Fixed
 
+- Fixed `export --update --download-missing` downloading an edited Live Photo on every run with AppleScript downloads: the update check required `<name>_edited.mov`, which AppleScript can't export; it is now required only with `--use-photokit`.
+
 #### Contributors
 
 ## [v0.77.2](https://github.com/RhetTbull/osxphotos/compare/v0.77.1...v0.77.2)
