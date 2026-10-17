@@ -1298,6 +1298,35 @@ def test_filepath():
         rendered, _ = template.render("{filepath.foo}", options)
 
 
+@pytest.mark.parametrize(
+    "template_str,expected",
+    [
+        ("{filepath}", "_"),
+        ("{filepath.suffix}", "_"),
+        ("{filepath.stem}", "_"),
+        ("{filepath,}", ""),
+        ("{filepath,NONE}", "NONE"),
+        ("{filepath.suffix,NONE}", "NONE"),
+        ("{filepath?yes,no}", "no"),
+        ("{filepath.suffix?yes,no}", "no"),
+        ("{filepath.suffix contains aae?matched,}IMG", "IMG"),
+    ],
+)
+def test_filepath_none(template_str, expected):
+    """Test {filepath} has no value (not a crash) when unknown, see #1541.
+
+    {filepath} is only known post-export; when used in a filename_template the
+    export path isn't known yet so filepath is None.
+    """
+    from osxphotos.photoinfo import PhotoInfoNone
+    from osxphotos.phototemplate import PhotoTemplate
+
+    # filepath defaults to None
+    template = PhotoTemplate(PhotoInfoNone())
+    rendered, _ = template.render(template_str, RenderOptions())
+    assert rendered == [expected]
+
+
 def test_id(photosdb):
     """Test {id} template"""
     photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)

@@ -1034,6 +1034,9 @@ class PhotoTemplate:
             field_value = getattr(self, field_stem)
         except AttributeError as e:
             raise ValueError(f"Unknown path-like field: {field_stem}") from e
+        if field_value is None:
+            # path not known yet, e.g. {filepath} in a filename template (#1541)
+            return []
         value = _get_pathlib_value(field, field_value, self.quote)
 
         if self.filename:
