@@ -1027,7 +1027,12 @@ class VideoAsset(PhotoAsset):
 
             options_request = Photos.PHVideoRequestOptions.alloc().init()
             options_request.setNetworkAccessAllowed_(True)
-            options_request.setVersion_(version)
+            # video enum is Current=0/Original=1, not the image values (Original=2)
+            options_request.setVersion_(
+                Photos.PHVideoRequestOptionsVersionCurrent
+                if version == PHOTOS_VERSION_CURRENT
+                else Photos.PHVideoRequestOptionsVersionOriginal
+            )
             options_request.setDeliveryMode_(
                 Photos.PHVideoRequestOptionsDeliveryModeHighQualityFormat
             )
