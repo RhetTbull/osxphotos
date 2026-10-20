@@ -1178,6 +1178,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "a1exsun",
+      "name": "Alex Sun",
+      "avatar_url": "https://avatars.githubusercontent.com/u/35476773?v=4",
+      "profile": "http://xsun.work",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
