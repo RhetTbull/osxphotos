@@ -52,6 +52,10 @@ _PHOTOS_3_VERSION = "3301"
 _PHOTOS_4_VERSION = "4025"  # latest Mojave version on 10.14.6
 _PHOTOS_5_VERSION = "5000"  # I've seen both 5001 and 6000.  6000 is most common on Catalina and up but there are some version 5001 database in the wild
 
+# ZDETECTEDFACE.ZDETECTIONTYPE values for pets (Photos 7+); people are 1
+_DETECTION_TYPE_DOG = 3
+_DETECTION_TYPE_CAT = 4
+
 # Ranges for model version by Photos version
 _PHOTOS_5_MODEL_VERSION = [13000, 13999]
 _PHOTOS_6_MODEL_VERSION = [14000, 14999]
