@@ -19,13 +19,16 @@ from click.testing import CliRunner
 
 import osxphotos.cli.common as cli_common
 
-TEST_DB = "tests/Test-13.0.0.photoslibrary"
-TEST_DB = os.path.join(os.getcwd(), TEST_DB)
-TEST_RUN_SCRIPT = "examples/cli_example_1.py"
+from .conftest import repo_path
+
+TEST_DB = repo_path("tests/Test-13.0.0.photoslibrary")
+# TODO: Seems not to be used anywhere.
+# TEST_RUN_SCRIPT = "examples/cli_example_1.py"
 
 
 @pytest.fixture(scope="module")
 def runner() -> CliRunner:
+    """Create a CliRunner fixture for testing osxphotos cli commands."""
     return CliRunner()
 
 
@@ -55,13 +58,14 @@ if is_macos:
     from osxphotos.cli import uuid
 
 
-def test_about(runner: CliRunner):
-    with runner.isolated_filesystem():
-        result = runner.invoke(about)
-        assert result.exit_code == 0
+def test_about(runner: CliRunner, isolated_fs):
+    """Test about command runs without error."""
+    result = runner.invoke(about)
+    assert result.exit_code == 0
 
 
 def test_cli_commands_install_crash_reporter():
+    """Test that all commands have the crash reporter installed."""
     for command in cli_main.commands.values():
         if command.callback is not None:
             assert getattr(command.callback, "__osxphotos_crash_reporter__", False)
@@ -70,9 +74,11 @@ def test_cli_commands_install_crash_reporter():
 def test_cli_command_crash_reporter_handles_unexpected_errors(
     runner: CliRunner, tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
 ):
+    """Test that crash reporter handles unexpected errors correctly."""
     crash_log = tmp_path / "osxphotos_crash.log"
 
     def crash(*args, **kwargs):
+        """Simulate an unexpected error."""
         raise RuntimeError("boom from test")
 
     monkeypatch.setattr(cli_common, "OSXPHOTOS_CRASH_LOG", str(crash_log))
@@ -105,25 +111,25 @@ def test_cli_command_crash_reporter_handles_unexpected_errors(
     ]
     + ([uuid] if is_macos else []),
 )
-def test_cli_comands(runner: CliRunner, command: Callable[..., Any]):
-    with runner.isolated_filesystem():
-        result = runner.invoke(albums, ["--db", TEST_DB])
-        assert result.exit_code == 0
+def test_cli_comands(runner: CliRunner, command: Callable[..., Any], isolated_fs):
+    """Test that all commands run without error."""
+    result = runner.invoke(albums, ["--db", TEST_DB])
+    assert result.exit_code == 0
 
 
-def test_grep(runner: CliRunner):
-    with runner.isolated_filesystem():
-        result = runner.invoke(grep, ["--db", TEST_DB, "test"])
-        assert result.exit_code == 0
+def test_grep(runner: CliRunner, isolated_fs):
+    """Test grep command runs without error."""
+    result = runner.invoke(grep, ["--db", TEST_DB, "test"])
+    assert result.exit_code == 0
 
 
-def test_debug_dump(runner: CliRunner):
-    with runner.isolated_filesystem():
-        result = runner.invoke(debug_dump, ["--db", TEST_DB, "--dump", "persons"])
-        assert result.exit_code == 0
+def test_debug_dump(runner: CliRunner, isolated_fs):
+    """Test debug_dump command runs without error."""
+    result = runner.invoke(debug_dump, ["--db", TEST_DB, "--dump", "persons"])
+    assert result.exit_code == 0
 
 
-def test_theme(runner: CliRunner):
-    with runner.isolated_filesystem():
-        result = runner.invoke(theme, ["--list"])
-        assert result.exit_code == 0
+def test_theme(runner: CliRunner, isolated_fs):
+    """Test theme command runs without error."""
+    result = runner.invoke(theme, ["--list"])
+    assert result.exit_code == 0

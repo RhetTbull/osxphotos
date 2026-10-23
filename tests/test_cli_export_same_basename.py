@@ -1,8 +1,6 @@
 """Test export of photos with same basename (see #2045, #2110)"""
 
-import glob
 import json
-import os
 import pathlib
 from typing import Any
 
@@ -11,7 +9,9 @@ from click.testing import CliRunner
 
 from osxphotos.cli import export
 
-TEST_LIBRARY = "tests/Test-Live-15.7.2.photoslibrary"
+from .conftest import repo_path
+
+TEST_LIBRARY = repo_path("tests/Test-Live-15.7.2.photoslibrary")
 
 EXPORT_RESULTS = {
     "ACF2FC98-C2AA-429E-A3CF-257230F29188": ["IMG_1994 (2).cr2"],
@@ -58,360 +58,346 @@ def get_results_for_uuid(results: list[dict[str, Any]], uuid: str) -> list[str]:
     return sorted([pathlib.Path(x.get("filename")).name for x in values])
 
 
-def test_export_same_basename():
+def test_export_same_basename(isolated_fs):
     """test export with photos with same basename (e.g. Live pair and a video with same basename) #2045, #2110"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            export,
-            [
-                ".",
-                "--library",
-                os.path.join(cwd, TEST_LIBRARY),
-                "-V",
-                "--report",
-                "export.json",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("export.json", "rb") as fd:
-            results = json.load(fd)
 
-        for uuid in EXPORT_RESULTS:
-            files = get_results_for_uuid(results, uuid)
-            assert files == EXPORT_RESULTS[uuid]
+    result = runner.invoke(
+        export,
+        [
+            ".",
+            "--library",
+            TEST_LIBRARY,
+            "-V",
+            "--report",
+            "export.json",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("export.json", "rb") as fd:
+        results = json.load(fd)
 
-        assert f"exported: {EXPORTED_TOTAL}, missing: 0" in result.output
+    for uuid in EXPORT_RESULTS:
+        files = get_results_for_uuid(results, uuid)
+        assert files == EXPORT_RESULTS[uuid]
+
+    assert f"exported: {EXPORTED_TOTAL}, missing: 0" in result.output
 
 
-def test_export_same_basename_then_update():
+def test_export_same_basename_then_update(isolated_fs):
     """test export with photos with same basename followed by --update (e.g. Live pair and a video with same basename) #2045, #2110"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            export,
-            [
-                ".",
-                "--library",
-                os.path.join(cwd, TEST_LIBRARY),
-                "-V",
-                "--report",
-                "export.json",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("export.json", "rb") as fd:
-            results = json.load(fd)
 
-        for uuid in EXPORT_RESULTS:
-            files = get_results_for_uuid(results, uuid)
-            assert files == EXPORT_RESULTS[uuid]
+    result = runner.invoke(
+        export,
+        [
+            ".",
+            "--library",
+            TEST_LIBRARY,
+            "-V",
+            "--report",
+            "export.json",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("export.json", "rb") as fd:
+        results = json.load(fd)
 
-        assert f"exported: {EXPORTED_TOTAL}, missing: 0" in result.output
+    for uuid in EXPORT_RESULTS:
+        files = get_results_for_uuid(results, uuid)
+        assert files == EXPORT_RESULTS[uuid]
 
-        result = runner.invoke(
-            export,
-            [
-                ".",
-                "--library",
-                os.path.join(cwd, TEST_LIBRARY),
-                "-V",
-                "--update",
-                "--report",
-                "export.json",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("export.json", "rb") as fd:
-            results = json.load(fd)
+    assert f"exported: {EXPORTED_TOTAL}, missing: 0" in result.output
 
-        for uuid in EXPORT_RESULTS:
-            files = get_results_for_uuid(results, uuid)
-            assert files == EXPORT_RESULTS[uuid]
+    result = runner.invoke(
+        export,
+        [
+            ".",
+            "--library",
+            TEST_LIBRARY,
+            "-V",
+            "--update",
+            "--report",
+            "export.json",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("export.json", "rb") as fd:
+        results = json.load(fd)
 
-        assert f"exported: 0, updated: 0, skipped: {EXPORTED_TOTAL}" in result.output
+    for uuid in EXPORT_RESULTS:
+        files = get_results_for_uuid(results, uuid)
+        assert files == EXPORT_RESULTS[uuid]
+
+    assert f"exported: 0, updated: 0, skipped: {EXPORTED_TOTAL}" in result.output
 
 
-def test_export_same_basename_update():
+def test_export_same_basename_update(isolated_fs):
     """test export with photos with same basename and --update (e.g. Live pair and a video with same basename) #2045, #2110"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            export,
-            [
-                ".",
-                "--library",
-                os.path.join(cwd, TEST_LIBRARY),
-                "-V",
-                "--update",
-                "--report",
-                "export.json",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("export.json", "rb") as fd:
-            results = json.load(fd)
 
-        for uuid in EXPORT_RESULTS:
-            files = get_results_for_uuid(results, uuid)
-            assert files == EXPORT_RESULTS[uuid]
+    result = runner.invoke(
+        export,
+        [
+            ".",
+            "--library",
+            TEST_LIBRARY,
+            "-V",
+            "--update",
+            "--report",
+            "export.json",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("export.json", "rb") as fd:
+        results = json.load(fd)
 
-        assert f"exported: {EXPORTED_TOTAL}, updated: 0, skipped: 0" in result.output
+    for uuid in EXPORT_RESULTS:
+        files = get_results_for_uuid(results, uuid)
+        assert files == EXPORT_RESULTS[uuid]
 
-        result = runner.invoke(
-            export,
-            [
-                ".",
-                "--library",
-                os.path.join(cwd, TEST_LIBRARY),
-                "-V",
-                "--update",
-                "--report",
-                "export.json",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("export.json", "rb") as fd:
-            results = json.load(fd)
+    assert f"exported: {EXPORTED_TOTAL}, updated: 0, skipped: 0" in result.output
 
-        for uuid in EXPORT_RESULTS:
-            files = get_results_for_uuid(results, uuid)
-            assert files == EXPORT_RESULTS[uuid]
+    result = runner.invoke(
+        export,
+        [
+            ".",
+            "--library",
+            TEST_LIBRARY,
+            "-V",
+            "--update",
+            "--report",
+            "export.json",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("export.json", "rb") as fd:
+        results = json.load(fd)
 
-        assert f"exported: 0, updated: 0, skipped: {EXPORTED_TOTAL}" in result.output
+    for uuid in EXPORT_RESULTS:
+        files = get_results_for_uuid(results, uuid)
+        assert files == EXPORT_RESULTS[uuid]
+
+    assert f"exported: 0, updated: 0, skipped: {EXPORTED_TOTAL}" in result.output
 
 
-def test_export_same_basename_then_update_newest_first():
+def test_export_same_basename_then_update_newest_first(isolated_fs):
     """test export with photos with same basename with --newest-first followed by --update (e.g. Live pair and a video with same basename) #2045, #2110"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            export,
-            [
-                ".",
-                "--library",
-                os.path.join(cwd, TEST_LIBRARY),
-                "-V",
-                "--newest-first",
-                "--report",
-                "export.json",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("export.json", "rb") as fd:
-            results = json.load(fd)
 
-        for uuid in EXPORT_RESULTS_NEWEST_FIRST:
-            files = get_results_for_uuid(results, uuid)
-            assert files == EXPORT_RESULTS_NEWEST_FIRST[uuid]
+    result = runner.invoke(
+        export,
+        [
+            ".",
+            "--library",
+            TEST_LIBRARY,
+            "-V",
+            "--newest-first",
+            "--report",
+            "export.json",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("export.json", "rb") as fd:
+        results = json.load(fd)
 
-        assert f"exported: {EXPORTED_TOTAL}, missing: 0" in result.output
+    for uuid in EXPORT_RESULTS_NEWEST_FIRST:
+        files = get_results_for_uuid(results, uuid)
+        assert files == EXPORT_RESULTS_NEWEST_FIRST[uuid]
 
-        result = runner.invoke(
-            export,
-            [
-                ".",
-                "--library",
-                os.path.join(cwd, TEST_LIBRARY),
-                "-V",
-                "--update",
-                "--newest-first",
-                "--report",
-                "export.json",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("export.json", "rb") as fd:
-            results = json.load(fd)
+    assert f"exported: {EXPORTED_TOTAL}, missing: 0" in result.output
 
-        for uuid in EXPORT_RESULTS_NEWEST_FIRST:
-            files = get_results_for_uuid(results, uuid)
-            assert files == EXPORT_RESULTS_NEWEST_FIRST[uuid]
+    result = runner.invoke(
+        export,
+        [
+            ".",
+            "--library",
+            TEST_LIBRARY,
+            "-V",
+            "--update",
+            "--newest-first",
+            "--report",
+            "export.json",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("export.json", "rb") as fd:
+        results = json.load(fd)
 
-        assert f"exported: 0, updated: 0, skipped: {EXPORTED_TOTAL}" in result.output
+    for uuid in EXPORT_RESULTS_NEWEST_FIRST:
+        files = get_results_for_uuid(results, uuid)
+        assert files == EXPORT_RESULTS_NEWEST_FIRST[uuid]
+
+    assert f"exported: 0, updated: 0, skipped: {EXPORTED_TOTAL}" in result.output
 
 
-def test_export_same_basename_oldest_then_newest():
+def test_export_same_basename_oldest_then_newest(isolated_fs):
     """test export with photos with same basename with different order (e.g. Live pair and a video with same basename) #2045, #2110"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            export,
-            [
-                ".",
-                "--library",
-                os.path.join(cwd, TEST_LIBRARY),
-                "-V",
-                "--report",
-                "export.json",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("export.json", "rb") as fd:
-            results = json.load(fd)
 
-        for uuid in EXPORT_RESULTS:
-            files = get_results_for_uuid(results, uuid)
-            assert files == EXPORT_RESULTS[uuid]
+    result = runner.invoke(
+        export,
+        [
+            ".",
+            "--library",
+            TEST_LIBRARY,
+            "-V",
+            "--report",
+            "export.json",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("export.json", "rb") as fd:
+        results = json.load(fd)
 
-        assert f"exported: {EXPORTED_TOTAL}, missing: 0" in result.output
+    for uuid in EXPORT_RESULTS:
+        files = get_results_for_uuid(results, uuid)
+        assert files == EXPORT_RESULTS[uuid]
 
-        result = runner.invoke(
-            export,
-            [
-                ".",
-                "--library",
-                os.path.join(cwd, TEST_LIBRARY),
-                "-V",
-                "--update",
-                "--newest-first",
-                "--report",
-                "export.json",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("export.json", "rb") as fd:
-            results = json.load(fd)
+    assert f"exported: {EXPORTED_TOTAL}, missing: 0" in result.output
 
-        for uuid in EXPORT_RESULTS:
-            files = get_results_for_uuid(results, uuid)
-            assert files == EXPORT_RESULTS[uuid]
+    result = runner.invoke(
+        export,
+        [
+            ".",
+            "--library",
+            TEST_LIBRARY,
+            "-V",
+            "--update",
+            "--newest-first",
+            "--report",
+            "export.json",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("export.json", "rb") as fd:
+        results = json.load(fd)
 
-        assert f"exported: 0, updated: 0, skipped: {EXPORTED_TOTAL}" in result.output
+    for uuid in EXPORT_RESULTS:
+        files = get_results_for_uuid(results, uuid)
+        assert files == EXPORT_RESULTS[uuid]
+
+    assert f"exported: 0, updated: 0, skipped: {EXPORTED_TOTAL}" in result.output
 
 
-def test_export_same_basename_newest_then_oldest():
+def test_export_same_basename_newest_then_oldest(isolated_fs):
     """test export with photos with same basename with different order (e.g. Live pair and a video with same basename) #2045, #2110"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            export,
-            [
-                ".",
-                "--library",
-                os.path.join(cwd, TEST_LIBRARY),
-                "-V",
-                "--newest-first",
-                "--update",
-                "--report",
-                "export.json",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("export.json", "rb") as fd:
-            results = json.load(fd)
 
-        for uuid in EXPORT_RESULTS_NEWEST_FIRST:
-            files = get_results_for_uuid(results, uuid)
-            assert files == EXPORT_RESULTS_NEWEST_FIRST[uuid]
+    result = runner.invoke(
+        export,
+        [
+            ".",
+            "--library",
+            TEST_LIBRARY,
+            "-V",
+            "--newest-first",
+            "--update",
+            "--report",
+            "export.json",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("export.json", "rb") as fd:
+        results = json.load(fd)
 
-        assert f"exported: {EXPORTED_TOTAL}, updated: 0, skipped: 0" in result.output
+    for uuid in EXPORT_RESULTS_NEWEST_FIRST:
+        files = get_results_for_uuid(results, uuid)
+        assert files == EXPORT_RESULTS_NEWEST_FIRST[uuid]
 
-        result = runner.invoke(
-            export,
-            [
-                ".",
-                "--library",
-                os.path.join(cwd, TEST_LIBRARY),
-                "-V",
-                "--update",
-                "--report",
-                "export.json",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("export.json", "rb") as fd:
-            results = json.load(fd)
+    assert f"exported: {EXPORTED_TOTAL}, updated: 0, skipped: 0" in result.output
 
-        for uuid in EXPORT_RESULTS_NEWEST_FIRST:
-            files = get_results_for_uuid(results, uuid)
-            assert files == EXPORT_RESULTS_NEWEST_FIRST[uuid]
+    result = runner.invoke(
+        export,
+        [
+            ".",
+            "--library",
+            TEST_LIBRARY,
+            "-V",
+            "--update",
+            "--report",
+            "export.json",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("export.json", "rb") as fd:
+        results = json.load(fd)
 
-        assert f"exported: 0, updated: 0, skipped: {EXPORTED_TOTAL}" in result.output
+    for uuid in EXPORT_RESULTS_NEWEST_FIRST:
+        files = get_results_for_uuid(results, uuid)
+        assert files == EXPORT_RESULTS_NEWEST_FIRST[uuid]
+
+    assert f"exported: 0, updated: 0, skipped: {EXPORTED_TOTAL}" in result.output
 
 
-def test_export_same_basename_newest_then_oldest_then_newest():
+def test_export_same_basename_newest_then_oldest_then_newest(isolated_fs):
     """test export with photos with same basename with different order (e.g. Live pair and a video with same basename) #2045, #2110"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            export,
-            [
-                ".",
-                "--library",
-                os.path.join(cwd, TEST_LIBRARY),
-                "-V",
-                "--newest-first",
-                "--update",
-                "--report",
-                "export.json",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("export.json", "rb") as fd:
-            results = json.load(fd)
 
-        for uuid in EXPORT_RESULTS_NEWEST_FIRST:
-            files = get_results_for_uuid(results, uuid)
-            assert files == EXPORT_RESULTS_NEWEST_FIRST[uuid]
+    result = runner.invoke(
+        export,
+        [
+            ".",
+            "--library",
+            TEST_LIBRARY,
+            "-V",
+            "--newest-first",
+            "--update",
+            "--report",
+            "export.json",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("export.json", "rb") as fd:
+        results = json.load(fd)
 
-        assert f"exported: {EXPORTED_TOTAL}, updated: 0, skipped: 0" in result.output
+    for uuid in EXPORT_RESULTS_NEWEST_FIRST:
+        files = get_results_for_uuid(results, uuid)
+        assert files == EXPORT_RESULTS_NEWEST_FIRST[uuid]
 
-        result = runner.invoke(
-            export,
-            [
-                ".",
-                "--library",
-                os.path.join(cwd, TEST_LIBRARY),
-                "-V",
-                "--update",
-                "--report",
-                "export.json",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("export.json", "rb") as fd:
-            results = json.load(fd)
+    assert f"exported: {EXPORTED_TOTAL}, updated: 0, skipped: 0" in result.output
 
-        for uuid in EXPORT_RESULTS_NEWEST_FIRST:
-            files = get_results_for_uuid(results, uuid)
-            assert files == EXPORT_RESULTS_NEWEST_FIRST[uuid]
+    result = runner.invoke(
+        export,
+        [
+            ".",
+            "--library",
+            TEST_LIBRARY,
+            "-V",
+            "--update",
+            "--report",
+            "export.json",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("export.json", "rb") as fd:
+        results = json.load(fd)
 
-        assert f"exported: 0, updated: 0, skipped: {EXPORTED_TOTAL}" in result.output
+    for uuid in EXPORT_RESULTS_NEWEST_FIRST:
+        files = get_results_for_uuid(results, uuid)
+        assert files == EXPORT_RESULTS_NEWEST_FIRST[uuid]
 
-        result = runner.invoke(
-            export,
-            [
-                ".",
-                "--library",
-                os.path.join(cwd, TEST_LIBRARY),
-                "-V",
-                "--update",
-                "--newest-first",
-                "--report",
-                "export.json",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("export.json", "rb") as fd:
-            results = json.load(fd)
+    assert f"exported: 0, updated: 0, skipped: {EXPORTED_TOTAL}" in result.output
 
-        for uuid in EXPORT_RESULTS_NEWEST_FIRST:
-            files = get_results_for_uuid(results, uuid)
-            assert files == EXPORT_RESULTS_NEWEST_FIRST[uuid]
+    result = runner.invoke(
+        export,
+        [
+            ".",
+            "--library",
+            TEST_LIBRARY,
+            "-V",
+            "--update",
+            "--newest-first",
+            "--report",
+            "export.json",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("export.json", "rb") as fd:
+        results = json.load(fd)
 
-        assert f"exported: 0, updated: 0, skipped: {EXPORTED_TOTAL}" in result.output
+    for uuid in EXPORT_RESULTS_NEWEST_FIRST:
+        files = get_results_for_uuid(results, uuid)
+        assert files == EXPORT_RESULTS_NEWEST_FIRST[uuid]
+
+    assert f"exported: 0, updated: 0, skipped: {EXPORTED_TOTAL}" in result.output
