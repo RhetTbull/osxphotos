@@ -1,11 +1,15 @@
 """Test PhotoExporter._kill_photos_process functionality"""
 
+import getpass
 import os
+import shutil
 import subprocess
 import time
 
 import pytest
 
+import osxphotos.cli.kill_photos as kill_photos_module
+import osxphotos.photoexporter as photoexporter_module
 from osxphotos.photoexporter import PhotoExporter
 from osxphotos.platform import is_macos
 
@@ -106,3 +110,67 @@ def test_kill_photos_process_when_not_running():
 
     # Photos should still not be running
     assert not is_photos_running(), "Photos.app should still not be running"
+
+
+class _RunRecorder:
+    """Stand-in for subprocess.run that records the command it was given"""
+
+    def __init__(self, returncode=0, stderr=""):
+        self.calls = []
+        self.returncode = returncode
+        self.stderr = stderr
+
+    def __call__(self, args, **kwargs):
+        self.calls.append(list(args))
+        return subprocess.CompletedProcess(args, self.returncode, "", self.stderr)
+
+
+def test_kill_photos_process_matches_only_this_users_photos(monkeypatch):
+    """_kill_photos_process signals only the current user's main Photos process"""
+    recorder = _RunRecorder()
+    monkeypatch.setattr(photoexporter_module.subprocess, "run", recorder)
+
+    PhotoExporter._kill_photos_process()
+
+    assert recorder.calls == [["pkill", "-u", str(os.getuid()), "-x", "Photos"]]
+
+
+def test_kill_photos_matches_only_this_users_photos(monkeypatch):
+    """kill_photos signals only the current user's Photos"""
+    recorder = _RunRecorder()
+    monkeypatch.setattr(kill_photos_module.subprocess, "run", recorder)
+    monkeypatch.setattr(kill_photos_module, "echo_error", lambda *args: None)
+
+    assert kill_photos_module.kill_photos()
+
+    assert recorder.calls == [["killall", "-u", getpass.getuser(), "Photos"]]
+
+
+@pytest.mark.skipif(shutil.which("pkill") is None, reason="needs pkill")
+@pytest.mark.skipif(is_photos_running(), reason="Photos is running and would be killed")
+def test_kill_photos_process_spares_other_apps(tmp_path):
+    """A process with "Photos.app" in its path but another name survives"""
+    sleep = shutil.which("sleep")
+    macos_dir = tmp_path / "Zouti Photos.app" / "Contents" / "MacOS"
+    macos_dir.mkdir(parents=True)
+    decoy_path = macos_dir / "Zouti Photos"
+    decoy_path.symlink_to(sleep)
+
+    decoy = subprocess.Popen([str(decoy_path), "30"])
+    try:
+        # wait for the decoy to exec so pkill sees its final command line
+        for _ in range(50):
+            result = subprocess.run(
+                ["pgrep", "-f", "Zouti Photos.app"], capture_output=True, check=False
+            )
+            if str(decoy.pid) in result.stdout.decode().split():
+                break
+            time.sleep(0.1)
+
+        PhotoExporter._kill_photos_process()
+        time.sleep(0.5)
+
+        assert decoy.poll() is None, "_kill_photos_process killed an unrelated app"
+    finally:
+        decoy.kill()
+        decoy.wait()
