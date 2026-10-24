@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 
 #### Fixed
 
+- Fixed `export --update --download-missing` downloading an edited Live Photo on every run with AppleScript downloads: the update check required `<name>_edited.mov`, which AppleScript can't export; it is now required only with `--use-photokit`.
 - Fixed `{created.strftime,%s}` (and other date fields using `%s`) returning an epoch value offset by the exporting machine's UTC offset, e.g. one hour off for photos taken during Daylight Saving Time. `%s` is now computed from the photo's own timezone. **Note:** this changes `%s` output for anyone exporting from a timezone different from the photo's, so `--update` runs that use `%s` in a filename or directory template may rename previously exported files (#2157, #2246, thanks @mishra-prince for the fix).
 - Fixed `--use-photokit` exporting the wrong version as the original of edited videos not cached locally (#2269).
 - Fixed `export --use-photos-export` killing unrelated apps (any app whose path contains `Photos.app`, Photos' helpers, and other users' Photos) when restarting Photos after repeated AppleScript failures. Only the current user's Photos process is now stopped, and `import` stops only the current user's Photos too (#2277).
