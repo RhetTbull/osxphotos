@@ -4558,17 +4558,22 @@ def test_faceinfo_no_body():
     assert face.detection_type == 1
     assert face.body_width == 0.0
     assert face.body_height == 0.0
+    assert face.size > 0
+    assert face.mwg_rs_area.w > 0
 
 
 UUID_PET_26 = "CD92E5EB-C76E-4A30-8DE7-3B4CD42A73F9"
 UUID_PERSON_26 = "B4F58AA9-C782-4DD2-844F-617FE436905B"
 
 
-def _photosdb_with_pet(tmp_path, detection_type, size):
+def _photosdb_with_pet(
+    tmp_path, detection_type, size, body=(0.4, 0.3, 0.6, 0.2), orientation=1
+):
     """Copy the Test-26.1 database and change one detection on UUID_FACES_26.
 
-    The detection gets the given type and face size, a face center of 0, 0 and
-    a body region with center 0.5, 0.25 and size 0.75 x 0.5.
+    None of the test libraries has a pet, so the detection gets the given type
+    and face size, a face center of 0, 0 and a body region (center x, center y,
+    width, height). The photo gets the given orientation.
     """
     import re
     import shutil
@@ -4593,61 +4598,119 @@ def _photosdb_with_pet(tmp_path, detection_type, size):
         """
         UPDATE ZDETECTEDFACE
         SET ZDETECTIONTYPE = ?, ZSIZE = ?, ZCENTERX = 0, ZCENTERY = 0,
-            ZBODYCENTERX = 0.5, ZBODYCENTERY = 0.25, ZBODYWIDTH = 0.75, ZBODYHEIGHT = 0.5
+            ZBODYCENTERX = ?, ZBODYCENTERY = ?, ZBODYWIDTH = ?, ZBODYHEIGHT = ?
         WHERE ZUUID = ?
         """,
-        (detection_type, size, UUID_PET_26),
+        (detection_type, size, *body, UUID_PET_26),
+    )
+    conn.execute(
+        "UPDATE ZASSET SET ZORIENTATION = ? WHERE ZUUID = ?",
+        (orientation, UUID_FACES_26),
     )
     conn.commit()
     conn.close()
     return osxphotos.PhotosDB(dbfile=str(library / "database" / "photos.db"))
 
 
+def _face(photosdb, uuid):
+    return {f.uuid: f for f in photosdb.get_photo(UUID_FACES_26).face_info}[uuid]
+
+
 @pytest.mark.parametrize("detection_type,is_pet", [(3, True), (4, True), (1, False)])
 def test_faceinfo_pet(tmp_path, detection_type, is_pet):
     """Test pet detections with a zero face size and only a body region"""
     photosdb = _photosdb_with_pet(tmp_path, detection_type, 0)
-    faces = {face.uuid: face for face in photosdb.get_photo(UUID_FACES_26).face_info}
-    pet = faces[UUID_PET_26]
+    pet = _face(photosdb, UUID_PET_26)
     assert pet.detection_type == detection_type
     assert pet.is_pet is is_pet
     assert pet.size == 0
-    assert (pet.body_center_x, pet.body_center_y) == (0.5, 0.25)
-    assert (pet.body_width, pet.body_height) == (0.75, 0.5)
+    assert (pet.body_center_x, pet.body_center_y) == (0.4, 0.3)
+    assert (pet.body_width, pet.body_height) == (0.6, 0.2)
     assert pet.asdict()["is_pet"] is is_pet
-    assert not faces[UUID_PERSON_26].is_pet
+    assert not _face(photosdb, UUID_PERSON_26).is_pet
 
+    area = pet.mwg_rs_area
+    rect = pet.mpri_reg_rect
     if is_pet:
-        # face regions use the body region; orientation 1 flips y
-        assert tuple(pet.mwg_rs_area) == pytest.approx((0.5, 0.75, 0.5, 0.75))
-        assert tuple(pet.mpri_reg_rect) == pytest.approx((0.125, 0.5, 0.75, 0.5))
+        # the face regions use the body region; orientation 1 flips y
+        assert (area.x, area.y) == pytest.approx((0.4, 0.7))
+        assert (area.w, area.h) == pytest.approx((0.6, 0.2))
+        # MPRI_Reg_Rect stores the width in h and the height in w
+        assert (rect.x, rect.y) == pytest.approx((0.1, 0.6))
+        assert (rect.h, rect.w) == pytest.approx((0.6, 0.2))
     else:
         # a person with a zero face size keeps the zero size region
-        assert tuple(pet.mwg_rs_area) == pytest.approx((0.0, 1.0, 0.0, 0.0))
+        assert (area.w, area.h) == (0, 0)
+
+
+@pytest.mark.parametrize("body", [(0.4, 0.3, 0, 0), (0.4, 0.3, None, None)])
+def test_faceinfo_pet_no_body(tmp_path, body):
+    """A pet with no face region and no body region keeps the zero size region"""
+    pet = _face(_photosdb_with_pet(tmp_path, 4, 0, body=body), UUID_PET_26)
+    assert pet.is_pet
+    assert (pet.mwg_rs_area.w, pet.mwg_rs_area.h) == (0, 0)
 
 
 def test_faceinfo_pet_with_face(tmp_path):
     """A pet with a face region uses the face region, not the body region"""
-    pet_db = _photosdb_with_pet(tmp_path / "pet", 3, 0.1)
-    person_db = _photosdb_with_pet(tmp_path / "person", 1, 0.1)
-    pet = {f.uuid: f for f in pet_db.get_photo(UUID_FACES_26).face_info}[UUID_PET_26]
-    person = {f.uuid: f for f in person_db.get_photo(UUID_FACES_26).face_info}[
-        UUID_PET_26
-    ]
+    pet = _face(_photosdb_with_pet(tmp_path / "pet", 3, 0.1), UUID_PET_26)
+    person = _face(_photosdb_with_pet(tmp_path / "person", 1, 0.1), UUID_PET_26)
     assert pet.is_pet
     assert pet.mwg_rs_area == person.mwg_rs_area
     assert pet.mpri_reg_rect == person.mpri_reg_rect
 
 
-@pytest.mark.parametrize("orientation", [1, 2, 3, 4, 5, 6, 7, 8])
-def test_faceinfo_pet_orientation(tmp_path, orientation):
-    """The body region is rotated the same way as the face center"""
-    from types import SimpleNamespace
+@pytest.mark.parametrize(
+    "orientation,center,size",
+    [
+        (1, (0.4, 0.7), (0.6, 0.2)),
+        (2, (0.6, 0.7), (0.6, 0.2)),
+        (3, (0.6, 0.3), (0.6, 0.2)),
+        (4, (0.4, 0.3), (0.6, 0.2)),
+        (5, (0.7, 0.4), (0.2, 0.6)),
+        (6, (0.7, 0.6), (0.2, 0.6)),
+        (7, (0.3, 0.6), (0.2, 0.6)),
+        (8, (0.3, 0.4), (0.2, 0.6)),
+    ],
+)
+def test_faceinfo_pet_orientation(tmp_path, orientation, center, size):
+    """The body region of a pet is rotated with the photo orientation"""
+    photosdb = _photosdb_with_pet(tmp_path, 4, 0, orientation=orientation)
+    assert photosdb.get_photo(UUID_FACES_26).orientation == orientation
+    area = _face(photosdb, UUID_PET_26).mwg_rs_area
+    assert (area.x, area.y) == pytest.approx(center)
+    assert (area.w, area.h) == pytest.approx(size)
 
-    photosdb = _photosdb_with_pet(tmp_path, 4, 0)
-    pet = {f.uuid: f for f in photosdb.get_photo(UUID_FACES_26).face_info}[UUID_PET_26]
-    pet._photo = SimpleNamespace(orientation=orientation, width=4032, height=3024)
-    x, y = pet._fix_orientation((0.5, 0.25))
-    w, h = (0.5, 0.75) if orientation in [5, 6, 7, 8] else (0.75, 0.5)
-    assert tuple(pet.mwg_rs_area) == pytest.approx((x, y, h, w))
-    assert tuple(pet.mpri_reg_rect) == pytest.approx((x - w / 2, y - h / 2, w, h))
+
+def test_faceinfo_pet_sidecar_regions(tmp_path):
+    """The exiftool and XMP face regions of a pet use the body region"""
+    import re
+
+    from osxphotos.exifwriter import ExifWriter
+    from osxphotos.sidecars import xmp_sidecar
+
+    photo = _photosdb_with_pet(tmp_path, 3, 0).get_photo(UUID_FACES_26)
+    name = _face(photo._db, UUID_PET_26).name
+
+    exif = ExifWriter(photo).exiftool_dict()
+    regions = {r["Name"]: r for r in exif["XMP-mwg-rs:RegionInfo"]["RegionList"]}
+    region = regions[name]
+    assert region["Type"] == "Face"
+    assert (region["Area"]["X"], region["Area"]["Y"]) == pytest.approx((0.4, 0.7))
+    assert (region["Area"]["W"], region["Area"]["H"]) == pytest.approx((0.6, 0.2))
+
+    xmp = xmp_sidecar(photo)
+    match = re.search(
+        r"<stArea:h>([\d.]+)</stArea:h>\s*<stArea:w>([\d.]+)</stArea:w>\s*"
+        r"<stArea:x>([\d.]+)</stArea:x>\s*<stArea:y>([\d.]+)</stArea:y>\s*"
+        r"<stArea:unit>normalized</stArea:unit>\s*</mwg-rs:Area>\s*"
+        rf"<mwg-rs:Name>{re.escape(name)}</mwg-rs:Name>\s*"
+        r"<mwg-rs:Rotation>[^<]*</mwg-rs:Rotation>\s*<mwg-rs:Type>(\w+)</mwg-rs:Type>",
+        xmp,
+    )
+    assert match
+    h, w, x, y, region_type = match.groups()
+    assert (float(x), float(y), float(w), float(h)) == pytest.approx(
+        (0.4, 0.7, 0.6, 0.2)
+    )
+    assert region_type == "Face"
