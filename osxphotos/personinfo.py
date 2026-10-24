@@ -8,6 +8,8 @@ from functools import cached_property
 
 import osxphotos
 
+from ._constants import _DETECTION_TYPE_CAT, _DETECTION_TYPE_DOG
+
 logger = logging.getLogger("osxphotos")
 
 __all__ = ["FaceInfo", "PersonInfo", "rotate_image_point"]
@@ -184,6 +186,30 @@ class FaceInfo:
         self.intrash = face["intrash"]
         self.lip_makeup_type = face["lipmakeuptype"]
         self.smile_type = face["smiletype"]
+        self.detection_type = face["detectiontype"]
+        self.body_center_x = face["bodycenterx"]
+        self.body_center_y = face["bodycentery"]
+        self.body_width = face["bodywidth"]
+        self.body_height = face["bodyheight"]
+
+    @property
+    def is_pet(self):
+        """True if this is a pet (dog or cat) detection; Photos 7+ only"""
+        return self.detection_type in (_DETECTION_TYPE_DOG, _DETECTION_TYPE_CAT)
+
+    def _body_region(self):
+        """Body region center and size for a pet with no face region, or None
+
+        Photos stores many pet detections with a face size of 0 and only a body
+        region. Returns (x, y, w, h) adjusted for image orientation, with the
+        center x, y and the width and height as fractions of the image.
+        """
+        if not self.is_pet or self.size or not self.body_width or not self.body_height:
+            return None
+        x, y = self._fix_orientation((self.body_center_x, self.body_center_y))
+        if self.photo.orientation in [5, 6, 7, 8]:
+            return x, y, self.body_height, self.body_width
+        return x, y, self.body_width, self.body_height
 
     @property
     def center(self):
@@ -247,6 +273,10 @@ class FaceInfo:
         if self.photo.width == 0 or self.photo.height == 0:
             return MWG_RS_Area(0, 0, 0, 0)
 
+        if body := self._body_region():
+            x, y, w, h = body
+            return MWG_RS_Area(x, y, h, w)
+
         if self.photo.orientation in [5, 6, 7, 8]:
             w = self.size_pixels / self.photo.height
             h = self.size_pixels / self.photo.width
@@ -277,6 +307,11 @@ class FaceInfo:
         # in this case return a zero rectangle which doesn't make sense but neither does a zero width or height
         if self.photo.width == 0 or self.photo.height == 0:
             return MPRI_Reg_Rect(0, 0, 0, 0)
+
+        if body := self._body_region():
+            x, y, w, h = body
+            # same field order as the face rectangle below: width is stored in h
+            return MPRI_Reg_Rect(x - w / 2, y - h / 2, w, h)
 
         if self.photo.orientation in [5, 6, 7, 8]:
             w = self.size_pixels / self.photo.width
@@ -452,6 +487,12 @@ class FaceInfo:
             "intrash": self.intrash,
             "lip_makeup_type": self.lip_makeup_type,
             "smile_type": self.smile_type,
+            "detection_type": self.detection_type,
+            "is_pet": self.is_pet,
+            "body_center_x": self.body_center_x,
+            "body_center_y": self.body_center_y,
+            "body_width": self.body_width,
+            "body_height": self.body_height,
         }
 
     def json(self):
