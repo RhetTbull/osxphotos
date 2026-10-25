@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - Fixed `{created.strftime,%s}` (and other date fields using `%s`) returning an epoch value offset by the exporting machine's UTC offset, e.g. one hour off for photos taken during Daylight Saving Time. `%s` is now computed from the photo's own timezone. **Note:** this changes `%s` output for anyone exporting from a timezone different from the photo's, so `--update` runs that use `%s` in a filename or directory template may rename previously exported files (#2157, #2246, thanks @mishra-prince for the fix).
 - Fixed `--use-photokit` exporting the wrong version as the original of edited videos not cached locally (#2269).
 - Fixed `export --use-photos-export` killing unrelated apps (any app whose path contains `Photos.app`, Photos' helpers, and other users' Photos) when restarting Photos after repeated AppleScript failures. Only the current user's Photos process is now stopped, and `import` stops only the current user's Photos too (#2277).
+- Fixed reading the photo date from EXIF/XMP/QuickTime metadata (used by `timewarp --compare-exif`/`--pull-exif`, `push-exif`, `import` and others) silently returning no date when the highest-priority date field held an unparseable value: the remaining date fields are now tried, common non-standard formats such as `DD.MM.YYYY HH:MM` and `YYYY-MM-DD HH:MM:SS` are recognized when no field holds a standard EXIF date, and a warning is logged for dates that still can't be parsed (#2274).
 
 #### Contributors
 
