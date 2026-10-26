@@ -937,13 +937,11 @@ class PhotoInfo:
         for example: com.canon.cr2-raw-image
         Returns None if no associated RAW image
         """
-        if self._db._photos_ver < 7:
-            return self._info["UTI_raw"]
-
-        if rawpath := self.path_raw:
+        if self._db._photos_ver >= 7 and (rawpath := self.path_raw):
             return get_uti_for_extension(pathlib.Path(rawpath).suffix)
-        else:
-            return None
+        # Photos <= 6, or the RAW isn't on disk (e.g. evicted to iCloud):
+        # use the type in the Photos database
+        return self._info["UTI_raw"]
 
     @property
     def ismovie(self) -> bool:
