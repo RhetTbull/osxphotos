@@ -663,7 +663,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/39051?v=4",
       "profile": "http://tja.lv/e",
       "contributions": [
-        "bug"
+        "bug",
+        "code"
       ]
     },
     {
@@ -1157,6 +1158,33 @@
       "name": "Rob K",
       "avatar_url": "https://avatars.githubusercontent.com/u/12484127?v=4",
       "profile": "https://github.com/rknightion",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "tomkoelman",
+      "name": "tomkoelman",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1191052?v=4",
+      "profile": "https://github.com/tomkoelman",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "TimJDFletcher",
+      "name": "Tim Fletcher",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4928381?v=4",
+      "profile": "https://blog.night-shade.org.uk",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "a1exsun",
+      "name": "Alex Sun",
+      "avatar_url": "https://avatars.githubusercontent.com/u/35476773?v=4",
+      "profile": "http://xsun.work",
       "contributions": [
         "code"
       ]

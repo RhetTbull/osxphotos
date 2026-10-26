@@ -159,10 +159,14 @@ class PhotoExporter:
     def _kill_photos_process():
         """Kill the Photos app process to restart it"""
         try:
-            # Use pkill to kill the main Photos application process
-            # Use -f to match the full path containing Photos.app
+            # Match the process name exactly (-x) and only this user's processes
+            # (-u): `pkill -f Photos.app` also killed any process whose path
+            # contains "Photos.app", such as other apps named "... Photos",
+            # Photos' own helpers, and other users' Photos.
             result = subprocess.run(
-                ["pkill", "-f", "Photos.app"], check=False, capture_output=True
+                ["pkill", "-u", str(os.getuid()), "-x", "Photos"],
+                check=False,
+                capture_output=True,
             )
             if result.returncode == 0:
                 logger.debug(

@@ -67,6 +67,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -128,6 +134,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -189,6 +201,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -250,6 +268,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -311,6 +335,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -372,6 +402,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -433,6 +469,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -494,6 +536,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -555,6 +603,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -616,6 +670,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -677,6 +737,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -738,6 +804,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -799,6 +871,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -860,6 +938,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -921,6 +1005,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -982,6 +1072,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -1043,6 +1139,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
             "7CqIoKTTRvm%yJlnVaQ33w": {
                 "_pk": 4,
@@ -1100,6 +1202,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
         }
     },
@@ -1161,6 +1269,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -1222,6 +1336,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -1283,6 +1403,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -1344,6 +1470,12 @@ UUID_LIST_4 = [
                 "intrash": None,
                 "lip_makeup_type": None,
                 "smile_type": None,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -1408,6 +1540,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 2,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -1469,6 +1607,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 1,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -1530,6 +1674,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
             "05BC1A65-9743-4B8E-9A10-1A0B78E3E949": {
                 "_pk": 46,
@@ -1587,6 +1737,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
         }
     },
@@ -1648,6 +1804,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 2,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -1709,6 +1871,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 2,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -1770,6 +1938,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -1831,6 +2005,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 1,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -1892,6 +2072,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -1953,6 +2139,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 2,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -2014,6 +2206,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -2075,6 +2273,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 1,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -2136,6 +2340,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
             "1B9F9019-D6BF-4892-BBCA-C4DED32FDA64": {
                 "_pk": 38,
@@ -2193,6 +2403,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
         }
     },
@@ -2254,6 +2470,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 2,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -2315,6 +2537,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -2376,6 +2604,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
             "D391058C-2780-4B94-95AE-C58DECB35477": {
                 "_pk": 30,
@@ -2433,6 +2667,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
         }
     },
@@ -2494,6 +2734,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -2555,6 +2801,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
             "8D9E2AC9-43C8-44C1-B0E9-FAF39B4464B1": {
                 "_pk": 32,
@@ -2612,6 +2864,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
         }
     },
@@ -2673,6 +2931,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 1,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -2734,6 +2998,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 2,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -2795,6 +3065,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -2856,6 +3132,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
             "F2F5CAAD-934C-4FF2-9393-119F9DDAF42F": {
                 "_pk": 40,
@@ -2913,6 +3195,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
         }
     },
@@ -2974,6 +3262,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -3035,6 +3329,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
             "AAE996DF-2BAF-4945-A6F2-442DA1986F69": {
                 "_pk": 42,
@@ -3092,6 +3392,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
         }
     },
@@ -3153,6 +3459,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -3214,6 +3526,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
             "881A2FBC-0B54-4946-9AE5-EA872DDA7B3A": {
                 "_pk": 44,
@@ -3271,6 +3589,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
         }
     },
@@ -3332,6 +3656,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
             "E2D82CB4-E3FD-4C91-B74E-AB52D35C3E3E": {
                 "_pk": 36,
@@ -3389,6 +3719,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
         }
     },
@@ -3450,6 +3786,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 2,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -3511,6 +3853,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 1,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -3572,6 +3920,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
             "4A94F932-FB23-48AA-AFD3-EDF2875A3F3E": {
                 "_pk": 34,
@@ -3629,6 +3983,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
         }
     },
@@ -3690,6 +4050,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -3751,6 +4117,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 1,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -3812,6 +4184,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 0,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -3873,6 +4251,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 2,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
             "87768A03-2B8A-4C4C-9A08-277F1A50FDA6": {
                 "_pk": 4,
@@ -3930,6 +4314,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 2,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             },
         }
     },
@@ -3991,6 +4381,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 1,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -4052,6 +4448,12 @@ UUID_LIST_5 = [
                 "intrash": 0,
                 "lip_makeup_type": 0,
                 "smile_type": 2,
+                "detection_type": None,
+                "is_pet": False,
+                "body_center_x": None,
+                "body_center_y": None,
+                "body_width": None,
+                "body_height": None,
             }
         }
     },
@@ -4120,3 +4522,195 @@ def test_faceinfo_v4_no_face(photosdb4):
     """Test FaceInfo on image with no faces"""
     photo = photosdb4.get_photo(UUID_NO_FACE_4)
     assert photo.face_info == []
+
+
+PHOTOS_DB_26 = "tests/Test-26.1.photoslibrary"
+UUID_FACES_26 = "F12384F6-CD17-4151-ACBA-AE0E3688539E"
+UUID_NO_BODY_26 = "6FD38366-3BF2-407D-81FE-7153EB6125B6"
+
+
+def test_faceinfo_detection_type_and_body():
+    """Test detection type and body box on Photos 7+"""
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_26)
+    faces = {face.name: face for face in photosdb.get_photo(UUID_FACES_26).face_info}
+    suzy = faces["Suzy"]
+    assert suzy.detection_type == 1
+    assert not suzy.is_pet
+    assert suzy.body_center_x == pytest.approx(0.21879412396843823)
+    assert suzy.body_center_y == pytest.approx(0.6078616639169534)
+    assert suzy.body_width == pytest.approx(0.23981651842457441)
+    assert suzy.body_height == pytest.approx(0.36332512209602724)
+
+    face_dict = suzy.asdict()
+    assert face_dict["detection_type"] == 1
+    assert face_dict["is_pet"] is False
+    assert face_dict["body_width"] == pytest.approx(0.23981651842457441)
+
+
+def test_faceinfo_no_body():
+    """Test a face that has no body box"""
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_26)
+    face = photosdb.get_photo(UUID_NO_BODY_26).face_info[0]
+    assert face.detection_type == 1
+    assert face.body_width == 0.0
+    assert face.body_height == 0.0
+    assert face.size > 0
+    assert face.mwg_rs_area.w > 0
+
+
+UUID_PET_26 = "CD92E5EB-C76E-4A30-8DE7-3B4CD42A73F9"
+UUID_PERSON_26 = "B4F58AA9-C782-4DD2-844F-617FE436905B"
+
+
+def _photosdb_with_pet(
+    tmp_path, detection_type, size, body=(0.4, 0.3, 0.6, 0.2), orientation=1
+):
+    """Copy the Test-26.1 database and change one detection on UUID_FACES_26.
+
+    None of the test libraries has a pet, so the detection gets the given type
+    and face size, a face center of 0, 0 and a body region (center x, center y,
+    width, height). The photo gets the given orientation.
+    """
+    import re
+    import shutil
+    import sqlite3
+
+    import osxphotos
+
+    library = tmp_path / "Test-26.1.photoslibrary"
+    shutil.copytree(
+        f"{PHOTOS_DB_26}/database",
+        library / "database",
+        ignore=shutil.ignore_patterns("search", "*.lock"),
+    )
+    conn = sqlite3.connect(library / "database" / "Photos.sqlite")
+    # Photos triggers call Core Data functions which aren't available outside Photos
+    schema = " ".join(
+        row[0] for row in conn.execute("SELECT sql FROM sqlite_master") if row[0]
+    )
+    for name in set(re.findall(r"\b(NSCoreData\w+)\(", schema)):
+        conn.create_function(name, -1, lambda *args: None)
+    conn.execute(
+        """
+        UPDATE ZDETECTEDFACE
+        SET ZDETECTIONTYPE = ?, ZSIZE = ?, ZCENTERX = 0, ZCENTERY = 0,
+            ZBODYCENTERX = ?, ZBODYCENTERY = ?, ZBODYWIDTH = ?, ZBODYHEIGHT = ?
+        WHERE ZUUID = ?
+        """,
+        (detection_type, size, *body, UUID_PET_26),
+    )
+    conn.execute(
+        "UPDATE ZASSET SET ZORIENTATION = ? WHERE ZUUID = ?",
+        (orientation, UUID_FACES_26),
+    )
+    conn.commit()
+    conn.close()
+    return osxphotos.PhotosDB(dbfile=str(library / "database" / "photos.db"))
+
+
+def _face(photosdb, uuid):
+    return {f.uuid: f for f in photosdb.get_photo(UUID_FACES_26).face_info}[uuid]
+
+
+@pytest.mark.parametrize("detection_type,is_pet", [(3, True), (4, True), (1, False)])
+def test_faceinfo_pet(tmp_path, detection_type, is_pet):
+    """Test pet detections with a zero face size and only a body region"""
+    photosdb = _photosdb_with_pet(tmp_path, detection_type, 0)
+    pet = _face(photosdb, UUID_PET_26)
+    assert pet.detection_type == detection_type
+    assert pet.is_pet is is_pet
+    assert pet.size == 0
+    assert (pet.body_center_x, pet.body_center_y) == (0.4, 0.3)
+    assert (pet.body_width, pet.body_height) == (0.6, 0.2)
+    assert pet.asdict()["is_pet"] is is_pet
+    assert not _face(photosdb, UUID_PERSON_26).is_pet
+
+    area = pet.mwg_rs_area
+    rect = pet.mpri_reg_rect
+    if is_pet:
+        # the face regions use the body region; orientation 1 flips y
+        assert (area.x, area.y) == pytest.approx((0.4, 0.7))
+        assert (area.w, area.h) == pytest.approx((0.6, 0.2))
+        # MPRI_Reg_Rect stores the width in h and the height in w
+        assert (rect.x, rect.y) == pytest.approx((0.1, 0.6))
+        assert (rect.h, rect.w) == pytest.approx((0.6, 0.2))
+    else:
+        # a person with a zero face size keeps the zero size region
+        assert (area.w, area.h) == (0, 0)
+
+
+@pytest.mark.parametrize("body", [(0.4, 0.3, 0, 0), (0.4, 0.3, None, None)])
+def test_faceinfo_pet_no_body(tmp_path, body):
+    """A pet with no face region and no body region keeps the zero size region"""
+    pet = _face(_photosdb_with_pet(tmp_path, 4, 0, body=body), UUID_PET_26)
+    assert pet.is_pet
+    assert (pet.mwg_rs_area.w, pet.mwg_rs_area.h) == (0, 0)
+
+
+def test_faceinfo_pet_with_face(tmp_path):
+    """A pet with a face region uses the face region, not the body region"""
+    pet = _face(_photosdb_with_pet(tmp_path / "pet", 3, 0.1), UUID_PET_26)
+    person = _face(_photosdb_with_pet(tmp_path / "person", 1, 0.1), UUID_PET_26)
+    assert pet.is_pet
+    assert pet.mwg_rs_area == person.mwg_rs_area
+    assert pet.mpri_reg_rect == person.mpri_reg_rect
+
+
+@pytest.mark.parametrize(
+    "orientation,center,size",
+    [
+        (1, (0.4, 0.7), (0.6, 0.2)),
+        (2, (0.6, 0.7), (0.6, 0.2)),
+        (3, (0.6, 0.3), (0.6, 0.2)),
+        (4, (0.4, 0.3), (0.6, 0.2)),
+        (5, (0.7, 0.4), (0.2, 0.6)),
+        (6, (0.7, 0.6), (0.2, 0.6)),
+        (7, (0.3, 0.6), (0.2, 0.6)),
+        (8, (0.3, 0.4), (0.2, 0.6)),
+    ],
+)
+def test_faceinfo_pet_orientation(tmp_path, orientation, center, size):
+    """The body region of a pet is rotated with the photo orientation"""
+    photosdb = _photosdb_with_pet(tmp_path, 4, 0, orientation=orientation)
+    assert photosdb.get_photo(UUID_FACES_26).orientation == orientation
+    area = _face(photosdb, UUID_PET_26).mwg_rs_area
+    assert (area.x, area.y) == pytest.approx(center)
+    assert (area.w, area.h) == pytest.approx(size)
+
+
+def test_faceinfo_pet_sidecar_regions(tmp_path):
+    """The exiftool and XMP face regions of a pet use the body region"""
+    import re
+
+    from osxphotos.exifwriter import ExifWriter
+    from osxphotos.sidecars import xmp_sidecar
+
+    photo = _photosdb_with_pet(tmp_path, 3, 0).get_photo(UUID_FACES_26)
+    name = _face(photo._db, UUID_PET_26).name
+
+    exif = ExifWriter(photo).exiftool_dict()
+    regions = {r["Name"]: r for r in exif["XMP-mwg-rs:RegionInfo"]["RegionList"]}
+    region = regions[name]
+    assert region["Type"] == "Face"
+    assert (region["Area"]["X"], region["Area"]["Y"]) == pytest.approx((0.4, 0.7))
+    assert (region["Area"]["W"], region["Area"]["H"]) == pytest.approx((0.6, 0.2))
+
+    xmp = xmp_sidecar(photo)
+    match = re.search(
+        r"<stArea:h>([\d.]+)</stArea:h>\s*<stArea:w>([\d.]+)</stArea:w>\s*"
+        r"<stArea:x>([\d.]+)</stArea:x>\s*<stArea:y>([\d.]+)</stArea:y>\s*"
+        r"<stArea:unit>normalized</stArea:unit>\s*</mwg-rs:Area>\s*"
+        rf"<mwg-rs:Name>{re.escape(name)}</mwg-rs:Name>\s*"
+        r"<mwg-rs:Rotation>[^<]*</mwg-rs:Rotation>\s*<mwg-rs:Type>(\w+)</mwg-rs:Type>",
+        xmp,
+    )
+    assert match
+    h, w, x, y, region_type = match.groups()
+    assert (float(x), float(y), float(w), float(h)) == pytest.approx(
+        (0.4, 0.7, 0.6, 0.2)
+    )
+    assert region_type == "Face"

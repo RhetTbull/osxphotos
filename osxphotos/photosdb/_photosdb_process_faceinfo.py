@@ -152,6 +152,11 @@ def _process_faceinfo_4(photosdb):
         face["lipmakeuptype"] = None
         face["smiletype"] = None
         face["masteridentifier"] = None
+        face["detectiontype"] = None
+        face["bodycenterx"] = None
+        face["bodycentery"] = None
+        face["bodywidth"] = None
+        face["bodyheight"] = None
 
         photosdb._db_faceinfo_pk[modelid] = face
 
@@ -180,6 +185,17 @@ def _process_faceinfo_5(photosdb):
     asset_table = _DB_TABLE_NAMES[photosdb._photos_ver]["ASSET"]
     asset_fk = _DB_TABLE_NAMES[photosdb._photos_ver]["DETECTED_FACE_ASSET_FK"]
     person_fk = _DB_TABLE_NAMES[photosdb._photos_ver]["DETECTED_FACE_PERSON_FK"]
+
+    # detection type (person or pet) and body box were added in Photos 7 (Monterey)
+    if photosdb._photos_ver >= 7:
+        body_columns = """
+        ZDETECTEDFACE.ZDETECTIONTYPE,
+        ZDETECTEDFACE.ZBODYCENTERX,
+        ZDETECTEDFACE.ZBODYCENTERY,
+        ZDETECTEDFACE.ZBODYWIDTH,
+        ZDETECTEDFACE.ZBODYHEIGHT"""
+    else:
+        body_columns = "NULL, NULL, NULL, NULL, NULL"
 
     (conn, cursor) = sqlite_open_ro(db)
 
@@ -224,7 +240,8 @@ def _process_faceinfo_5(photosdb):
         ZDETECTEDFACE.ZROLL,
         ZDETECTEDFACE.ZSIZE,
         NULL, -- ZDETECTEDFACE.ZYAW,
-        ZDETECTEDFACE.ZMASTERIDENTIFIER
+        ZDETECTEDFACE.ZMASTERIDENTIFIER,
+        {body_columns}
         FROM ZDETECTEDFACE
         JOIN {asset_table} ON {asset_table}.Z_PK = {asset_fk}
         JOIN ZPERSON ON ZPERSON.Z_PK = {person_fk};
@@ -270,6 +287,11 @@ def _process_faceinfo_5(photosdb):
     # 36   ZDETECTEDFACE.ZSIZE,
     # 37   NULL -- ZDETECTEDFACE.ZYAW, (Not available on Ventura)
     # 38   ZDETECTEDFACE.ZMASTERIDENTIFIER
+    # 39   ZDETECTEDFACE.ZDETECTIONTYPE, (Photos 7+)
+    # 40   ZDETECTEDFACE.ZBODYCENTERX, (Photos 7+)
+    # 41   ZDETECTEDFACE.ZBODYCENTERY, (Photos 7+)
+    # 42   ZDETECTEDFACE.ZBODYWIDTH, (Photos 7+)
+    # 43   ZDETECTEDFACE.ZBODYHEIGHT (Photos 7+)
 
     for row in result:
         pk = row[0]
@@ -311,6 +333,11 @@ def _process_faceinfo_5(photosdb):
         face["roll"] = row[35]
         face["size"] = row[36]
         face["masteridentifier"] = row[38]
+        face["detectiontype"] = row[39]
+        face["bodycenterx"] = row[40]
+        face["bodycentery"] = row[41]
+        face["bodywidth"] = row[42]
+        face["bodyheight"] = row[43]
         face["yaw"] = (
             0  # Photos 4 only (this is in Photos 5-7, but dropped in Ventura so just don't support it)
         )

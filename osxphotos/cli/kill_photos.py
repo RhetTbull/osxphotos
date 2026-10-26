@@ -1,18 +1,20 @@
-"""Kill all instances of the Photos app and detect whether the kill succeeded."""
+"""Kill the current user's Photos app and detect whether the kill succeeded."""
 
+import getpass
 import subprocess
 
 from .cli_commands import echo_error
 
 
 def kill_photos():
-    """Run 'killall Photos' when Photos generates too many errors in response
+    """Run 'killall -u <user> Photos' when Photos generates too many errors in response
     to operations like Import.
     """
     try:
-        # Run 'killall Photos' and capture output
+        # Run 'killall -u <user> Photos' and capture output; -u leaves other
+        # users' Photos alone when osxphotos runs with enough privilege
         result = subprocess.run(
-            ["killall", "Photos"],
+            ["killall", "-u", getpass.getuser(), "Photos"],
             capture_output=True,
             text=True,
             check=False,
