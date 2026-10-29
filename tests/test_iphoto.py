@@ -18,16 +18,18 @@ from osxphotos.exiftool import get_exiftool_path
 from osxphotos.iphoto import iPhotoPhotoInfo, is_iphoto_library
 from osxphotos.platform import is_macos
 
+from .conftest import repo_path
+
 logger = logging.getLogger("osxphotos")
 
-IPHOTO_LIBRARY = "tests/Test-iPhoto-9.6.1.photolibrary"
-PHOTO_LIBRARY = "tests/Test-10.15.7.photoslibrary"
+IPHOTO_LIBRARY = repo_path("tests/Test-iPhoto-9.6.1.photolibrary")
+PHOTO_LIBRARY = repo_path("tests/Test-10.15.7.photoslibrary")
 ALBUM_TITLES = ["Test Album", "Pumpkin Farm", "Last Import", "AlbumInFolder"]
 
 # Test data for iPhoto library
 # Created with `osxphotos query --library tests/Test-iPhoto-9.6.1.photolibrary --json | json_pp > tests/iphoto_test_data.json`
 # Then replace the path to the library with `IPHOTO_LIBRARY_ROOT`
-TEST_DATA = "tests/iphoto_test_data.json"
+TEST_DATA = repo_path("tests/iphoto_test_data.json")
 
 # determine if exiftool installed so exiftool tests can be skipped
 try:
@@ -110,7 +112,7 @@ def iphotodb() -> iPhotoDB:
 
 
 def photo_info() -> list[dict[str, Any]]:
-    """ "List of dicts containing photo info from iPhoto library"""
+    """List of dicts containing photo info from iPhoto library"""
     with open(TEST_DATA) as json_file:
         photo_data = json.load(json_file)
 
@@ -252,31 +254,30 @@ def test_iphoto_info(iphotodb: iPhotoDB, photo_dict: dict[str, Any]):
 
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
-def test_iphoto_export_fix_orientation():
+def test_iphoto_export_fix_orientation(isolated_fs):
     """Test export with --fix-orientation flag"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            export,
-            [
-                ".",
-                "--fix-orientation",
-                "--library",
-                f"{cwd}/{IPHOTO_LIBRARY}",
-                "--verbose",
-            ],
-        )
-        assert result.exit_code == 0
-        assert (
-            "File orientation not set for photo RgISIEPbThGVoco5LyiLjQ but photo orientation is 1 (normal), no fix needed"
-            in result.output
-        )
-        assert (
-            "File orientation None does not match photo.orientation 8 for photo E5FQ%pg4SRyKPi4dk6rUrg, fixing orientation"
-            in result.output
-        )
-        assert (
-            "Orientation matches for photo UaL9+WGLTRSpqLbgUoUsIQ, no fix needed"
-            in result.output
-        )
+
+    result = runner.invoke(
+        export,
+        [
+            ".",
+            "--fix-orientation",
+            "--library",
+            IPHOTO_LIBRARY,
+            "--verbose",
+        ],
+    )
+    assert result.exit_code == 0
+    assert (
+        "File orientation not set for photo RgISIEPbThGVoco5LyiLjQ but photo orientation is 1 (normal), no fix needed"
+        in result.output
+    )
+    assert (
+        "File orientation None does not match photo.orientation 8 for photo E5FQ%pg4SRyKPi4dk6rUrg, fixing orientation"
+        in result.output
+    )
+    assert (
+        "Orientation matches for photo UaL9+WGLTRSpqLbgUoUsIQ, no fix needed"
+        in result.output
+    )

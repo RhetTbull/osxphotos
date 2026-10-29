@@ -17,7 +17,11 @@ from click.testing import CliRunner
 import osxphotos.crash_reporter as crash_reporter_module
 from osxphotos.cli import export
 
-CLI_PHOTOS_DB = "tests/Test-10.15.7.photoslibrary"
+from .conftest import repo_path
+
+# The test library is a copy of the Photos library from macOS 10.15.7.
+
+CLI_PHOTOS_DB = repo_path("tests/Test-10.15.7.photoslibrary")
 # a syntactically valid UUID that does not exist in the test library
 NONEXISTENT_UUID = "00000000-0000-0000-0000-000000000000"
 
@@ -30,20 +34,19 @@ def clear_callbacks():
     crash_reporter_module._global_callbacks.clear()
 
 
-def test_export_ramdb_no_leak_on_success():
+def test_export_ramdb_no_leak_on_success(isolated_fs):
     """A successful --ramdb export leaves no crash callback registered."""
     runner = CliRunner()
-    cwd = os.getcwd()
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            export,
-            [".", "--library", os.path.join(cwd, CLI_PHOTOS_DB), "-V", "--ramdb"],
-        )
-        assert result.exit_code == 0
+
+    result = runner.invoke(
+        export,
+        [".", "--library", CLI_PHOTOS_DB, "-V", "--ramdb"],
+    )
+    assert result.exit_code == 0
     assert crash_reporter_module._global_callbacks == {}
 
 
-def test_export_ramdb_no_leak_on_no_photos():
+def test_export_ramdb_no_leak_on_no_photos(isolated_fs):
     """A --ramdb export that matches no photos leaves no crash callback registered.
 
     No crash occurs here, so the crash reporter is never involved -- this
@@ -51,42 +54,39 @@ def test_export_ramdb_no_leak_on_no_photos():
     inside the `if photos:` block and was skipped when nothing matched.
     """
     runner = CliRunner()
-    cwd = os.getcwd()
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            export,
-            [
-                ".",
-                "--library",
-                os.path.join(cwd, CLI_PHOTOS_DB),
-                "-V",
-                "--ramdb",
-                "--uuid",
-                NONEXISTENT_UUID,
-            ],
-        )
-        assert result.exit_code == 0
-        assert "Did not find any photos to export" in result.output
+    result = runner.invoke(
+        export,
+        [
+            ".",
+            "--library",
+            CLI_PHOTOS_DB,
+            "-V",
+            "--ramdb",
+            "--uuid",
+            NONEXISTENT_UUID,
+        ],
+    )
+    assert result.exit_code == 0
+    assert "Did not find any photos to export" in result.output
     assert crash_reporter_module._global_callbacks == {}
 
 
-def test_export_ramdb_no_leak_on_crash():
+def test_export_ramdb_no_leak_on_crash(isolated_fs):
     """A crashed --ramdb export flushes the database and leaves no callback registered."""
     runner = CliRunner()
-    cwd = os.getcwd()
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            export,
-            [
-                ".",
-                "--library",
-                os.path.join(cwd, CLI_PHOTOS_DB),
-                "-V",
-                "--ramdb",
-                "--crash-after",
-                1,
-            ],
-        )
-        assert result.exit_code != 0
-        assert "Writing export database" in result.output
+
+    result = runner.invoke(
+        export,
+        [
+            ".",
+            "--library",
+            CLI_PHOTOS_DB,
+            "-V",
+            "--ramdb",
+            "--crash-after",
+            1,
+        ],
+    )
+    assert result.exit_code != 0
+    assert "Writing export database" in result.output
     assert crash_reporter_module._global_callbacks == {}
