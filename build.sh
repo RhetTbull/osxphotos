@@ -61,7 +61,11 @@ uv build
 
 # build CLI executable
 echo "Building CLI executable"
-./make_cli_exe.sh
+# make_cli_exe.sh smoke tests the executable; don't sign or zip it if that fails
+if ! ./make_cli_exe.sh; then
+    echo "CLI executable build or smoke test failed; not packaging"
+    exit 1
+fi
 
 # sign the executable
 echo "Signing CLI executable"
