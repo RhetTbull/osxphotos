@@ -8,7 +8,7 @@ import os
 
 pathex = os.getcwd()
 
-from PyInstaller.utils.hooks import collect_data_files
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
 # include necessary data files
 datas = collect_data_files("osxphotos")
@@ -61,7 +61,8 @@ a = Analysis(
         ("osxphotos/lib/libdisclaim_arm64.dylib", "osxphotos/lib"),
     ],
     datas=datas,
-    hiddenimports=["pkg_resources.py2_warn"],
+    # bitstring 4.4+ imports its backend dynamically, so PyInstaller misses it (#2283)
+    hiddenimports=["pkg_resources.py2_warn", *collect_submodules("bitstring")],
     hookspath=[],
     # runtime_hooks=["disclaim.py"],
     excludes=[],
