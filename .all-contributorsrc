@@ -1188,6 +1188,16 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "paynejd",
+      "name": "Jonathan Payne",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1189689?v=4",
+      "profile": "http://openconceptlab.org",
+      "contributions": [
+        "bug",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
