@@ -28,4 +28,11 @@ if ! HELP_OUTPUT=$(./dist/osxphotos --help 2>&1); then
     echo "$HELP_OUTPUT"
     exit 1
 fi
+# "osxphotos run" scripts can import modules that aren't loaded at startup
+if ! RUN_OUTPUT=$(./dist/osxphotos run utils/smoke_test_run.py --package-dir osxphotos 2>&1); then
+    echo "Smoke test failed: dist/osxphotos run utils/smoke_test_run.py exited with an error:"
+    echo "$RUN_OUTPUT"
+    exit 1
+fi
+echo "$RUN_OUTPUT"
 echo "Smoke test passed: osxphotos $EXPECTED_VERSION"
