@@ -13,7 +13,6 @@ exporting assets from the library.
 #   find a cleaner way to do this!
 
 # TODO:
-# BUG: LivePhotoAsset.export always exports edited version if Live Photo has been edited, even if other version requested
 # add original=False to export instead of version= (and maybe others like path())
 # make burst/live methods get uuid from self instead of passing as arg
 
@@ -1198,7 +1197,12 @@ class LivePhotoAsset(PhotoAsset):
             request = LivePhotoRequest.alloc().initWithManager_Asset_(
                 self._manager, self.phasset
             )
-            resources = request.requestLivePhotoResources(version=version)
+            # PHLivePhoto is always the current version, even if another is requested
+            resources = (
+                request.requestLivePhotoResources(version=version)
+                if version == PHOTOS_VERSION_CURRENT
+                else self._resources()
+            )
 
             video_resource = None
             photo_resource = None
