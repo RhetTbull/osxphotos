@@ -566,6 +566,7 @@ class PhotoAsset:
         version=PHOTOS_VERSION_CURRENT,
         overwrite=False,
         raw=False,
+        video=False,
         **kwargs,
     ):
         """Export image to path
@@ -576,6 +577,7 @@ class PhotoAsset:
             version: which version of image (PHOTOS_VERSION_ORIGINAL or PHOTOS_VERSION_CURRENT)
             overwrite: bool, if True, overwrites destination file if it already exists; default is False
             raw: bool, if True, export RAW component of RAW+JPEG pair, default is False
+            video: bool, if True, also export the original paired video of a Live Photo whose Live was turned off; ignored for PHOTOS_VERSION_CURRENT; default is False
             **kwargs: used only to avoid issues with each asset type having slightly different export arguments
 
         Returns:
@@ -598,6 +600,7 @@ class PhotoAsset:
                     raise ValueError("dest must be a valid directory: {dest}")
 
                 output_file = None
+                video_file = None
                 if self.isphoto:
                     # will hold exported image data and needs to be cleaned up at end
                     imagedata = None
@@ -628,14 +631,35 @@ class PhotoAsset:
 
                     output_file = dest / f"{filename.stem}.{ext}"
 
+                    video_resource = None
+                    if video and not raw and version != PHOTOS_VERSION_CURRENT:
+                        # Turning Live off drops PhotoLive from mediaSubtypes,
+                        # so this isn't a LivePhotoAsset, but the original keeps its video
+                        for resource in self._resources():
+                            if resource.type() == Photos.PHAssetResourceTypePairedVideo:
+                                video_resource = resource
+                                video_ext = get_preferred_uti_extension(
+                                    resource.uniformTypeIdentifier()
+                                )
+                                video_file = dest / f"{filename.stem}.{video_ext}"
+                                break
+
                     if not overwrite:
                         output_file = pathlib.Path(increment_filename(output_file))
+                        if video_file:
+                            video_file = pathlib.Path(increment_filename(video_file))
 
                     with open(output_file, "wb") as fd:
                         fd.write(data)
 
                     if imagedata:
                         del imagedata
+
+                    if video_resource:
+                        data = self._request_resource_data(video_resource)
+                        with open(video_file, "wb") as fd:
+                            fd.write(data)
+                        del data
                 elif self.ismovie:
                     videodata = self._request_video_data(version=version)
                     if videodata.asset is None:
@@ -653,7 +677,10 @@ class PhotoAsset:
 
                     FileUtil.copy(path, output_file)
 
-                return [str(output_file)]
+                exported = [str(output_file)]
+                if video_file:
+                    exported.append(str(video_file))
+                return exported
 
     def _request_image_data(self, version=PHOTOS_VERSION_ORIGINAL):
         """Request image data and metadata for self._phasset
