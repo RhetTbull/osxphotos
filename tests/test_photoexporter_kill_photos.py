@@ -150,27 +150,35 @@ def test_kill_photos_matches_only_this_users_photos(monkeypatch):
 @pytest.mark.skipif(is_photos_running(), reason="Photos is running and would be killed")
 def test_kill_photos_process_spares_other_apps(tmp_path):
     """A process with "Photos.app" in its path but another name survives"""
-    sleep = shutil.which("sleep")
+    # The decoy is a shell script, not a symlink to an existing binary such as
+    # sleep: multicall binaries (e.g. uutils coreutils, the default on Ubuntu
+    # 26.04) choose the utility from argv[0] and exit 1 under an unknown name.
+    # The script blocks reading stdin, so it stays a single process until the
+    # pipe is closed or it is killed.
     macos_dir = tmp_path / "Zouti Photos.app" / "Contents" / "MacOS"
     macos_dir.mkdir(parents=True)
     decoy_path = macos_dir / "Zouti Photos"
-    decoy_path.symlink_to(sleep)
+    decoy_path.write_text("#!/bin/sh\nread -r _\n")
+    decoy_path.chmod(0o755)
 
-    decoy = subprocess.Popen([str(decoy_path), "30"])
-    try:
-        # wait for the decoy to exec so pkill sees its final command line
-        for _ in range(50):
-            result = subprocess.run(
-                ["pgrep", "-f", "Zouti Photos.app"], capture_output=True, check=False
-            )
-            if str(decoy.pid) in result.stdout.decode().split():
-                break
-            time.sleep(0.1)
+    with subprocess.Popen([str(decoy_path)], stdin=subprocess.PIPE) as decoy:
+        try:
+            # wait for the decoy to exec so pkill sees its final command line
+            for _ in range(50):
+                result = subprocess.run(
+                    ["pgrep", "-f", "Zouti Photos.app"],
+                    capture_output=True,
+                    check=False,
+                )
+                if str(decoy.pid) in result.stdout.decode().split():
+                    break
+                time.sleep(0.1)
+            else:
+                pytest.fail(f"decoy process did not start (exit code {decoy.poll()})")
 
-        PhotoExporter._kill_photos_process()
-        time.sleep(0.5)
+            PhotoExporter._kill_photos_process()
+            time.sleep(0.5)
 
-        assert decoy.poll() is None, "_kill_photos_process killed an unrelated app"
-    finally:
-        decoy.kill()
-        decoy.wait()
+            assert decoy.poll() is None, "_kill_photos_process killed an unrelated app"
+        finally:
+            decoy.kill()
