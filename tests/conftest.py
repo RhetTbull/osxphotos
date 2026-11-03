@@ -6,6 +6,7 @@ import os
 import pathlib
 import re
 import shutil
+import subprocess
 import tempfile
 import time
 from collections.abc import Callable
@@ -23,7 +24,7 @@ from osxphotos.platform import is_macos
 
 if is_macos:
     import photoscript
-    from applescript import AppleScript
+    from applescript import AppleScript, ScriptError
     from photoscript.utils import ditto
 
     from .test_catalina_10_15_7 import UUID_DICT_LOCAL
@@ -437,12 +438,75 @@ def pytest_collection_modifyitems(config, items):
                 item.add_marker(skip_test_sync)
 
 
+PHOTOS_QUIT_TIMEOUT = 30
+LIBRARY_REMOVE_TIMEOUT = 60
+LIBRARY_COPY_RETRIES = 5
+LIBRARY_COPY_RETRY_DELAY = 5
+
+
+def _quit_photos(timeout: float = PHOTOS_QUIT_TIMEOUT) -> None:
+    """Quit Photos.app if it is running, without launching it.
+
+    photoscript.PhotosLibrary() launches Photos, which reopens the last-used
+    library; if that is a stale or partially-deleted test library, Photos blocks
+    on a dialog and later AppleScript calls fail with "User canceled". So check
+    and quit via AppleScript that never launches Photos, and force-quit Photos
+    if it doesn't exit in time (e.g. stuck on a dialog).
+    """
+    script = AppleScript(
+        """
+        on isRunning()
+            return application "Photos" is running
+        end isRunning
+
+        on quitPhotos()
+            if application "Photos" is running then
+                tell application "Photos" to quit
+            end if
+        end quitPhotos
+        """
+    )
+    try:
+        script.call("quitPhotos")
+    except ScriptError as e:
+        print(f"Photos did not quit cleanly ({e}), will force quit")
+
+    deadline = time.monotonic() + timeout
+    killed = False
+    while script.call("isRunning"):
+        if time.monotonic() > deadline:
+            if killed:
+                pytest.exit(f"Timed out after {timeout}s waiting for Photos to quit")
+            subprocess.run(["killall", "Photos"], check=False)
+            killed = True
+            deadline = time.monotonic() + timeout
+        time.sleep(0.5)
+
+
+def _remove_photos_library(
+    library: pathlib.Path, timeout: float = LIBRARY_REMOVE_TIMEOUT
+) -> None:
+    """Remove a previously copied library so each test starts from a fresh copy.
+
+    Photos background daemons can keep writing into the library for a short
+    while after Photos quits, so a single rmtree may leave files behind.
+    Retry until the library is gone; exit pytest if it can't be removed.
+    """
+    deadline = time.monotonic() + timeout
+    while library.exists():
+        shutil.rmtree(library, ignore_errors=True)
+        if not library.exists():
+            return
+        if time.monotonic() > deadline:
+            pytest.exit(f"Could not remove existing library '{library}'")
+        time.sleep(1)
+
+
 def copy_photos_library(photos_library, delay=0, open=True):
     """copy the test library and open Photos, returns path to copied library"""
 
-    # quit Photos if it's running
-    photoslib = photoscript.PhotosLibrary()
-    photoslib.quit()
+    # quit Photos if it's running and wait for it to exit so it releases the library
+    _quit_photos()
 
     src = pathlib.Path(os.getcwd()) / photos_library
     if not src.is_dir():
@@ -458,9 +522,6 @@ def copy_photos_library(photos_library, delay=0, open=True):
         pytest.exit(f"Invalid picture folder: '{picture_folder}'")
     dest = picture_folder / pathlib.Path(photos_library).name
 
-    # copy src directory to dest directory, removing it if it already exists
-    shutil.rmtree(str(dest), ignore_errors=True)
-
     print(f"copying {src} to {picture_folder} ...")
     copyFolder = AppleScript(
         """
@@ -474,12 +535,30 @@ def copy_photos_library(photos_library, delay=0, open=True):
         end copyFolder
         """
     )
-    copyFolder.call("copyFolder", str(src), str(picture_folder))
+    # Remove any existing copy, then copy src to dest. After Photos quits, a
+    # background daemon may still flush the search index (database/search/leo.sqlite)
+    # into the old library, recreating dest after it was removed and causing
+    # Finder to fail with "An item with the same name already exists". When that
+    # happens, wait for the daemon to settle, remove dest again and retry.
+    for attempt in range(1, LIBRARY_COPY_RETRIES + 1):
+        _remove_photos_library(dest)
+        try:
+            copyFolder.call("copyFolder", str(src), str(picture_folder))
+            break
+        except ScriptError as e:
+            if attempt == LIBRARY_COPY_RETRIES:
+                raise
+            print(f"copy attempt {attempt} failed ({e}), retrying...")
+            time.sleep(LIBRARY_COPY_RETRY_DELAY)
 
     # open Photos
     if open:
-        # sometimes doesn't open the first time
+        # Launch Photos directly on the fresh copy; photoscript.PhotosLibrary()
+        # would otherwise launch Photos with whatever library it last used.
+        subprocess.run(["open", "-a", "Photos", str(dest)], check=False)
         time.sleep(delay)
+        photoslib = photoscript.PhotosLibrary()
+        # sometimes doesn't open the first time
         photoslib.open(str(dest))
         time.sleep(delay)
         photoslib.open(str(dest))

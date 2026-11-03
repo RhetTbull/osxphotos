@@ -9085,7 +9085,9 @@ def test_export_burst_folder_album(local_photosdb, isolated_fs, clean_isolated_f
     "OSXPHOTOS_TEST_LOCAL_V2" not in os.environ,
     reason="Skip if not running on author's personal library.",
 )
-def test_export_burst_uuid(local_photosdb: osxphotos.PhotosDB, isolated_fs):
+def test_export_burst_uuid(
+    local_photosdb: osxphotos.PhotosDB, isolated_fs, clean_isolated_fs
+):
     """test non-selected burst photos are exported when image is specified by --uuid, #640"""
 
     runner = CliRunner()
@@ -9126,6 +9128,8 @@ def test_export_burst_uuid(local_photosdb: osxphotos.PhotosDB, isolated_fs):
         )
         assert result.exit_code == 0
         assert f"exported: 1" in result.output
+
+        clean_isolated_fs()
 
 
 @pytest.mark.skipif(
