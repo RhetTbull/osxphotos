@@ -1198,6 +1198,15 @@
         "bug",
         "test"
       ]
+    },
+    {
+      "login": "wojteksbt",
+      "name": "Wojtek",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13969461?v=4",
+      "profile": "https://github.com/wojteksbt",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
