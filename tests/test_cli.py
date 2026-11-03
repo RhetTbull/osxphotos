@@ -2160,7 +2160,7 @@ def test_export_preview_update(isolated_fs):
     assert len(files) == 2  # preview + original
 
 
-def test_export_as_hardlink(isolated_fs):
+def test_export_as_hardlink(isolated_fs_in_repo):
     # TODO: There is a risk that exporting to /tmp via hard links may fail
     # with a cross-device error when /tmp is on a separate filesystem,
     # particularly when running locally.
@@ -2183,7 +2183,7 @@ def test_export_as_hardlink(isolated_fs):
     assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
 
 
-def test_export_as_hardlink_samefile(isolated_fs):
+def test_export_as_hardlink_samefile(isolated_fs_in_repo):
     """test export with --export-as-hardlink and --uuid (#526)"""
     # test that --export-as-hardlink actually creates a hardlink
     # src and dest should be same file
@@ -2208,7 +2208,7 @@ def test_export_as_hardlink_samefile(isolated_fs):
     assert os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
 
 
-def test_export_using_hardlinks_incompat_options(isolated_fs):
+def test_export_using_hardlinks_incompat_options(isolated_fs_in_repo):
     # test that error shown if --export-as-hardlink used with --exiftool
 
     runner = CliRunner()
@@ -3949,7 +3949,7 @@ def test_export_aae(isolated_fs):
     assert sorted(files) == sorted(CLI_EXPORT_AAE_FILENAMES)
 
 
-def test_export_aae_as_hardlink(isolated_fs):
+def test_export_aae_as_hardlink(isolated_fs_in_repo):
     """Test export with --export-aae and --export-as-hardlink"""
 
     runner = CliRunner()
@@ -5748,7 +5748,7 @@ def test_export_update_exiftool(isolated_fs):
     )
 
 
-def test_export_update_hardlink(isolated_fs):
+def test_export_update_hardlink(isolated_fs_in_repo):
     """test export with hardlink then update"""
 
     photosdb = osxphotos.PhotosDB(dbfile=CLI_PHOTOS_DB)
@@ -5783,7 +5783,7 @@ def test_export_update_hardlink(isolated_fs):
 
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
-def test_export_update_hardlink_exiftool(isolated_fs):
+def test_export_update_hardlink_exiftool(isolated_fs_in_repo):
     """test export with hardlink then update with exiftool"""
 
     photosdb = osxphotos.PhotosDB(dbfile=CLI_PHOTOS_DB)
@@ -6032,7 +6032,7 @@ def test_export_update_no_db(isolated_fs):
     assert os.path.isfile(OSXPHOTOS_EXPORT_DB)
 
 
-def test_export_then_hardlink(isolated_fs):
+def test_export_then_hardlink(isolated_fs_in_repo):
     """test export then hardlink"""
 
     photosdb = osxphotos.PhotosDB(dbfile=CLI_PHOTOS_DB)
@@ -7129,7 +7129,7 @@ def test_export_report_not_a_file(isolated_fs):
     assert "is a directory, must be file name" in result.output
 
 
-def test_export_as_hardlink_download_missing(isolated_fs):
+def test_export_as_hardlink_download_missing(isolated_fs_in_repo):
     """test export with incompatible export options"""
 
     runner = CliRunner()

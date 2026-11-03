@@ -9,7 +9,7 @@ import shutil
 import subprocess
 import tempfile
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 
 import pytest
@@ -164,6 +164,28 @@ def isolated_fs(
     path = pathlib.Path(tmp_path)
     monkeypatch.chdir(path)
     return path
+
+
+@pytest.fixture
+def isolated_fs_in_repo() -> Iterator[pathlib.Path]:
+    """Like isolated_fs, but the temporary directory is created inside the repository.
+
+    Use for tests that hardlink files from the test libraries into the export
+    directory: hardlinks can't cross filesystems, and pytest's tmp_path may be on
+    a different filesystem than the repository (e.g. when the repository is a
+    Docker bind mount, as with scripts/run_linux_tests.sh).
+
+    Yields:
+        path: Path to the temporary directory
+    """
+    cwd = os.getcwd()
+    path = pathlib.Path(tempfile.mkdtemp(dir=TEST_REPOSITORY_PATH))
+    os.chdir(path)
+    try:
+        yield path
+    finally:
+        os.chdir(cwd)
+        shutil.rmtree(path, ignore_errors=True)
 
 
 @pytest.fixture
