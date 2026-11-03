@@ -6,8 +6,10 @@ import os
 import pathlib
 import re
 import shutil
+import subprocess
 import tempfile
 import time
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 
 import pytest
@@ -17,16 +19,15 @@ from osxphotos.datetime_utils import (
     datetime_remove_tz,
     get_local_tz,
 )
+from osxphotos.exiftool import _ExifToolProc
 from osxphotos.platform import is_macos
 
 if is_macos:
     import photoscript
-    from applescript import AppleScript
+    from applescript import AppleScript, ScriptError
     from photoscript.utils import ditto
 
     from .test_catalina_10_15_7 import UUID_DICT_LOCAL
-
-from osxphotos.exiftool import _ExifToolProc
 
 # run timewarp tests (configured with --timewarp)
 TEST_TIMEWARP = False
@@ -56,10 +57,11 @@ LIBRARY_COPY_DELAY = 5
 
 
 def get_os_version():
+    """Get OS version as a tuple of strings (e.g. '10.13.6' -> ('10', '13', '6'))"""
     if not is_macos:
         return (None, None, None)
 
-    import platform
+    import platform  # pylint: disable=import-outside-toplevel
 
     # returns tuple containing OS version
     # e.g. 10.13.6 = (10, 13, 6)
@@ -86,6 +88,7 @@ TEST_LIBRARY_SYNC = None
 TEST_LIBRARY_ADD_LOCATIONS = None
 TEST_LIBRARY_TAKEOUT = None
 TEST_LIBRARY_PHOTODATES = None
+TEST_LIBRARY_IMPORT = None
 
 OS_VER = get_os_version() if is_macos else [None, None]
 if is_macos and (OS_VER[0] == "10" and OS_VER[1] in ("15", "16")):
@@ -130,9 +133,79 @@ elif not is_macos or int(OS_VER[0]) >= 13:
     TEST_LIBRARY_PHOTODATES = TEST_LIBRARY
     TEST_LIBRARY_ADD_LOCATIONS = "tests/Test-13.0.0.photoslibrary"
 
+# Fixtures for photos library paths. See isolated_fs fixture
+TEST_REPOSITORY_PATH = pathlib.Path(__file__).resolve().parent.parent
+
+
+def repo_path(name: str) -> str:
+    """Get the path to a test fixture in the repository."""
+    return str(TEST_REPOSITORY_PATH / name)
+
+
+@pytest.fixture
+def isolated_fs(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: str | pathlib.Path
+) -> pathlib.Path:
+    """Fixture to create an isolated filesystem for testing.
+    Changes current working directory to a temporary directory.
+
+    Args:
+        monkeypatch: pytest monkeypatch fixture
+        tmp_path: pytest tmp_path fixture
+
+    Returns:
+        path: Path to the temporary directory
+
+    Remarks:
+        Address Click.runner.isolated_filesystem DeprecationWarning: 'isolated_filesystem'
+        is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory'
+        or pytest's 'tmp_path' fixture with absolute paths instead.
+    """
+    path = pathlib.Path(tmp_path)
+    monkeypatch.chdir(path)
+    return path
+
+
+@pytest.fixture
+def isolated_fs_in_repo() -> Iterator[pathlib.Path]:
+    """Like isolated_fs, but the temporary directory is created inside the repository.
+
+    Use for tests that hardlink files from the test libraries into the export
+    directory: hardlinks can't cross filesystems, and pytest's tmp_path may be on
+    a different filesystem than the repository (e.g. when the repository is a
+    Docker bind mount, as with scripts/run_linux_tests.sh).
+
+    Yields:
+        path: Path to the temporary directory
+    """
+    cwd = os.getcwd()
+    path = pathlib.Path(tempfile.mkdtemp(dir=TEST_REPOSITORY_PATH))
+    os.chdir(path)
+    try:
+        yield path
+    finally:
+        os.chdir(cwd)
+        shutil.rmtree(path, ignore_errors=True)
+
+
+@pytest.fixture
+def clean_isolated_fs(isolated_fs: pathlib.Path) -> Callable[[], None]:
+    """Clean up the isolated filesystem by removing all files and directories."""
+
+    def clean() -> None:
+        """Clean up the isolated filesystem by removing all files and directories."""
+        for item in isolated_fs.iterdir():
+            if item.is_dir():
+                shutil.rmtree(item)
+            else:
+                item.unlink()
+
+    return clean
+
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_timewarp():
+    """Copy the photos library to a temporary location for timewarp tests."""
     if not TEST_TIMEWARP:
         return
     copy_photos_library(TEST_LIBRARY_TIMEWARP, delay=LIBRARY_COPY_DELAY)
@@ -140,6 +213,7 @@ def setup_photos_timewarp():
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_batchedit():
+    """Copy the photos library to a temporary location for batch edit tests."""
     if not TEST_BATCH_EDIT:
         return
     copy_photos_library(TEST_LIBRARY, delay=LIBRARY_COPY_DELAY)
@@ -147,6 +221,7 @@ def setup_photos_batchedit():
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_photodates():
+    """Copy the photos library to a temporary location for photodates tests."""
     if not TEST_PHOTODATES:
         return
     copy_photos_library(TEST_LIBRARY_PHOTODATES, delay=LIBRARY_COPY_DELAY)
@@ -154,6 +229,7 @@ def setup_photos_photodates():
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_import():
+    """Copy the photos library to a temporary location for import tests."""
     if not TEST_IMPORT:
         return
     copy_photos_library(TEST_LIBRARY_IMPORT, delay=LIBRARY_COPY_DELAY)
@@ -161,6 +237,7 @@ def setup_photos_import():
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_import_takeout():
+    """Copy the photos library to a temporary location for import takeout tests."""
     if not TEST_IMPORT_TAKEOUT:
         return
     copy_photos_library(TEST_LIBRARY_TAKEOUT, delay=LIBRARY_COPY_DELAY)
@@ -168,6 +245,7 @@ def setup_photos_import_takeout():
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_sync():
+    """Copy the photos library to a temporary location for sync tests."""
     if not TEST_SYNC:
         return
     copy_photos_library(TEST_LIBRARY_SYNC, delay=LIBRARY_COPY_DELAY)
@@ -175,6 +253,7 @@ def setup_photos_sync():
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_add_locations():
+    """Copy the photos library to a temporary location for add locations tests."""
     if not TEST_ADD_LOCATIONS:
         return
     copy_photos_library(TEST_LIBRARY_ADD_LOCATIONS, delay=LIBRARY_COPY_DELAY)
@@ -187,6 +266,7 @@ def reset_singletons():
 
 
 def pytest_addoption(parser):
+    """Add options to pytest"""
     parser.addoption(
         "--addalbum",
         action="store_true",
@@ -236,6 +316,7 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
+    """Configure pytest"""
     if (
         sum(
             bool(x)
@@ -318,6 +399,7 @@ def pytest_configure(config):
 
 
 def pytest_collection_modifyitems(config, items):
+    """Modify items based on command line options"""
     if not (config.getoption("--addalbum") and TEST_LIBRARY is not None):
         skip_addalbum = pytest.mark.skip(reason="need --addalbum option to run")
         for item in items:
@@ -378,14 +460,80 @@ def pytest_collection_modifyitems(config, items):
                 item.add_marker(skip_test_sync)
 
 
+PHOTOS_QUIT_TIMEOUT = 30
+LIBRARY_REMOVE_TIMEOUT = 60
+LIBRARY_COPY_RETRIES = 5
+LIBRARY_COPY_RETRY_DELAY = 5
+
+
+def _quit_photos(timeout: float = PHOTOS_QUIT_TIMEOUT) -> None:
+    """Quit Photos.app if it is running, without launching it.
+
+    photoscript.PhotosLibrary() launches Photos, which reopens the last-used
+    library; if that is a stale or partially-deleted test library, Photos blocks
+    on a dialog and later AppleScript calls fail with "User canceled". So check
+    and quit via AppleScript that never launches Photos, and force-quit Photos
+    if it doesn't exit in time (e.g. stuck on a dialog).
+    """
+    script = AppleScript(
+        """
+        on isRunning()
+            return application "Photos" is running
+        end isRunning
+
+        on quitPhotos()
+            if application "Photos" is running then
+                tell application "Photos" to quit
+            end if
+        end quitPhotos
+        """
+    )
+    try:
+        script.call("quitPhotos")
+    except ScriptError as e:
+        print(f"Photos did not quit cleanly ({e}), will force quit")
+
+    deadline = time.monotonic() + timeout
+    killed = False
+    while script.call("isRunning"):
+        if time.monotonic() > deadline:
+            if killed:
+                pytest.exit(f"Timed out after {timeout}s waiting for Photos to quit")
+            subprocess.run(["killall", "Photos"], check=False)
+            killed = True
+            deadline = time.monotonic() + timeout
+        time.sleep(0.5)
+
+
+def _remove_photos_library(
+    library: pathlib.Path, timeout: float = LIBRARY_REMOVE_TIMEOUT
+) -> None:
+    """Remove a previously copied library so each test starts from a fresh copy.
+
+    Photos background daemons can keep writing into the library for a short
+    while after Photos quits, so a single rmtree may leave files behind.
+    Retry until the library is gone; exit pytest if it can't be removed.
+    """
+    deadline = time.monotonic() + timeout
+    while library.exists():
+        shutil.rmtree(library, ignore_errors=True)
+        if not library.exists():
+            return
+        if time.monotonic() > deadline:
+            pytest.exit(f"Could not remove existing library '{library}'")
+        time.sleep(1)
+
+
 def copy_photos_library(photos_library, delay=0, open=True):
     """copy the test library and open Photos, returns path to copied library"""
 
-    # quit Photos if it's running
-    photoslib = photoscript.PhotosLibrary()
-    photoslib.quit()
+    # quit Photos if it's running and wait for it to exit so it releases the library
+    _quit_photos()
 
     src = pathlib.Path(os.getcwd()) / photos_library
+    if not src.is_dir():
+        pytest.exit(f"Invalid source photos_library: '{src}'")
+
     picture_folder = (
         pathlib.Path(os.environ["PHOTOSCRIPT_PICTURES_FOLDER"])
         if "PHOTOSCRIPT_PICTURES_FOLDER" in os.environ
@@ -395,9 +543,6 @@ def copy_photos_library(photos_library, delay=0, open=True):
     if not picture_folder.is_dir():
         pytest.exit(f"Invalid picture folder: '{picture_folder}'")
     dest = picture_folder / pathlib.Path(photos_library).name
-
-    # copy src directory to dest directory, removing it if it already exists
-    shutil.rmtree(str(dest), ignore_errors=True)
 
     print(f"copying {src} to {picture_folder} ...")
     copyFolder = AppleScript(
@@ -412,12 +557,30 @@ def copy_photos_library(photos_library, delay=0, open=True):
         end copyFolder
         """
     )
-    copyFolder.call("copyFolder", str(src), str(picture_folder))
+    # Remove any existing copy, then copy src to dest. After Photos quits, a
+    # background daemon may still flush the search index (database/search/leo.sqlite)
+    # into the old library, recreating dest after it was removed and causing
+    # Finder to fail with "An item with the same name already exists". When that
+    # happens, wait for the daemon to settle, remove dest again and retry.
+    for attempt in range(1, LIBRARY_COPY_RETRIES + 1):
+        _remove_photos_library(dest)
+        try:
+            copyFolder.call("copyFolder", str(src), str(picture_folder))
+            break
+        except ScriptError as e:
+            if attempt == LIBRARY_COPY_RETRIES:
+                raise
+            print(f"copy attempt {attempt} failed ({e}), retrying...")
+            time.sleep(LIBRARY_COPY_RETRY_DELAY)
 
     # open Photos
     if open:
-        # sometimes doesn't open the first time
+        # Launch Photos directly on the fresh copy; photoscript.PhotosLibrary()
+        # would otherwise launch Photos with whatever library it last used.
+        subprocess.run(["open", "-a", "Photos", str(dest)], check=False)
         time.sleep(delay)
+        photoslib = photoscript.PhotosLibrary()
+        # sometimes doesn't open the first time
         photoslib.open(str(dest))
         time.sleep(delay)
         photoslib.open(str(dest))
@@ -427,6 +590,7 @@ def copy_photos_library(photos_library, delay=0, open=True):
 
 @pytest.fixture
 def addalbum_library():
+    """Fixture to copy the addalbum library"""
     copy_photos_library(TEST_LIBRARY, delay=10)
 
 
@@ -450,12 +614,17 @@ def delete_crash_logs():
 
 @pytest.fixture
 def photoslib():
+    """PhotosLibrary fixture for testing"""
     return photoscript.PhotosLibrary()
 
 
 @pytest.fixture
 def suspend_capture(pytestconfig):
+    """Suspend global capture for testing"""
+
     class suspend_guard:
+        """Guard for suspending global capture"""
+
         def __init__(self):
             self.capmanager = pytestconfig.pluginmanager.getplugin("capturemanager")
 
@@ -480,6 +649,8 @@ def output_file():
 
 @contextmanager
 def set_timezone(timezone):
+    """Set the timezone for the duration of the context manager"""
+    old_tz = None
     try:
         old_tz = os.environ.get("TZ")
         os.environ["TZ"] = timezone
@@ -495,6 +666,7 @@ def set_timezone(timezone):
 
 @pytest.fixture
 def set_tz_pacific():
+    """Set the timezone to Pacific Time for the duration of the context manager"""
     timezone = "America/Los_Angeles"
     with set_timezone(timezone):
         yield
@@ -502,6 +674,7 @@ def set_tz_pacific():
 
 @pytest.fixture
 def set_tz_central():
+    """Set the timezone to Central Time for the duration of the context manager"""
     timezone = "America/Chicago"
     with set_timezone(timezone):
         yield
@@ -509,6 +682,7 @@ def set_tz_central():
 
 @pytest.fixture
 def set_tz_cest():
+    """Set the timezone to Central European Summer Time for the duration of the context manager"""
     timezone = "CEST"
     with set_timezone(timezone):
         yield
@@ -516,6 +690,7 @@ def set_tz_cest():
 
 @pytest.fixture
 def set_tz_jerusalem():
+    """Set the timezone to Jerusalem for the duration of the context manager"""
     timezone = "Asia/Jerusalem"
     with set_timezone(timezone):
         yield
