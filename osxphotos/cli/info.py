@@ -49,7 +49,7 @@ def get_non_analyzed_assets(photosdb: osxphotos.PhotosDB) -> list[osxphotos.Phot
         f"""
         SELECT {asset_table}.ZUUID
         FROM {asset_table}
-        WHERE ZASSET.ZANALYSISSTATEMODIFICATIONDATE IS NULL;
+        WHERE {asset_table}.ZANALYSISSTATEMODIFICATIONDATE IS NULL;
         """
     ).fetchall()
     uuids = [r[0] for r in rows]
