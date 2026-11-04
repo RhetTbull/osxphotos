@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>osxphotos.personinfo - osxphotos 0.77.2 documentation</title>
+        <title>osxphotos.personinfo - osxphotos 0.78.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.77.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.78.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.77.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.78.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -240,6 +240,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">_DETECTION_TYPE_CAT</span><span class="p">,</span> <span class="n">_DETECTION_TYPE_DOG</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"osxphotos"</span><span class="p">)</span>
 
@@ -431,6 +433,30 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">intrash</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"intrash"</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lip_makeup_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"lipmakeuptype"</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">smile_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"smiletype"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detection_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"detectiontype"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body_center_x</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"bodycenterx"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body_center_y</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"bodycentery"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body_width</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"bodywidth"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body_height</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"bodyheight"</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_pet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""True if this is a pet (dog or cat) detection; Photos 7+ only"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detection_type</span> <span class="ow">in</span> <span class="p">(</span><span class="n">_DETECTION_TYPE_DOG</span><span class="p">,</span> <span class="n">_DETECTION_TYPE_CAT</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_body_region</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Body region center and size for a pet with no face region, or None</span>
+
+<span class="sd">        Photos stores many pet detections with a face size of 0 and only a body</span>
+<span class="sd">        region. Returns (x, y, w, h) adjusted for image orientation, with the</span>
+<span class="sd">        center x, y and the width and height as fractions of the image.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_pet</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">body_width</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">body_height</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_orientation</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">body_center_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body_center_y</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">orientation</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body_height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body_width</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body_height</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">center</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -494,6 +520,10 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">width</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">height</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">MWG_RS_Area</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">body</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_body_region</span><span class="p">():</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">body</span>
+            <span class="k">return</span> <span class="n">MWG_RS_Area</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">orientation</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]:</span>
             <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size_pixels</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">height</span>
             <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size_pixels</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">width</span>
@@ -524,6 +554,11 @@
         <span class="c1"># in this case return a zero rectangle which doesn't make sense but neither does a zero width or height</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">width</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">height</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">MPRI_Reg_Rect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">body</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_body_region</span><span class="p">():</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">body</span>
+            <span class="c1"># same field order as the face rectangle below: width is stored in h</span>
+            <span class="k">return</span> <span class="n">MPRI_Reg_Rect</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">orientation</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]:</span>
             <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size_pixels</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">width</span>
@@ -707,6 +742,12 @@
             <span class="s2">"intrash"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">intrash</span><span class="p">,</span>
             <span class="s2">"lip_makeup_type"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lip_makeup_type</span><span class="p">,</span>
             <span class="s2">"smile_type"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">smile_type</span><span class="p">,</span>
+            <span class="s2">"detection_type"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">detection_type</span><span class="p">,</span>
+            <span class="s2">"is_pet"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_pet</span><span class="p">,</span>
+            <span class="s2">"body_center_x"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">body_center_x</span><span class="p">,</span>
+            <span class="s2">"body_center_y"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">body_center_y</span><span class="p">,</span>
+            <span class="s2">"body_width"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">body_width</span><span class="p">,</span>
+            <span class="s2">"body_height"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">body_height</span><span class="p">,</span>
         <span class="p">}</span></div>
 
 
@@ -795,7 +836,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=f12952a2"></script>
+</div><script src="../../_static/documentation_options.js?v=d4baf355"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

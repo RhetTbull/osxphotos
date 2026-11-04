@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>osxphotos.photoexporter - osxphotos 0.77.2 documentation</title>
+        <title>osxphotos.photoexporter - osxphotos 0.78.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.77.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.78.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.77.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.78.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -394,10 +394,14 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_kill_photos_process</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">"""Kill the Photos app process to restart it"""</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># Use pkill to kill the main Photos application process</span>
-            <span class="c1"># Use -f to match the full path containing Photos.app</span>
+            <span class="c1"># Match the process name exactly (-x) and only this user's processes</span>
+            <span class="c1"># (-u): `pkill -f Photos.app` also killed any process whose path</span>
+            <span class="c1"># contains "Photos.app", such as other apps named "... Photos",</span>
+            <span class="c1"># Photos' own helpers, and other users' Photos.</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-                <span class="p">[</span><span class="s2">"pkill"</span><span class="p">,</span> <span class="s2">"-f"</span><span class="p">,</span> <span class="s2">"Photos.app"</span><span class="p">],</span> <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">[</span><span class="s2">"pkill"</span><span class="p">,</span> <span class="s2">"-u"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getuid</span><span class="p">()),</span> <span class="s2">"-x"</span><span class="p">,</span> <span class="s2">"Photos"</span><span class="p">],</span>
+                <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
@@ -1104,7 +1108,14 @@
                 <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># Needs updating</span>
 
         <span class="c1"># Check live photo</span>
-        <span class="n">live_missing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">live_photo</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">live_photo</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">live_photo</span>
+        <span class="c1"># AppleScript can't export the video of an edited live photo, so only</span>
+        <span class="c1"># require it on the destination when PhotoKit would download it</span>
+        <span class="n">live_missing</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">live_photo</span>
+            <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">live_photo</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">live_photo</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">edited</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">use_photokit</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">live_missing</span><span class="p">:</span>
             <span class="n">live_dest</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.mov"</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">_dest_exists</span><span class="p">(</span><span class="n">live_dest</span><span class="p">):</span>
@@ -2201,7 +2212,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=f12952a2"></script>
+</div><script src="../../_static/documentation_options.js?v=d4baf355"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

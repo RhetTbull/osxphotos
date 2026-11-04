@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>osxphotos.sidecars - osxphotos 0.77.2 documentation</title>
+        <title>osxphotos.sidecars - osxphotos 0.78.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.77.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.78.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.77.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.78.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -485,13 +485,31 @@
 
             <span class="n">sidecar_str</span> <span class="o">=</span> <span class="n">render_sidecar</span><span class="p">()</span>
             <span class="n">sidecar_digest</span> <span class="o">=</span> <span class="n">hexdigest</span><span class="p">(</span><span class="n">sidecar_str</span><span class="p">)</span>
+            <span class="c1"># The file's signature can drift without its content changing: on a network</span>
+            <span class="c1"># share (SMB, some NFS setups) or in a synced folder the mtime is set again when</span>
+            <span class="c1"># the write is flushed, after the signature was recorded. Rewriting on signature</span>
+            <span class="c1"># alone then records another premature mtime, so the same sidecars are rewritten</span>
+            <span class="c1"># on every --update run. If the file on disk still holds exactly the expected</span>
+            <span class="c1"># content, refresh the stored signature instead of rewriting it.</span>
+            <span class="n">sidecar_content_matches</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">verified_sig</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">sidecar_exists</span>
+                <span class="ow">and</span> <span class="ow">not</span> <span class="n">sidecar_sig_matches</span>
+                <span class="ow">and</span> <span class="n">sidecar_digest</span> <span class="o">==</span> <span class="n">sidecar_record</span><span class="o">.</span><span class="n">digest</span>
+            <span class="p">):</span>
+                <span class="n">file_digest</span><span class="p">,</span> <span class="n">verified_sig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verify_sidecar_file</span><span class="p">(</span>
+                    <span class="n">sidecar_filename</span><span class="p">,</span> <span class="n">fileutil</span>
+                <span class="p">)</span>
+                <span class="n">sidecar_content_matches</span> <span class="o">=</span> <span class="n">file_digest</span> <span class="o">==</span> <span class="n">sidecar_digest</span>
             <span class="n">write_sidecar</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="ow">not</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">)</span>
                 <span class="ow">or</span> <span class="p">((</span><span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">sidecar_exists</span><span class="p">)</span>
                 <span class="ow">or</span> <span class="p">(</span>
                     <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">)</span>
                     <span class="ow">and</span> <span class="p">(</span><span class="n">sidecar_digest</span> <span class="o">!=</span> <span class="n">sidecar_record</span><span class="o">.</span><span class="n">digest</span><span class="p">)</span>
-                    <span class="ow">or</span> <span class="ow">not</span> <span class="n">sidecar_sig_matches</span>
+                    <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">sidecar_sig_matches</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">sidecar_content_matches</span><span class="p">)</span>
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">write_sidecar</span><span class="p">:</span>
@@ -517,6 +535,10 @@
                 <span class="n">files_skipped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">))</span>
                 <span class="k">with</span> <span class="n">sidecar_record</span><span class="p">:</span>
                     <span class="n">sidecar_record</span><span class="o">.</span><span class="n">export_options</span> <span class="o">=</span> <span class="n">sidecar_options</span>
+                    <span class="k">if</span> <span class="n">sidecar_content_matches</span><span class="p">:</span>
+                        <span class="n">sidecar_record</span><span class="o">.</span><span class="n">dest_sig</span> <span class="o">=</span> <span class="n">verified_sig</span>
+                <span class="k">if</span> <span class="n">sidecar_content_matches</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span><span class="o">.</span><span class="n">update_file</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">)</span>
 
         <span class="n">results</span> <span class="o">=</span> <span class="n">ExportResults</span><span class="p">(</span>
             <span class="n">sidecar_json_written</span><span class="o">=</span><span class="n">sidecar_json_files_written</span><span class="p">,</span>
@@ -964,6 +986,28 @@
             <span class="n">rating</span><span class="o">=</span><span class="n">rating</span><span class="p">,</span>
         <span class="p">)</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_verify_sidecar_file</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">fileutil</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return (digest, signature) of an existing sidecar file, or (None, None) if it</span>
+<span class="sd">        can't be read or changed while being read.</span>
+
+<span class="sd">        The signature is taken uncached before and after the read, so it is recorded only</span>
+<span class="sd">        for exactly the content that was hashed. The file is read the way _write_sidecar</span>
+<span class="sd">        writes it (default encoding, no newline translation) so an unchanged file hashes to</span>
+<span class="sd">        the digest recorded when it was written.</span>
+<span class="sd">        """</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sig_before</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">sig_after</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">sig_before</span> <span class="o">!=</span> <span class="n">sig_after</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">hexdigest</span><span class="p">(</span><span class="n">content</span><span class="p">),</span> <span class="n">sig_after</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_write_sidecar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">sidecar_str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""write sidecar_str to filename</span>
 <span class="sd">        used for exporting sidecar info"""</span>
@@ -1105,7 +1149,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=f12952a2"></script>
+</div><script src="../../_static/documentation_options.js?v=d4baf355"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

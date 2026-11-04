@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>osxphotos._constants - osxphotos 0.77.2 documentation</title>
+        <title>osxphotos._constants - osxphotos 0.78.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.77.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.78.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.77.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.78.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -284,6 +284,10 @@
 <span class="c1"># versions 5.0 and later have a different database structure</span>
 <span class="n">_PHOTOS_4_VERSION</span> <span class="o">=</span> <span class="s2">"4025"</span>  <span class="c1"># latest Mojave version on 10.14.6</span>
 <span class="n">_PHOTOS_5_VERSION</span> <span class="o">=</span> <span class="s2">"5000"</span>  <span class="c1"># I've seen both 5001 and 6000.  6000 is most common on Catalina and up but there are some version 5001 database in the wild</span>
+
+<span class="c1"># ZDETECTEDFACE.ZDETECTIONTYPE values for pets (Photos 7+); people are 1</span>
+<span class="n">_DETECTION_TYPE_DOG</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">_DETECTION_TYPE_CAT</span> <span class="o">=</span> <span class="mi">4</span>
 
 <span class="c1"># Ranges for model version by Photos version</span>
 <span class="n">_PHOTOS_5_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">13000</span><span class="p">,</span> <span class="mi">13999</span><span class="p">]</span>
@@ -552,9 +556,16 @@
     <span class="p">(</span><span class="s2">"15"</span><span class="p">,</span> <span class="s2">"5"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"15"</span><span class="p">,</span> <span class="s2">"6"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"15"</span><span class="p">,</span> <span class="s2">"7"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"15"</span><span class="p">,</span> <span class="s2">"8"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"26"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"26"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"26"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"26"</span><span class="p">,</span> <span class="s2">"2"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"26"</span><span class="p">,</span> <span class="s2">"3"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"26"</span><span class="p">,</span> <span class="s2">"4"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"26"</span><span class="p">,</span> <span class="s2">"5"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"26"</span><span class="p">,</span> <span class="s2">"6"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"26"</span><span class="p">,</span> <span class="s2">"7"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"27"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"27"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">),</span>
 <span class="p">]</span>
@@ -1007,7 +1018,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=f12952a2"></script>
+</div><script src="../../_static/documentation_options.js?v=d4baf355"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
