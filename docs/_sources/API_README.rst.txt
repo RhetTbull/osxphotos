@@ -2672,6 +2672,14 @@ The following additional properties are also available but are not yet fully doc
 * ``hair_color_type``\ :
 * ``lip_makeup_type``\ :
 * ``smile_type``\ :
+* `detection_type`: type of detection: 1 for a person, 3 for a dog, 4 for a cat; Photos 7+ only, otherwise None
+* ``is_pet``\ : True if the detection is a dog or cat; Photos 7+ only
+* ``body_center_x``\ : x coordinate of center of body in Photos' internal reference frame; Photos 7+ only, otherwise None
+* ``body_center_y``\ : y coordinate of center of body in Photos' internal reference frame; Photos 7+ only, otherwise None
+* ``body_width``\ : width of body region in Photos' internal reference frame; Photos 7+ only, otherwise None
+* ``body_height``\ : height of body region in Photos' internal reference frame; Photos 7+ only, otherwise None
+
+**Note**\ : Photos stores many pet detections with a ``size`` of 0 and no face center; for these the body region is the only location of the pet in the photo.
 
 :raw-html-m2r:`<a name="faceinfo-asdict">asdict()</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -3227,7 +3235,7 @@ The following template field substitutions are availabe for use the templating s
    * - {tab}
      - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.77.2'
+     - The osxphotos version, e.g. '0.78.0'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}

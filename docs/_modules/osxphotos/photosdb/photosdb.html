@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.77.2 documentation</title>
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.78.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.77.2 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.78.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.77.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.78.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -246,6 +246,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">sqlite3</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">unicodedata</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize</span>
@@ -292,11 +293,14 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">..rich_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_rich_markup_tag</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..sqlite_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">sqlite_columns</span><span class="p">,</span> <span class="n">sqlite_db_is_locked</span><span class="p">,</span> <span class="n">sqlite_open_ro</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..unicode</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_unicode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..uti</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_uti_for_extension</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_check_file_exists</span><span class="p">,</span> <span class="n">get_last_library_path</span><span class="p">,</span> <span class="n">noop</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.photosdb_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_db_version</span><span class="p">,</span>
     <span class="n">get_model_version</span><span class="p">,</span>
     <span class="n">get_photos_version_from_model</span><span class="p">,</span>
+    <span class="n">uti_for_compact_uti</span><span class="p">,</span>
+    <span class="n">uti_if_raw</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">is_macos</span><span class="p">:</span>
@@ -2778,7 +2782,7 @@
             <span class="n">sql_raw</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">""" SELECT</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZUUID,</span>
 <span class="s2">                ZINTERNALRESOURCE.ZDATALENGTH,</span>
-<span class="s2">                null,</span>
+<span class="s2">                ZINTERNALRESOURCE.ZCOMPACTUTI,</span>
 <span class="s2">                ZINTERNALRESOURCE.ZDATASTORESUBTYPE,</span>
 <span class="s2">                ZINTERNALRESOURCE.ZRESOURCETYPE,</span>
 <span class="s2">                ZINTERNALRESOURCE.ZFILESYSTEMBOOKMARK</span>
@@ -2839,6 +2843,9 @@
             <span class="k">if</span> <span class="n">uuid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">"raw_volume"</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">"raw_relative_path"</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">&gt;=</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_raw_utis_from_compact_uti</span><span class="p">()</span>
 
         <span class="c1"># add faces and keywords to photo data</span>
         <span class="k">for</span> <span class="n">uuid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">:</span>
@@ -2920,6 +2927,44 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_process_shared_library_info</span><span class="p">()</span>
 
         <span class="n">verbose</span><span class="p">(</span><span class="s2">"Done processing details from Photos library."</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_raw_utis_from_compact_uti</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Replace the ZCOMPACTUTI value that the Photos 7+ RAW query read into</span>
+<span class="sd">        each photo's UTI_raw with the RAW's UTI, or None if it can't be</span>
+<span class="sd">        resolved to a RAW type</span>
+
+<span class="sd">        A value is resolved from, in order:</span>
+
+<span class="sd">        1. COMPACT_UTI_CODES, Apple's table of codes (see photosdb_utils).</span>
+<span class="sd">        2. "_" + UTI, which Photos stores for a type without a code.</span>
+<span class="sd">        3. For a code not in the table, such as one a later Photos adds, the</span>
+<span class="sd">           library's RAWs with that code whose file is on disk: the UTI for the</span>
+<span class="sd">           file's extension. So one local RAW of a new type resolves the</span>
+<span class="sd">           evicted RAWs of that type.</span>
+<span class="sd">        """</span>
+        <span class="n">unresolved</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">info</span><span class="p">[</span><span class="s2">"has_raw"</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">"UTI_raw"</span><span class="p">]</span>
+            <span class="n">uti</span> <span class="o">=</span> <span class="n">uti_for_compact_uti</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+            <span class="n">info</span><span class="p">[</span><span class="s2">"UTI_raw"</span><span class="p">]</span> <span class="o">=</span> <span class="n">uti_if_raw</span><span class="p">(</span><span class="n">uti</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">uti</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">code</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">unresolved</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">uuid</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">code</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">unresolved</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">counts</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">unresolved</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">path_raw</span> <span class="o">:=</span> <span class="n">PhotoInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">)</span><span class="o">.</span><span class="n">path_raw</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">uti</span> <span class="o">:=</span> <span class="n">uti_if_raw</span><span class="p">(</span>
+                    <span class="n">get_uti_for_extension</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">path_raw</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span><span class="p">)</span>
+                <span class="p">):</span>
+                    <span class="n">counts</span><span class="p">[</span><span class="n">code</span><span class="p">,</span> <span class="n">uti</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1"># least common first, so the most common UTI for each code wins</span>
+        <span class="n">local_codes</span> <span class="o">=</span> <span class="p">{</span><span class="n">code</span><span class="p">:</span> <span class="n">uti</span> <span class="k">for</span> <span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">uti</span><span class="p">),</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">counts</span><span class="o">.</span><span class="n">most_common</span><span class="p">())}</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">unresolved</span><span class="p">:</span>
+            <span class="n">info</span><span class="p">[</span><span class="s2">"UTI_raw"</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_codes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process_moments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Process data from ZMOMENT table"""</span>
@@ -3724,7 +3769,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=f12952a2"></script>
+</div><script src="../../../_static/documentation_options.js?v=d4baf355"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

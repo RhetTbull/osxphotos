@@ -2,27 +2,61 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased](https://github.com/RhetTbull/osxphotos/compare/v0.77.2...HEAD)
+## [v0.78.0](https://github.com/RhetTbull/osxphotos/compare/v0.77.2...v0.78.0)
+
+Pet detections in `FaceInfo`, many fixes for `export --update --download-missing` and `--use-photokit` with Live Photos, RAW+JPEG pairs and edited videos, faster `--update` on network shares, and a fix for the pre-built binary failing on startup.
+
+### 2026-11-03
 
 #### Added
 
+- Added `FaceInfo.detection_type`, `FaceInfo.is_pet`, `FaceInfo.body_center_x`, `FaceInfo.body_center_y`, `FaceInfo.body_width`, and `FaceInfo.body_height`. Photos 7+ tags each detected face as a person, dog, or cat and stores a body region alongside the face region; older libraries return `None` (#2275, part of #1238, thanks @ZarK).
+
 #### Changed
+
+- XMP and exiftool face regions for pets that Photos stores with no face region (face size of 0) now use the pet's body region instead of a zero-size region (#2275, thanks @ZarK).
+- `export --update` no longer rewrites a sidecar whose signature changed but whose content did not, e.g. on SMB/NFS shares or in folders touched by a sync client where the mtime is set again after the write is flushed. The file is hashed and, if unchanged, its new signature is recorded instead (#2255, thanks @rknightion).
+- `export --update` is much faster when exporting to many new folders with a large export database: the per-directory prefetch now uses the export database's filepath index. This also stops `_` and `%` in folder names from acting as SQL wildcards (#2256, thanks @rknightion).
+- PhotoKit requests for Live Photo resources are now bounded by `OSXPHOTOS_PHOTOKIT_TIMEOUT`; previously a shared-album Live Photo with no video could stall for ~5 minutes per photo (#2254, thanks @rknightion).
+- Pinned `click` to `<9.0`.
+- `osxphotos run` no longer uses the deprecated `click.OptionParser` (#2250, #2251, thanks @oPromessa).
+- Tests no longer use Click's deprecated `isolated_filesystem` (#2248, thanks @oPromessa).
+- The pre-built CLI executable is now smoke tested during the build (`--version`, `--help`, and `osxphotos run` importing every osxphotos submodule) (#2284, #2287).
 
 #### Removed
 
 #### Fixed
 
-- Fixed `export --update --download-missing` downloading an edited Live Photo on every run with AppleScript downloads: the update check required `<name>_edited.mov`, which AppleScript can't export; it is now required only with `--use-photokit`.
+- Fixed the v0.77.2 pre-built binary failing on startup with `ModuleNotFoundError: No module named 'bitstring.bitstore_bitarray'` (#2283, #2284, thanks @paynejd for reporting).
+- Fixed `export --use-photokit` aborting the whole export with `SIGABRT` when a PhotoKit resource request failed; the failure is now reported as an export error for that photo (#2253, #2261, thanks @tomkoelman for reporting).
+- Fixed `{filepath}` in a filename template raising `TypeError` because the export path isn't known yet; `{filepath}` now has no value in that case so defaults and conditionals work, e.g. `{filepath,NONE}` (#1541, #2252, thanks @mishra-prince).
+- Fixed `import` crashing when a directory contained a non-JPEG/HEIC image (e.g. PNG) with a video of the same name; these are no longer treated as Live Photo pairs (#2128, #2245, thanks @mishra-prince).
+- Fixed `osxphotos info` failing with `no such column: ZASSET.ZANALYSISSTATEMODIFICATIONDATE` on Catalina (Photos 5) libraries (#2282, thanks @lilylagrange00).
+- Fixed `export --update --download-missing` downloading an edited Live Photo on every run with AppleScript downloads: the update check required `<name>_edited.mov`, which AppleScript can't export; it is now required only with `--use-photokit` (#2266, thanks @TimJDFletcher).
 - Fixed `{created.strftime,%s}` (and other date fields using `%s`) returning an epoch value offset by the exporting machine's UTC offset, e.g. one hour off for photos taken during Daylight Saving Time. `%s` is now computed from the photo's own timezone. **Note:** this changes `%s` output for anyone exporting from a timezone different from the photo's, so `--update` runs that use `%s` in a filename or directory template may rename previously exported files (#2157, #2246, thanks @mishra-prince for the fix).
-- Fixed `--use-photokit` exporting the wrong version as the original of edited videos not cached locally (#2269).
-- Fixed `--use-photokit` exporting the edited photo and video as the original of edited Live Photos (#866).
-- Fixed `export --use-photos-export` killing unrelated apps (any app whose path contains `Photos.app`, Photos' helpers, and other users' Photos) when restarting Photos after repeated AppleScript failures. Only the current user's Photos process is now stopped, and `import` stops only the current user's Photos too (#2277).
-- Fixed reading the photo date from EXIF/XMP/QuickTime metadata (used by `timewarp --compare-exif`/`--pull-exif`, `push-exif`, `import` and others) silently returning no date when the highest-priority date field held an unparseable value: the remaining date fields are now tried, common non-standard formats such as `DD.MM.YYYY HH:MM` and `YYYY-MM-DD HH:MM:SS` are recognized when no field holds a standard EXIF date, and a warning is logged for dates that still can't be parsed (#2274).
+- Fixed `--use-photokit` exporting the wrong version as the original of edited videos not cached locally (#2269, thanks @a1exsun).
+- Fixed `--use-photokit` exporting the edited photo and video as the original of edited Live Photos (#866, #2289, thanks @wojteksbt).
+- Fixed `export --use-photos-export` killing unrelated apps (any app whose path contains `Photos.app`, Photos' helpers, and other users' Photos) when restarting Photos after repeated AppleScript failures. Only the current user's Photos process is now stopped, and `import` stops only the current user's Photos too (#2277, #2278, thanks @sarankumar1325).
+- Fixed reading the photo date from EXIF/XMP/QuickTime metadata (used by `timewarp --compare-exif`/`--pull-exif`, `push-exif`, `import` and others) silently returning no date when the highest-priority date field held an unparseable value: the remaining date fields are now tried, common non-standard formats such as `DD.MM.YYYY HH:MM` and `YYYY-MM-DD HH:MM:SS` are recognized when no field holds a standard EXIF date, and a warning is logged for dates that still can't be parsed (#2274, #2279, thanks @sarankumar1325).
 - Fixed `export --update --download-missing` downloading RAW+JPEG pairs on every run when the RAW is in iCloud (Photos 7+): osxphotos now reads the RAW's type from the Photos database, so the update check finds the exported `.cr2`/`.raf` instead of looking for `<name>.raw` (#2265, thanks @TimJDFletcher).
 - Fixed `export --update --download-missing --cleanup` deleting the RAW of a pair whose RAW is in iCloud: the RAW was recorded as missing under `<name>.raw`, so cleanup removed the real `.cr2`/`.raf` (#2265, thanks @TimJDFletcher).
-- Fixed `export --use-photokit` not exporting the original video of Live Photos whose Live was turned off: PhotoKit no longer reports them as Live Photos, so the `.mov` was recorded as missing and `--update --download-missing` downloaded them again on every run. The edited version still gets no `.mov` (#2290).
+- Fixed `export --use-photokit` not exporting the original video of Live Photos whose Live was turned off: PhotoKit no longer reports them as Live Photos, so the `.mov` was recorded as missing and `--update --download-missing` downloaded them again on every run. The edited version still gets no `.mov` (#2290, thanks @wojteksbt).
 
 #### Contributors
+
+* @a1exsun [@a1exsun](https://github.com/a1exsun) for code
+* @lilylagrange00 [@lilylagrange00](https://github.com/lilylagrange00) for code
+* @mishra-prince [@mishra-prince](https://github.com/mishra-prince) for code
+* @oPromessa [@oPromessa](https://github.com/oPromessa) for code
+* @paynejd [@paynejd](https://github.com/paynejd) for bug report and testing
+* @rknightion [@rknightion](https://github.com/rknightion) for code
+* @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code
+* @sarankumar1325 [@sarankumar1325](https://github.com/sarankumar1325) for code
+* @TimJDFletcher [@TimJDFletcher](https://github.com/TimJDFletcher) for code
+* @tomkoelman [@tomkoelman](https://github.com/tomkoelman) for bug report
+* @torarnv [@torarnv](https://github.com/torarnv) for bug report
+* @wojteksbt [@wojteksbt](https://github.com/wojteksbt) for code
+* @ZarK [@ZarK](https://github.com/ZarK) for code
 
 ## [v0.77.2](https://github.com/RhetTbull/osxphotos/compare/v0.77.1...v0.77.2)
 
