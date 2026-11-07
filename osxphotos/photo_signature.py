@@ -5,6 +5,7 @@ from __future__ import annotations
 import datetime
 import os
 
+from .iphoto import iPhotoPhotoInfo
 from .photoinfo import PhotoInfo
 from .photoinfo_dict import PhotoInfoFromDict, photoinfo_from_dict
 from .photoinfo_file import PhotoInfoFromFile
@@ -21,7 +22,7 @@ def photo_signature(
     """Compute photo signature for a PhotoInfo, a PhotoInfo dict, or file path"""
     if isinstance(photo, dict):
         photo = photoinfo_from_dict(photo)
-    elif not isinstance(photo, PhotoInfo):
+    elif not isinstance(photo, (PhotoInfo, iPhotoPhotoInfo)):
         photo = PhotoInfoFromFile(photo, exiftool=exiftool)
 
     if photo.shared:

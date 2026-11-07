@@ -14,6 +14,7 @@ import click
 from photoscript import Photo
 
 from osxphotos import PhotoInfo, PhotosDB, __version__
+from osxphotos.iphoto import iPhotoDB, is_iphoto_library
 from osxphotos.photo_signature import photo_signature
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photoquery import (
@@ -937,6 +938,10 @@ def sync(
 
     if export_path:
         query_options = query_options_from_kwargs(**kwargs)
-        photosdb = PhotosDB(dbfile=db, verbose=verbose)
+        photosdb = (
+            iPhotoDB(dbfile=db, verbose=verbose)
+            if db and is_iphoto_library(db)
+            else PhotosDB(dbfile=db, verbose=verbose)
+        )
         photos = photosdb.query(query_options)
         export_metadata(photos, export_path, verbose)
