@@ -69,7 +69,8 @@ _PHOTOS_11_MODEL_VERSION = [19063, 19319]
 _PHOTOS_11_1_MODEL_VERSION = [19320, 19999]  # macOS 26.1
 # macOS 27.0 changed the model version numbering scheme to a much larger value
 # (e.g. 270008501 on the 27.0 developer beta)
-_PHOTOS_12_MODEL_VERSION = [270000000, 270999999]  # macOS 27.0
+_PHOTOS_12_MODEL_VERSION = [270000000, 270299999]  # macOS 27.0
+_PHOTOS_12_3_MODEL_VERSION = [270300000, 270999999]  # macOS 27.3 beta: 270300300
 
 # the preview versions of 12.0.0 had a difference schema for syndication info so need to check model version before processing
 _PHOTOS_SYNDICATION_MODEL_VERSION = 15323  # 12.0.1
@@ -266,6 +267,23 @@ _DB_TABLE_NAMES = {
         "HAS_ADJUSTMENTS": "ZASSET.ZADJUSTMENTSSTATE",
         "ZSHAREPARTICIPANT_ZXX_SHARE": "Z71_SHARE",
     },
+    12.3: {  # macOS 27.3 (beta)
+        "ASSET": "ZASSET",
+        "KEYWORD_JOIN": "Z_1KEYWORDS.Z_54KEYWORDS",
+        "ALBUM_JOIN": "Z_35ASSETS.Z_3ASSETS",
+        "ALBUM_SORT_ORDER": "Z_35ASSETS.Z_FOK_3ASSETS",
+        "IMPORT_FOK": "null",
+        "DEPTH_STATE": "ZASSET.ZDEPTHTYPE",
+        "UTI_ORIGINAL": "ZINTERNALRESOURCE.ZCOMPACTUTI",
+        "ASSET_ALBUM_JOIN": "Z_35ASSETS.Z_35ALBUMS",
+        "ASSET_ALBUM_TABLE": "Z_35ASSETS",
+        "HDR_TYPE": "ZHDRTYPE",
+        "DETECTED_FACE_PERSON_FK": "ZDETECTEDFACE.ZPERSONFORFACE",
+        "DETECTED_FACE_ASSET_FK": "ZDETECTEDFACE.ZASSETFORFACE",
+        "MASTER_FINGERPRINT": "ZADDITIONALASSETATTRIBUTES.ZORIGINALSTABLEHASH",
+        "HAS_ADJUSTMENTS": "ZASSET.ZADJUSTMENTSSTATE",
+        "ZSHAREPARTICIPANT_ZXX_SHARE": "Z72_SHARE",
+    },
 }
 
 # Which version operating systems have been tested
@@ -335,6 +353,7 @@ _TESTED_OS_VERSIONS = [
     ("26", "7"),
     ("27", None),
     ("27", "0"),
+    ("27", "3"),
 ]
 
 # Photos 5 has persons who are empty string if unidentified face
