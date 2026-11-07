@@ -18,7 +18,9 @@ def test_photos_version_from_model(monkeypatch, model_version, photos_version):
     monkeypatch.setattr(
         photosdb_utils, "get_model_version", lambda db_file: str(model_version)
     )
-    assert photosdb_utils.get_photos_version_from_model("Photos.sqlite") == photos_version
+    assert (
+        photosdb_utils.get_photos_version_from_model("Photos.sqlite") == photos_version
+    )
 
 
 def test_macos_27_3_tables():
