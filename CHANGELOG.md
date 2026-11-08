@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.78.1](https://github.com/RhetTbull/osxphotos/compare/v0.78.0...v0.78.1)
+
+Support for the macOS 27.3 beta Photos library schema, iPhoto libraries in `sync --export`, and a new example script to recover person names after migrating a library.
+
+### 2026-11-08
+
+#### Added
+
+- `sync --export` can now export metadata from an iPhoto library when `--db` points to one (#2298).
+- Added `examples/recover_person_names.py`, which copies the person names from a source Photos or iPhoto library to the matching photos in the current Photos library as keywords and/or captions, for libraries that lost their person names during a migration. Run it with `osxphotos run recover_person_names.py --help`.
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+- Fixed opening macOS 27.3 (beta) Photos libraries failing with `no such table: Z_34ASSETS`: macOS 27.3 renumbered the album, keyword and share participant tables (#2297, thanks @rknightion).
+
+#### Contributors
+
+* @rknightion [@rknightion](https://github.com/rknightion) for code
+* @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code
+
 ## [v0.78.0](https://github.com/RhetTbull/osxphotos/compare/v0.77.2...v0.78.0)
 
 Pet detections in `FaceInfo`, many fixes for `export --update --download-missing` and `--use-photokit` with Live Photos, RAW+JPEG pairs and edited videos, faster `--update` on network shares, and a fix for the pre-built binary failing on startup.
