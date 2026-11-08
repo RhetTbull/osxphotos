@@ -1591,6 +1591,12 @@ class PhotosDB:
             if photos1
             else "RKModelResource.UTI = 'com.apple.quicktime-movie'"
         )
+        # Photos 1.0 RKModelResource does not have isOnDisk
+        model_resource_is_on_disk = (
+            "RKModelResource.isOnDisk"
+            if "isOnDisk" in sqlite_columns(conn, "RKModelResource")
+            else "NULL"
+        )
         c.execute(
             f""" SELECT
                 RKVersion.uuid,
@@ -1599,7 +1605,7 @@ class PhotosDB:
                 RKVersion.specialType,
                 RKModelResource.attachedModelType,
                 RKModelResource.resourceType,
-                RKModelResource.isOnDisk
+                {model_resource_is_on_disk}
                 FROM RKVersion
                 INNER JOIN RKMaster on RKVersion.masterUuid = RKMaster.uuid
                 INNER JOIN RKModelResource on RKMaster.modelId = RKModelResource.attachedModelId

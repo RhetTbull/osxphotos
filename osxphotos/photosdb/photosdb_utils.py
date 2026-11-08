@@ -247,7 +247,9 @@ def get_db_version(db_file: os.PathLike) -> str:
         c.execute(
             "SELECT value FROM LiGlobals WHERE LiGlobals.keyPath IS 'libraryVersion'"
         )
-        version = c.fetchone()[0]
+        # Photos 1.0 has a 3-digit version (477); zero-pad to 4 digits as osxphotos compares
+        # database versions as strings (e.g. "0477" < "4025" but "477" > "4025")
+        version = str(c.fetchone()[0]).zfill(4)
     elif "Z_METADATA" in result:
         # assume it's a Photos 5+ Photos.sqlite file
         # get_model_version will find the exact version

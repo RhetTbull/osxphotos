@@ -14,13 +14,14 @@ APP_NAME = "osxphotos"
 OSXPHOTOS_URL = "https://github.com/RhetTbull/osxphotos"
 
 # which Photos library database versions have been tested
+# Photos 1.0 (10.10.5) == 477 (zero-padded to "0477" by get_db_version)
 # Photos 1.5 (10.11.6) == 1801
 # Photos 2.0 (10.12.6) == 2622
 # Photos 3.0 (10.13.6) == 3301
 # Photos 4.0 (10.14.5) == 4016
 # Photos 4.0 (10.14.6) == 4025
 # Photos 5.0+ (10.15.0) == 6000 or 5001
-_TESTED_DB_VERSIONS = ["6000", "5001", "4025", "4016", "3301", "2622", "1801"]
+_TESTED_DB_VERSIONS = ["6000", "5001", "4025", "4016", "3301", "2622", "1801", "0477"]
 
 # database model versions (applies to Photos 5+)
 # these come from PLModelVersion key in binary plist in Z_METADATA.Z_PLIST
@@ -47,6 +48,7 @@ _IPHOTO_VERSION = "0000"
 # Photos 1.x (macOS 10.10.3 - 10.11) stores library data in several databases
 # (Library.apdb, Person.db, ImageProxies.apdb, Properties.apdb...) rather than photos.db
 # The library version is stored in metaSchema.db (LiGlobals.libraryVersion)
+_PHOTOS_1_0_VERSION = "0477"  # Photos 1.0.1 on 10.10.5
 _PHOTOS_1_VERSION = "1801"  # Photos 1.5 on 10.11.6
 
 _PHOTOS_2_VERSION = "2622"
