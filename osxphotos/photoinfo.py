@@ -8,6 +8,7 @@ import contextlib
 import copy
 import dataclasses
 import datetime
+import glob
 import json
 import logging
 import os
@@ -417,6 +418,9 @@ class PhotoInfo:
         if not self._info["hasAdjustments"]:
             return None
 
+        if self._db._photos_ver == 1:
+            return self._db._photos1_resource_path(self._info["edit_resource_id"])
+
         if edit_id := self._info["edit_resource_id"]:
             try:
                 photopath = self._get_predicted_path_edited_4()
@@ -477,6 +481,11 @@ class PhotoInfo:
             raise RuntimeError("Wrong database format!")
         if not self.live_photo:
             return None
+        if self._db._photos_ver == 1:
+            photopath = self._db._photos1_resource_path(
+                self._info["edit_resource_id_video"]
+            )
+            return photopath if photopath and os.path.isfile(photopath) else None
         photopath = self._get_predicted_path_edited_live_photo_4()
         if photopath is not None and not os.path.isfile(photopath):
             # the heuristic failed, so try to find the file
@@ -1094,6 +1103,10 @@ class PhotoInfo:
             if live_model_id is None:
                 logger.debug(f"missing live_model_id: {self._uuid}")
                 photopath = None
+            elif self._db._photos_ver == 1:
+                photopath = self._db._photos1_resource_path(live_model_id)
+                if photopath and not os.path.isfile(photopath):
+                    photopath = None
             else:
                 folder_id, file_id, nn_id = _get_resource_loc(live_model_id)
                 library_path = self._db.library_path
@@ -1226,8 +1239,41 @@ class PhotoInfo:
 
         return derivatives
 
+    def _path_derivatives_photos1(self) -> list[str]:
+        """Return paths to all derivative (preview) files for Photos 1.x
+
+        Photos 1.x stores thumbnails in Thumbnails/IMAGE_PATH_DIR/UUID/ where
+        IMAGE_PATH_DIR is the directory of the master image relative to Masters/
+        """
+        thumbnails_root = pathlib.Path(self._db._library_path) / "Thumbnails"
+        derivatives_path = None
+        if image_path := self._info["imagePath"]:
+            path = thumbnails_root / pathlib.Path(image_path).parent / self._uuid
+            if path.is_dir():
+                derivatives_path = path
+        if derivatives_path is None:
+            # versions that share a master may not be stored with the master's image path
+            # so search for the directory named for the version's UUID (Thumbnails/YYYY/MM/DD/YYYYMMDD-HHMMSS/UUID)
+            derivatives_path = next(
+                (
+                    path
+                    for path in thumbnails_root.glob(
+                        f"*/*/*/*/{glob.escape(self._uuid)}"
+                    )
+                    if path.is_dir()
+                ),
+                None,
+            )
+        if derivatives_path is None:
+            return []
+        files = [f for f in derivatives_path.glob("*") if f.is_file()]
+        files = sorted(files, reverse=True, key=lambda f: f.stat().st_size)
+        return [str(filename) for filename in files]
+
     def _path_derivatives_4(self) -> list[str]:
         """Return paths to all derivative (preview) files for Photos <= 4"""
+        if self._db._photos_ver == 1:
+            return self._path_derivatives_photos1()
         modelid = self._info["modelID"]
         if modelid is None:
             return []

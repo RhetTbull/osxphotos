@@ -14,12 +14,13 @@ APP_NAME = "osxphotos"
 OSXPHOTOS_URL = "https://github.com/RhetTbull/osxphotos"
 
 # which Photos library database versions have been tested
+# Photos 1.5 (10.11.6) == 1801
 # Photos 2.0 (10.12.6) == 2622
 # Photos 3.0 (10.13.6) == 3301
 # Photos 4.0 (10.14.5) == 4016
 # Photos 4.0 (10.14.6) == 4025
 # Photos 5.0+ (10.15.0) == 6000 or 5001
-_TESTED_DB_VERSIONS = ["6000", "5001", "4025", "4016", "3301", "2622"]
+_TESTED_DB_VERSIONS = ["6000", "5001", "4025", "4016", "3301", "2622", "1801"]
 
 # database model versions (applies to Photos 5+)
 # these come from PLModelVersion key in binary plist in Z_METADATA.Z_PLIST
@@ -42,6 +43,11 @@ _TEST_MODEL_VERSIONS = [
 ]
 
 _IPHOTO_VERSION = "0000"
+
+# Photos 1.x (macOS 10.10.3 - 10.11) stores library data in several databases
+# (Library.apdb, Person.db, ImageProxies.apdb, Properties.apdb...) rather than photos.db
+# The library version is stored in metaSchema.db (LiGlobals.libraryVersion)
+_PHOTOS_1_VERSION = "1801"  # Photos 1.5 on 10.11.6
 
 _PHOTOS_2_VERSION = "2622"
 
@@ -358,6 +364,10 @@ _TESTED_OS_VERSIONS = [
 
 # Photos 5 has persons who are empty string if unidentified face
 _UNKNOWN_PERSON = "_UNKNOWN_"
+
+# Photos 1.x: faces not assigned to a person have RKFace.personId = 0 with no RKPerson record;
+# osxphotos assigns these to a synthetic unknown person with this primary key
+_PHOTOS_1_UNKNOWN_PERSON_PK = 0
 
 # photos with no reverse geolocation info (place)
 _UNKNOWN_PLACE = "_UNKNOWN_"

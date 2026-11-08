@@ -56,6 +56,9 @@ Tested on macOS Sierra (10.12.6) through macOS Sequoia (15.i7.2). Tested on both
 | 10.14.5, 10.14.6  | Mojave     | 4.0 ✅              |
 | 10.13.6           | High Sierra| 3.0 ✅              |
 | 10.12.6           | Sierra     | 2.0 ✅              |
+| 10.11.6           | El Capitan | 1.5 ✅              |
+
+OSXPhotos can also read libraries created with Photos 1.x (macOS 10.10.3 - 10.11) on any supported macOS version or on Linux; only Photos 1.5 (macOS 10.11.6) has been tested.
 
 Limited support is also provided for exporting photos and metadata from iPhoto libraries. Only iPhoto 9.6.1 (the final release) has been tested.
 
