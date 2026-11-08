@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+<dict>
+<key>changeMask</key>
+<integer>128</integer>
+<key>changeUuid</key>
+<string>lastNMonthsAlbum</string>
+<key>changeDate</key>
+<real>815803389.083589</real>
+<key>table</key>
+<string>RKAlbumChange</string>
+</dict>
+<dict>
+<key>changeMask</key>
+<integer>128</integer>
+<key>changeUuid</key>
+<string>lastNMonthsAlbum</string>
+<key>changeDate</key>
+<real>815803389.083625</real>
+<key>table</key>
+<string>RKAlbumChange</string>
+</dict>
+<dict>
+<key>changeMask</key>
+<integer>256</integer>
+<key>changeUuid</key>
+<string>trashAlbum</string>
+<key>changeDate</key>
+<real>815803389.337740</real>
+<key>table</key>
+<string>RKAlbumChange</string>
+</dict>
+</array>
+</plist>
