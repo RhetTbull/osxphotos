@@ -6,6 +6,7 @@ import logging
 import os
 import pathlib
 import plistlib
+import sqlite3
 import sys
 
 from .._constants import (
@@ -28,18 +29,197 @@ from .._constants import (
     _PHOTOS_12_MODEL_VERSION,
     _TESTED_DB_VERSIONS,
 )
+from ..fileutil import FileUtil
 from ..sqlite_utils import sqlite_open_ro
 
 logger = logging.getLogger("osxphotos")
 
 __all__ = [
+    "create_photos1_merged_db",
     "get_db_version",
     "get_model_version",
+    "get_photos1_library_root",
     "get_photos_library_version",
     "get_photos_version_from_model",
 ]
 
 LATEST_PHOTOS_VERSION = max(_DB_TABLE_NAMES.keys())
+
+# Photos 1.x splits library data across several databases in the library's Database folder
+# The main database (Library.apdb) plus these auxiliary databases are merged into a single
+# temporary database by create_photos1_merged_db so they can be queried together
+# metaSchema.db: LiGlobals (library version)
+# Person.db: RKPerson, RKFace (persons and faces)
+# ImageProxies.apdb: RKModelResource, RKCloudResource (edited images, resources)
+# Properties.apdb: RKPlace (places), RKExif*, RKIptc* properties
+_PHOTOS_1_MAIN_DB = "Library.apdb"
+_PHOTOS_1_META_DB = "metaSchema.db"
+_PHOTOS_1_AUX_DBS = [
+    "metaSchema.db",
+    "Person.db",
+    "ImageProxies.apdb",
+    "Properties.apdb",
+]
+
+
+def _photos1_db_file(database_dir: pathlib.Path, name: str) -> pathlib.Path | None:
+    """Return path to a Photos 1.x database file in database_dir or None if not found
+
+    Photos 1.x stores most of the database files in Database/apdb with symlinks to
+    some (but not all) of them in Database/.
+    """
+    for path in (database_dir / "apdb" / name, database_dir / name):
+        if path.is_file():
+            return path
+    return None
+
+
+def _photos1_database_dir(library_root: pathlib.Path) -> pathlib.Path | None:
+    """Return the Database directory of a Photos 1.x library or None if not a Photos 1.x library"""
+    for dirname in ("database", "Database"):
+        database_dir = library_root / dirname
+        if (database_dir / "photos.db").exists() or (
+            database_dir / "Photos.sqlite"
+        ).exists():
+            # Photos 2+ library
+            return None
+        if _photos1_db_file(database_dir, _PHOTOS_1_MAIN_DB) and _photos1_db_file(
+            database_dir, _PHOTOS_1_META_DB
+        ):
+            return database_dir
+    return None
+
+
+def get_photos1_library_root(path: str | os.PathLike) -> pathlib.Path | None:
+    """Return the root of a Photos 1.x library or None if path is not a Photos 1.x library
+
+    Args:
+        path: path to the root of the library or to one of the database files in the library
+            (e.g. Database/Library.apdb, Database/apdb/Library.apdb, or Database/metaSchema.db)
+
+    Returns: pathlib.Path to the library root if path is a Photos 1.x library, else None
+
+    Note: iPhoto libraries share the Library.apdb format but do not contain metaSchema.db
+    """
+    path = pathlib.Path(path)
+    if path.is_dir():
+        candidates = [path]
+    else:
+        # Database/Library.apdb or Database/apdb/Library.apdb
+        candidates = [path.parent.parent, path.parent.parent.parent]
+    for candidate in candidates:
+        if _photos1_database_dir(candidate):
+            return candidate
+    return None
+
+
+def create_photos1_merged_db(
+    library_root: str | os.PathLike, dest_dir: str | os.PathLike
+) -> pathlib.Path:
+    """Merge the split databases of a Photos 1.x library into a single sqlite database
+
+    Photos 1.x stores library data in several databases (Library.apdb, Person.db, etc.);
+    osxphotos expects all data in a single database as in Photos 2-4 (photos.db) so this creates
+    a temporary database with all the tables needed by osxphotos.
+
+    Args:
+        library_root: path to the root of the Photos 1.x library
+        dest_dir: directory in which to create the merged database (e.g. a temporary directory)
+
+    Returns: pathlib.Path to the merged database
+
+    Raises:
+        ValueError if library_root is not a Photos 1.x library
+
+    Note: The database files (and their write-ahead logs) are copied to dest_dir before being read
+    so the library itself is never opened or modified. Virtual tables, which rely on sqlite modules
+    only available to Photos, are not copied.
+    """
+    library_root = pathlib.Path(library_root)
+    dest_dir = pathlib.Path(dest_dir)
+    database_dir = _photos1_database_dir(library_root)
+    if not database_dir:
+        raise ValueError(f"{library_root} is not a Photos 1.x library")
+
+    def _copy_db(name: str, dest_name: str) -> pathlib.Path | None:
+        """Copy database name and any -wal/-shm files to dest_dir/dest_name"""
+        src = _photos1_db_file(database_dir, name)
+        if not src:
+            return None
+        dest = dest_dir / dest_name
+        for suffix in ("", "-wal", "-shm"):
+            src_file = pathlib.Path(f"{src}{suffix}")
+            if src_file.is_file():
+                FileUtil.copy(src_file, f"{dest}{suffix}")
+        return dest
+
+    merged_db = _copy_db(_PHOTOS_1_MAIN_DB, "photos1_merged.db")
+    conn = sqlite3.connect(merged_db)
+    try:
+        # checkpoint any write-ahead log into the copy so it is a single self-contained file
+        conn.execute("PRAGMA journal_mode=DELETE")
+        tables = {
+            row[0]
+            for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        }
+        for name in _PHOTOS_1_AUX_DBS:
+            aux_db = _copy_db(name, f"photos1_aux_{name}")
+            if not aux_db:
+                logger.warning(
+                    f"Could not find Photos 1.x database {name} in {database_dir}"
+                )
+                continue
+            _photos1_merge_tables(conn, aux_db, tables)
+            for suffix in ("", "-wal", "-shm"):
+                pathlib.Path(f"{aux_db}{suffix}").unlink(missing_ok=True)
+        conn.commit()
+    finally:
+        conn.close()
+    return merged_db
+
+
+def _photos1_merge_tables(
+    conn: sqlite3.Connection, aux_db: pathlib.Path, tables: set[str]
+):
+    """Copy all regular tables and their indexes from aux_db into the main database of conn
+
+    Args:
+        conn: connection to the destination database
+        aux_db: path to the database to copy tables from
+        tables: set of table names already in the destination database; updated with copied tables
+    """
+    conn.execute("ATTACH DATABASE ? AS aux", (str(aux_db),))
+    try:
+        schema = conn.execute(
+            "SELECT type, name, tbl_name, sql FROM aux.sqlite_master"
+        ).fetchall()
+        virtual_tables = [
+            name
+            for type_, name, _, sql in schema
+            if type_ == "table" and sql and sql.upper().startswith("CREATE VIRTUAL")
+        ]
+        copied = set()
+        for type_, name, _, sql in schema:
+            if type_ != "table" or not sql or name.startswith("sqlite_"):
+                continue
+            if name in virtual_tables or any(
+                name.startswith(f"{vtable}_") for vtable in virtual_tables
+            ):
+                # virtual table or one of its shadow tables
+                continue
+            if name in tables:
+                logger.debug(f"Skipping duplicate table {name} in {aux_db}")
+                continue
+            conn.execute(sql)
+            conn.execute(f'INSERT INTO main."{name}" SELECT * FROM aux."{name}"')
+            copied.add(name)
+        for type_, _, tbl_name, sql in schema:
+            if type_ == "index" and sql and tbl_name in copied:
+                conn.execute(sql)
+        tables.update(copied)
+        conn.commit()
+    finally:
+        conn.execute("DETACH DATABASE aux")
 
 
 def get_db_version(db_file: os.PathLike) -> str:
@@ -67,12 +247,22 @@ def get_db_version(db_file: os.PathLike) -> str:
         c.execute(
             "SELECT value FROM LiGlobals WHERE LiGlobals.keyPath IS 'libraryVersion'"
         )
-        version = c.fetchone()[0]
+        # Photos 1.0 has a 3-digit version (477); zero-pad to 4 digits as osxphotos compares
+        # database versions as strings (e.g. "0477" < "4025" but "477" > "4025")
+        version = str(c.fetchone()[0]).zfill(4)
     elif "Z_METADATA" in result:
         # assume it's a Photos 5+ Photos.sqlite file
         # get_model_version will find the exact version
         version = "5001"
+    elif "RKVersion" in result and (library_root := get_photos1_library_root(db_file)):
+        # Photos 1.x Library.apdb; version is stored in metaSchema.db
+        conn.close()
+        meta_db = _photos1_db_file(
+            _photos1_database_dir(library_root), _PHOTOS_1_META_DB
+        )
+        return get_db_version(meta_db)
     else:
+        conn.close()
         raise ValueError(f"Unknown database format: {db_file}")
     conn.close()
 
@@ -175,6 +365,9 @@ def get_photos_library_version(library_path: str | pathlib.Path) -> int:
     Returns: int of major Photos version number (e.g. 5, 6, ...)
     """
     library_path = pathlib.Path(library_path)
+    if get_photos1_library_root(library_path):
+        return 1
+
     if not library_path.is_dir():
         # assume we got passed library path/database/Photos.sqlite or library path/database/photos.db
         library_path = library_path.parent.parent
@@ -212,6 +405,9 @@ def get_db_path_for_library(photos_library: str | pathlib.Path) -> pathlib.Path:
     if photos_library.is_file():
         return photos_library
     photos_version = get_photos_library_version(photos_library)
+    if photos_version == 1:
+        database_dir = _photos1_database_dir(photos_library)
+        return _photos1_db_file(database_dir, _PHOTOS_1_MAIN_DB)
     if photos_version < 5:
         if photos_library.is_dir():
             photos_library = photos_library / "database" / "photos.db"

@@ -10,6 +10,7 @@ from osxphotos.photosdb.photosdb_utils import (
 )
 
 LIBRARIES = {
+    1: pathlib.Path("tests/Test-El-Capitan-10.11.6.photoslibrary"),
     2: pathlib.Path("tests/Test-10.12.6.photoslibrary"),
     3: pathlib.Path("tests/Test-10.13.6.photoslibrary"),
     4: pathlib.Path("tests/Test-10.14.6.photoslibrary"),

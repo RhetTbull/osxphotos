@@ -19,6 +19,7 @@ from typing import Any
 from unicodedata import normalize
 
 from rich import print
+from utitools import conforms_to_uti
 
 from osxphotos.platform import check_and_warn_macos_version
 
@@ -26,6 +27,7 @@ from .._constants import (
     _DB_TABLE_NAMES,
     _MOVIE_TYPE,
     _PHOTO_TYPE,
+    _PHOTOS_1_UNKNOWN_PERSON_PK,
     _PHOTOS_3_VERSION,
     _PHOTOS_4_ALBUM_KIND,
     _PHOTOS_4_ALBUM_TYPE_ALBUM,
@@ -63,8 +65,11 @@ from ..unicode import normalize_unicode
 from ..uti import get_uti_for_extension
 from ..utils import _check_file_exists, get_last_library_path, noop
 from .photosdb_utils import (
+    create_photos1_merged_db,
+    get_db_path_for_library,
     get_db_version,
     get_model_version,
+    get_photos1_library_root,
     get_photos_version_from_model,
     uti_for_compact_uti,
     uti_if_raw,
@@ -312,6 +317,10 @@ class PhotosDB:
         # Dict to hold data on imports for Photos <= 4
         self._db_import_group = {}
 
+        # Dict to hold data on RKModelResource for Photos 1.x
+        # key is RKModelResource.modelId, value is tuple of (resourceUuid, filename)
+        self._db_photos1_resources = {}
+
         # Dict to hold syndication info for Photos >= 7
         # key is UUID and value is dict of syndication info
         self._db_syndication_uuid = {}
@@ -352,6 +361,11 @@ class PhotosDB:
 
         dbfile: pathlib.Path = pathlib.Path(dbfile)
         dbfile = dbfile.resolve().absolute()
+
+        if photos1_root := get_photos1_library_root(dbfile):
+            self._find_database_photos1(photos1_root, library_path)
+            return
+
         self._dbfile, self._dbfile_actual = None, None
         photos_5 = False
         if dbfile.is_dir():
@@ -473,6 +487,31 @@ class PhotosDB:
         self._masters_path = str(self._masters_path)
 
         logger.debug(f"{self._library_path=},{self._masters_path=}")
+
+    def _find_database_photos1(
+        self, library_root: pathlib.Path, library_path: str | None
+    ):
+        """Initialize internal database variables for a Photos 1.x library
+
+        Photos 1.x stores library data in several databases (Library.apdb, Person.db, ...)
+        These are merged into a single temporary database (self._tmp_db) which can then be
+        processed by _process_database4 like a Photos 2-4 photos.db database.
+        """
+        verbose = self._verbose
+        self._dbfile = str(get_db_path_for_library(library_root))
+        self._dbfile_actual = self._dbfile
+        verbose(f"Processing database {self._filepath(self._dbfile)}")
+        self._tmp_db = str(create_photos1_merged_db(library_root, self._tempdir_name))
+        self._db_version = get_db_version(self._tmp_db)
+        self._photos_ver = 1
+        self._model_ver = 0  # only set for Photos 5+
+        self._library_path = str(
+            pathlib.Path(library_path) if library_path else library_root
+        )
+        self._masters_path = str(pathlib.Path(self._library_path) / "Masters")
+        logger.debug(
+            f"{self._dbfile=}, {self._tmp_db=}, {self._library_path=}, {self._masters_path=}"
+        )
 
     @property
     def keywords_as_dict(self):
@@ -754,20 +793,37 @@ class PhotosDB:
 
         (conn, c) = sqlite_open_ro(self._tmp_db)
 
+        # Photos 1.x schema differs from Photos 2-4 in a few places; see _find_database_photos1
+        photos1 = self._photos_ver == 1
+
         # get info to associate persons with photos
         # then get detected faces in each photo and link to persons
         verbose("Processing persons in photos.")
-        c.execute(
-            """ SELECT
-                RKPerson.modelID,
-                RKPerson.uuid,
-                RKPerson.name,
-                RKPerson.faceCount,
-                RKPerson.displayName,
-                RKPerson.representativeFaceId
-                FROM RKPerson
-            """
-        )
+        if photos1:
+            # Photos 1.x RKPerson does not have faceCount or displayName
+            c.execute(
+                """ SELECT
+                    RKPerson.modelID,
+                    RKPerson.uuid,
+                    RKPerson.name,
+                    (SELECT COUNT(*) FROM RKFace WHERE RKFace.personId = RKPerson.modelId),
+                    NULL,
+                    RKPerson.representativeFaceId
+                    FROM RKPerson
+                """
+            )
+        else:
+            c.execute(
+                """ SELECT
+                    RKPerson.modelID,
+                    RKPerson.uuid,
+                    RKPerson.name,
+                    RKPerson.faceCount,
+                    RKPerson.displayName,
+                    RKPerson.representativeFaceId
+                    FROM RKPerson
+                """
+            )
 
         # 0     RKPerson.modelID,
         # 1     RKPerson.uuid,
@@ -800,9 +856,40 @@ class PhotosDB:
             except KeyError:
                 self._dbpersons_fullname[fullname] = [pk]
 
+        if photos1:
+            # Photos 1.x stores faces that haven't been assigned to a person with personId = 0
+            # and there's no corresponding RKPerson record; Photos 2+ creates an unnamed person for these
+            # so add an unnamed person to be consistent with later versions
+            unknown_count = c.execute(
+                """ SELECT COUNT(*) FROM RKFace
+                    WHERE personId NOT IN (SELECT modelId FROM RKPerson) """
+            ).fetchone()[0]
+            if unknown_count:
+                self._dbpersons_pk[_PHOTOS_1_UNKNOWN_PERSON_PK] = {
+                    "pk": _PHOTOS_1_UNKNOWN_PERSON_PK,
+                    "uuid": None,
+                    "fullname": _UNKNOWN_PERSON,
+                    "facecount": unknown_count,
+                    "keyface": None,
+                    "displayname": None,
+                    "photo_uuid": None,
+                    "keyface_uuid": None,
+                    "type": None,  # Photos 5+
+                    "manualorder": 0,  # Photos 5+
+                }
+                self._dbpersons_fullname.setdefault(_UNKNOWN_PERSON, []).append(
+                    _PHOTOS_1_UNKNOWN_PERSON_PK
+                )
+
         # get info on key face
+        # Photos 1.x RKFace.imageId is RKVersion.uuid; in Photos 2-4 RKFace.imageModelId is RKVersion.modelId
+        face_version_join = (
+            "RKVersion.uuid = RKFace.imageId"
+            if photos1
+            else "RKVersion.modelId = RKFace.imageModelId"
+        )
         c.execute(
-            """ SELECT
+            f""" SELECT
                 RKPerson.modelID,
                 RKPerson.representativeFaceId,
                 RKVersion.uuid,
@@ -810,7 +897,7 @@ class PhotosDB:
                 FROM RKPerson, RKFace, RKVersion
                 WHERE
                 RKFace.modelId = RKPerson.representativeFaceId AND
-                RKVersion.modelId = RKFace.ImageModelId
+                {face_version_join}
             """
         )
 
@@ -829,18 +916,31 @@ class PhotosDB:
 
         # get information on detected faces
         verbose("Processing detected faces in photos.")
-        c.execute(
-            """ SELECT
-                RKPerson.modelID,
-                RKVersion.uuid
-                FROM
-                RKFace, RKPerson, RKVersion, RKMaster
-                WHERE
-                RKFace.personID = RKperson.modelID AND
-                RKVersion.modelId = RKFace.ImageModelId AND
-                RKVersion.masterUuid = RKMaster.uuid
-            """
-        )
+        if photos1:
+            # faces not assigned to a person are assigned to the unknown person
+            c.execute(
+                f""" SELECT
+                    COALESCE(RKPerson.modelID, {_PHOTOS_1_UNKNOWN_PERSON_PK}),
+                    RKVersion.uuid
+                    FROM RKFace
+                    LEFT JOIN RKPerson ON RKFace.personID = RKPerson.modelID
+                    JOIN RKVersion ON {face_version_join}
+                    JOIN RKMaster ON RKVersion.masterUuid = RKMaster.uuid
+                """
+            )
+        else:
+            c.execute(
+                """ SELECT
+                    RKPerson.modelID,
+                    RKVersion.uuid
+                    FROM
+                    RKFace, RKPerson, RKVersion, RKMaster
+                    WHERE
+                    RKFace.personID = RKperson.modelID AND
+                    RKVersion.modelId = RKFace.ImageModelId AND
+                    RKVersion.masterUuid = RKMaster.uuid
+                """
+            )
 
         # 0     RKPerson.modelID
         # 1     RKVersion.uuid
@@ -1025,15 +1125,22 @@ class PhotosDB:
         for vol in c:
             self._dbvolumes[vol[0]] = vol[1]
 
+        # Photos 1.x RKMaster does not have volumeId but does have fileVolumeUuid
+        master_volume_id = (
+            "(SELECT RKVolume.modelId FROM RKVolume WHERE RKVolume.uuid = RKMaster.fileVolumeUuid)"
+            if photos1
+            else "RKMaster.volumeId"
+        )
+
         # Get photo details
         verbose("Processing photo details.")
         if self._db_version < _PHOTOS_3_VERSION:
             # Photos < 3.0 doesn't have RKVersion.selfPortrait (selfie)
             c.execute(
-                """ SELECT RKVersion.uuid, RKVersion.modelId, RKVersion.masterUuid, RKVersion.filename,
+                f""" SELECT RKVersion.uuid, RKVersion.modelId, RKVersion.masterUuid, RKVersion.filename,
                     RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating,
                     RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds,
-                    RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name,
+                    {master_volume_id}, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name,
                     RKMaster.isMissing, RKMaster.originalFileName, RKVersion.isFavorite, RKVersion.isHidden,
                     RKVersion.latitude, RKVersion.longitude,
                     RKVersion.adjustmentUuid, RKVersion.type, RKMaster.UTI,
@@ -1199,9 +1306,12 @@ class PhotosDB:
 
             self._dbphotos[uuid]["UTI"] = row[22]
 
+            if photos1:
+                self._photos1_fix_unsupported_type(uuid, row[11] or row[3])
+
             # The UTI in RKMaster will always be UTI of the original
             # Unlike Photos 5 which changes the UTI to match latest edit
-            self._dbphotos[uuid]["UTI_original"] = row[22]
+            self._dbphotos[uuid]["UTI_original"] = self._dbphotos[uuid]["UTI"]
 
             # UTI edited will be read from RKModelResource
             self._dbphotos[uuid]["UTI_edited"] = None
@@ -1344,9 +1454,9 @@ class PhotosDB:
         # get additional details from RKMaster, needed for RAW processing
         verbose("Processing additional photo details.")
         c.execute(
-            """ SELECT
+            f""" SELECT
                 RKMaster.uuid,
-                RKMaster.volumeId,
+                {master_volume_id},
                 RKMaster.imagePath,
                 RKMaster.isMissing,
                 RKMaster.originalFileName,
@@ -1389,10 +1499,24 @@ class PhotosDB:
             info["filename"] = normalize_unicode(row[10])
             self._dbphotos_master[uuid] = info
 
+        if photos1:
+            # Photos 1.x RKModelResource has no UTI column but does have the resource's filename
+            # Resources are stored in resources/modelresources/ and the path is
+            # determined by the resourceUuid and filename; see PhotosDB._photos1_resource_path
+            self._db_photos1_resources = {
+                row[0]: (row[1], normalize_unicode(row[2]))
+                for row in c.execute(
+                    "SELECT modelId, resourceUuid, filename FROM RKModelResource"
+                )
+            }
+            model_resource_uti = "NULL"
+        else:
+            model_resource_uti = "RKModelResource.UTI"
+
         # get details needed to find path of the edited photos
         c.execute(
-            """ SELECT RKVersion.uuid, RKVersion.adjustmentUuid, RKModelResource.modelId,
-                RKModelResource.resourceTag, RKModelResource.UTI, RKVersion.specialType,
+            f""" SELECT RKVersion.uuid, RKVersion.adjustmentUuid, RKModelResource.modelId,
+                RKModelResource.resourceTag, {model_resource_uti}, RKVersion.specialType,
                 RKModelResource.attachedModelType, RKModelResource.resourceType
                 FROM RKVersion
                 JOIN RKModelResource on RKModelResource.attachedModelId = RKVersion.modelId
@@ -1412,12 +1536,16 @@ class PhotosDB:
 
         for row in c:
             uuid = row[0]
+            if photos1:
+                # determine UTI from the resource's filename
+                row = list(row)
+                row[4] = self._photos1_resource_uti(row[2])
             if uuid in self._dbphotos:
                 # get info on adjustments (edits)
                 if self._dbphotos[uuid]["adjustmentUuid"] == row[3]:
                     if (
-                        row[1] != "UNADJUSTEDNONRAW"
-                        and row[1] != "UNADJUSTED"
+                        row[1]
+                        not in ("UNADJUSTEDNONRAW", "UNADJUSTED", "UNADJUSTEDRAW")
                         and row[6] == 2
                     ):
                         resource_type = row[7]
@@ -1457,19 +1585,31 @@ class PhotosDB:
                 self._dbphotos[uuid]["adjustmentFormatID"] = row[3]
 
         # get details to find path of live photos
+        # Photos 1.x RKModelResource has no UTI column so use the filename extension instead
+        live_photo_filter = (
+            "lower(RKModelResource.filename) LIKE '%.mov'"
+            if photos1
+            else "RKModelResource.UTI = 'com.apple.quicktime-movie'"
+        )
+        # Photos 1.0 RKModelResource does not have isOnDisk
+        model_resource_is_on_disk = (
+            "RKModelResource.isOnDisk"
+            if "isOnDisk" in sqlite_columns(conn, "RKModelResource")
+            else "NULL"
+        )
         c.execute(
-            """ SELECT
+            f""" SELECT
                 RKVersion.uuid,
                 RKModelResource.modelId,
-                RKModelResource.UTI,
+                {model_resource_uti},
                 RKVersion.specialType,
                 RKModelResource.attachedModelType,
                 RKModelResource.resourceType,
-                RKModelResource.isOnDisk
+                {model_resource_is_on_disk}
                 FROM RKVersion
                 INNER JOIN RKMaster on RKVersion.masterUuid = RKMaster.uuid
                 INNER JOIN RKModelResource on RKMaster.modelId = RKModelResource.attachedModelId
-                WHERE RKModelResource.UTI = 'com.apple.quicktime-movie'
+                WHERE {live_photo_filter}
               """
         )
 
@@ -1689,6 +1829,64 @@ class PhotosDB:
 
         # done processing, dump debug data if requested
         verbose("Done processing details from Photos library.")
+
+    def _photos1_fix_unsupported_type(self, uuid: str, filename: str | None):
+        """Set type and UTI from the file extension for files Photos 1.x did not recognize
+
+        Photos 1.x does not support some newer formats (e.g. HEIC) but these can still be
+        in the library (e.g. migrated from iPhoto); these have RKVersion.type = 0 and a dynamic UTI
+        (dyn.xxx) so determine the type and UTI from the file's extension.
+        """
+        info = self._dbphotos[uuid]
+        uti = info["UTI"] or ""
+        if info["type"] is not None and not uti.startswith("dyn."):
+            return
+        if not filename or not (
+            ext_uti := get_uti_for_extension(pathlib.Path(filename).suffix)
+        ):
+            return
+        if not uti or uti.startswith("dyn."):
+            info["UTI"] = ext_uti
+        if info["type"] is None:
+            if conforms_to_uti(ext_uti, "public.image"):
+                info["type"] = _PHOTO_TYPE
+            elif conforms_to_uti(ext_uti, "public.movie"):
+                info["type"] = _MOVIE_TYPE
+
+    def _photos1_resource_uti(self, model_id: int) -> str | None:
+        """Return UTI for a Photos 1.x RKModelResource based on the resource's filename"""
+        try:
+            _, filename = self._db_photos1_resources[model_id]
+        except KeyError:
+            return None
+        if not filename:
+            return None
+        return get_uti_for_extension(pathlib.Path(filename).suffix)
+
+    def _photos1_resource_path(self, model_id: int | None) -> str | None:
+        """Return path to a Photos 1.x RKModelResource (e.g. edited image) or None if not found
+
+        Photos 1.x stores resources in
+        resources/modelresources/X/Y/resourceUuid/filename
+        where X and Y are the ordinal values of the first and second characters of resourceUuid
+        """
+        if model_id is None:
+            return None
+        try:
+            resource_uuid, filename = self._db_photos1_resources[model_id]
+        except KeyError:
+            return None
+        if not resource_uuid or not filename or len(resource_uuid) < 2:
+            return None
+        return os.path.join(
+            self._library_path,
+            "resources",
+            "modelresources",
+            str(ord(resource_uuid[0])),
+            str(ord(resource_uuid[1])),
+            resource_uuid,
+            filename,
+        )
 
     def _build_album_folder_hierarchy_4(self, uuid, folders=None):
         """Recursively build folder/album hierarchy

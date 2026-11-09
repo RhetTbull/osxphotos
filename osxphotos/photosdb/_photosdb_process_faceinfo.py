@@ -1,6 +1,10 @@
 """Methods for PhotosDB to add Photos face info"""
 
-from .._constants import _DB_TABLE_NAMES, _PHOTOS_4_VERSION
+from .._constants import (
+    _DB_TABLE_NAMES,
+    _PHOTOS_1_UNKNOWN_PERSON_PK,
+    _PHOTOS_4_VERSION,
+)
 from ..sqlite_utils import sqlite_open_ro
 from ..unicode import normalize_unicode
 from .photosdb_utils import get_db_version
@@ -41,43 +45,85 @@ def _process_faceinfo_4(photosdb):
 
     (conn, cursor) = sqlite_open_ro(db)
 
-    result = cursor.execute(
-        """
-        SELECT
-        RKFace.modelId,
-        RKVersion.uuid, 
-        RKFace.uuid,
-        RKPerson.name,
-        RKFace.isInTrash,
-        RKFace.personId,
-        RKFace.imageModelId, 
-        RKFace.sourceWidth,
-        RKFace.sourceHeight, 
-        RKFace.centerX,
-        RKFace.centerY,
-        RKFace.size,
-        RKFace.leftEyeX, 
-        RKFace.leftEyeY,
-        RKFace.rightEyeX, 
-        RKFace.rightEyeY, 
-        RKFace.mouthX,
-        RKFace.mouthY, 
-        RKFace.hidden, 
-        RKFace.manual, 
-        RKFace.hasSmile, 
-        RKFace.isLeftEyeClosed, 
-        RKFace.isRightEyeClosed, 
-        RKFace.poseRoll, 
-        RKFace.poseYaw, 
-        RKFace.posePitch, 
-        RKFace.faceType,
-        RKFace.qualityMeasure
-        FROM
-        RKFace
-        JOIN RKPerson on RKPerson.modelId = RKFace.personId
-        JOIN RKVersion on RKVersion.modelId = RKFace.imageModelId
-        """
-    )
+    if photosdb._photos_ver == 1:
+        # Photos 1.x: RKFace.imageId is RKVersion.uuid; no pose roll/yaw/pitch, faceType, or qualityMeasure
+        # faces not assigned to a person have personId = 0 and no RKPerson record
+        # these are assigned to the unknown person created in _process_database4
+        result = cursor.execute(
+            f"""
+            SELECT
+            RKFace.modelId,
+            RKVersion.uuid,
+            RKFace.uuid,
+            RKPerson.name,
+            RKFace.isInTrash,
+            COALESCE(RKPerson.modelId, {_PHOTOS_1_UNKNOWN_PERSON_PK}),
+            RKVersion.modelId,
+            RKFace.sourceWidth,
+            RKFace.sourceHeight,
+            RKFace.centerX,
+            RKFace.centerY,
+            RKFace.size,
+            RKFace.leftEyeX,
+            RKFace.leftEyeY,
+            RKFace.rightEyeX,
+            RKFace.rightEyeY,
+            RKFace.mouthX,
+            RKFace.mouthY,
+            RKFace.hidden,
+            RKFace.manual,
+            RKFace.hasSmile,
+            RKFace.isLeftEyeClosed,
+            RKFace.isRightEyeClosed,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL
+            FROM
+            RKFace
+            LEFT JOIN RKPerson on RKPerson.modelId = RKFace.personId
+            JOIN RKVersion on RKVersion.uuid = RKFace.imageId
+            """
+        )
+    else:
+        result = cursor.execute(
+            """
+            SELECT
+            RKFace.modelId,
+            RKVersion.uuid,
+            RKFace.uuid,
+            RKPerson.name,
+            RKFace.isInTrash,
+            RKFace.personId,
+            RKFace.imageModelId,
+            RKFace.sourceWidth,
+            RKFace.sourceHeight,
+            RKFace.centerX,
+            RKFace.centerY,
+            RKFace.size,
+            RKFace.leftEyeX,
+            RKFace.leftEyeY,
+            RKFace.rightEyeX,
+            RKFace.rightEyeY,
+            RKFace.mouthX,
+            RKFace.mouthY,
+            RKFace.hidden,
+            RKFace.manual,
+            RKFace.hasSmile,
+            RKFace.isLeftEyeClosed,
+            RKFace.isRightEyeClosed,
+            RKFace.poseRoll,
+            RKFace.poseYaw,
+            RKFace.posePitch,
+            RKFace.faceType,
+            RKFace.qualityMeasure
+            FROM
+            RKFace
+            JOIN RKPerson on RKPerson.modelId = RKFace.personId
+            JOIN RKVersion on RKVersion.modelId = RKFace.imageModelId
+            """
+        )
 
     # 0     RKFace.modelId,
     # 1     RKVersion.uuid,
