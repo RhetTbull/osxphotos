@@ -31,7 +31,9 @@ def photo_signature(
     if photo.fingerprint:
         return f"{photo.original_filename.lower()}:{photo.fingerprint}"
 
-    if photo.path and is_macos:
+    # the original may not be on disk, e.g. still in iCloud, or the path of an
+    # export database record that points into another library
+    if photo.path and is_macos and os.path.isfile(photo.path):
         return f"{photo.original_filename.lower()}:{fingerprint(photo.path)}"
 
     return f"{photo.original_filename.lower()}:{photo.original_filesize}"
