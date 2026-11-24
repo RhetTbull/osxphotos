@@ -3,6 +3,7 @@
 import json
 import os
 import pathlib
+import sqlite3
 
 from click.testing import CliRunner
 
@@ -40,6 +41,51 @@ def test_exportdb_migrate_photos_library(isolated_fs):
     )
     assert result.exit_code == 0
     assert "Migrated 29 photos" in result.output
+
+
+def test_exportdb_migrate_photos_library_counts_unmatched(isolated_fs):
+    """Test exportdb --migrate-photos-library counts a record that has a size but no match"""
+
+    runner = CliRunner()
+
+    result = runner.invoke(export, [".", "--library", LIBRARY1])
+    assert result.exit_code == 0
+
+    # make one record unmatchable by cloud_guid, signature, and name/size
+    # while keeping its original_filesize
+    conn = sqlite3.connect(OSXPHOTOS_EXPORT_DB)
+    uuid, photoinfo_json = conn.execute(
+        "SELECT uuid, photoinfo FROM photoinfo "
+        "WHERE json_extract(photoinfo, '$.original_filesize') > 0 LIMIT 1;"
+    ).fetchone()
+    photoinfo = json.loads(photoinfo_json)
+    assert photoinfo["original_filesize"]
+    photoinfo["original_filename"] = "NO_MATCH_IN_LIBRARY.jpg"
+    photoinfo["cloud_guid"] = None
+    photoinfo["fingerprint"] = None
+    photoinfo["path"] = None
+    photoinfo["shared"] = False
+    conn.execute(
+        "UPDATE photoinfo SET photoinfo = ? WHERE uuid = ?;",
+        (json.dumps(photoinfo), uuid),
+    )
+    conn.commit()
+    conn.close()
+
+    result = runner.invoke(
+        exportdb,
+        [
+            ".",
+            "--migrate-photos-library",
+            LIBRARY2,
+            "--verbose",
+        ],
+        input="Y\n",
+    )
+    assert result.exit_code == 0
+    assert "No match found for photo" in result.output
+    assert "NO_MATCH_IN_LIBRARY.jpg" in result.output
+    assert "Migrated 28 photos, 1 not migrated" in result.output
 
 
 def test_export_cleanup_exportdb_report(isolated_fs):

@@ -411,11 +411,11 @@ def export_db_migrate_photos_library(
                 )
                 matched += 1
                 continue
-        else:
-            verbose(
-                f"[dark_orange]No match found for photo[/dark_orange]: [uuid]{uuid}[/], [filename]{photoinfo.get('original_filename')}[/]"
-            )
-            notmatched += 1
+        # every match above continues, so reaching here means no match was found
+        verbose(
+            f"[dark_orange]No match found for photo[/dark_orange]: [uuid]{uuid}[/], [filename]{photoinfo.get('original_filename')}[/]"
+        )
+        notmatched += 1
 
     if not dry_run:
         conn.execute("VACUUM;")
