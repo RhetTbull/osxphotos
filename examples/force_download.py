@@ -25,14 +25,23 @@ def main():
     for photo in missing:
         if photo.ismissing:
             print(f"Downloading photo {photo.original_filename}")
-            downloaded += 1
-            exported = photo.export(tempdir.name, use_photos_export=True, timeout=600)
-            if photo.hasadjustments:
-                exported.extend(
-                    photo.export(
-                        tempdir.name, use_photos_export=True, edited=True, timeout=600
-                    )
+            try:
+                exported = photo.export(
+                    tempdir.name, use_photos_export=True, timeout=600
                 )
+                if photo.hasadjustments:
+                    exported.extend(
+                        photo.export(
+                            tempdir.name,
+                            use_photos_export=True,
+                            edited=True,
+                            timeout=600,
+                        )
+                    )
+            except FileNotFoundError as e:
+                print(f"Could not download {photo.original_filename}: {e}")
+                continue
+            downloaded += 1
             for filename in exported:
                 print(f"Removing temporary file {filename}")
                 os.unlink(filename)

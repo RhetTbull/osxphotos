@@ -47,7 +47,13 @@ def export(export_path, library_path, uuid):
                 print(f"skipping heic image {p.filename}")
                 continue
             print(f"exporting photo {p.original_filename}, uuid = {p.uuid}")
-            export = p.export(export_path, p.original_filename, edited=p.hasadjustments)
+            try:
+                export = p.export(
+                    export_path, p.original_filename, edited=p.hasadjustments
+                )
+            except FileNotFoundError:
+                print(f"skipping missing photo {p.original_filename}")
+                continue
             if export:
                 im = Image.open(export[0])
                 draw = ImageDraw.Draw(im)

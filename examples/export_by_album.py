@@ -76,7 +76,11 @@ def export(export_path, default_album, library_path, edited):
                     exported = p.export(dest_dir, edited_filename, edited=True)
                     click.echo(f"Exported {edited_filename} to {exported}")
                 # export unedited version
-                exported = p.export(dest_dir, filename)
+                try:
+                    exported = p.export(dest_dir, filename)
+                except FileNotFoundError:
+                    click.echo(f"Skipping missing photo: {filename}")
+                    continue
                 click.echo(f"Exported {filename} to {exported}")
         else:
             click.echo(f"Skipping missing photo: {p.original_filename}")

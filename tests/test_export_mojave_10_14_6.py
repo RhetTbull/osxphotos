@@ -222,7 +222,8 @@ def test_export_8(photosdb):
     dest = tempdir.name
     photos = photosdb.photos(uuid=[UUID_DICT["missing"]])
 
-    assert photos[0].export(dest) == []
+    with pytest.raises(FileNotFoundError):
+        photos[0].export(dest)
 
 
 def test_export_9(photosdb):

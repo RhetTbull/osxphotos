@@ -16,10 +16,11 @@ def main():
 
     for p in photos:
         if not p.ismissing:
-            if p.hasadjustments:
-                exported = p.export(export_path, edited=True)
-            else:
-                exported = p.export(export_path)
+            try:
+                exported = p.export(export_path, edited=p.hasadjustments)
+            except FileNotFoundError:
+                print(f"Skipping missing photo: {p.filename}")
+                continue
             print(f"Exported {p.filename} to {exported}")
         else:
             print(f"Skipping missing photo: {p.filename}")
