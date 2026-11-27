@@ -4714,3 +4714,25 @@ def test_faceinfo_pet_sidecar_regions(tmp_path):
         (0.4, 0.7, 0.6, 0.2)
     )
     assert region_type == "Face"
+
+
+def test_faceinfo_no_face_sidecar_regions(tmp_path):
+    """A person with no face region is left out of the exiftool and XMP face regions"""
+    from osxphotos.exifwriter import ExifWriter
+    from osxphotos.sidecars import xmp_sidecar
+
+    photo = _photosdb_with_pet(tmp_path, 1, 0).get_photo(UUID_FACES_26)
+    name = _face(photo._db, UUID_PET_26).name
+    other = _face(photo._db, UUID_PERSON_26).name
+    assert name and other and name != other
+
+    exif = ExifWriter(photo).exiftool_dict()
+    names = [r["Name"] for r in exif["XMP-mwg-rs:RegionInfo"]["RegionList"]]
+    assert name not in names
+    assert other in names
+
+    xmp = xmp_sidecar(photo)
+    assert f"<mwg-rs:Name>{name}</mwg-rs:Name>" not in xmp
+    assert f"<MPReg:PersonDisplayName>{name}</MPReg:PersonDisplayName>" not in xmp
+    assert f"<mwg-rs:Name>{other}</mwg-rs:Name>" in xmp
+    assert f"<MPReg:PersonDisplayName>{other}</MPReg:PersonDisplayName>" in xmp
