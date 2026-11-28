@@ -107,29 +107,28 @@ Example uses of the OSXPhotos python package
 
                 # export the photo
                 # export unedited version
-                exported = p.export(
-                    dest_dir, use_photos_export=p.ismissing or not p.path
-                )
-                if exported:
-                    click.echo(f"Exported {p.original_filename} to {exported}")
-                else:
-                    click.echo(
-                        f"Error exporting {p.original_filename}, no files exported"
+                # export() raises FileNotFoundError if no file was exported
+                try:
+                    exported = p.export(
+                        dest_dir, use_photos_export=p.ismissing or not p.path
                     )
+                    click.echo(f"Exported {p.original_filename} to {exported}")
+                except FileNotFoundError as e:
+                    click.echo(f"Error exporting {p.original_filename}: {e}")
                 if p.hasadjustments:
                     # export edited version
-                    exported = p.export(
-                        dest_dir,
-                        edited=True,
-                        use_photos_export=p.ismissing or not p.path_edited,
-                    )
-                    if exported:
+                    try:
+                        exported = p.export(
+                            dest_dir,
+                            edited=True,
+                            use_photos_export=p.ismissing or not p.path_edited,
+                        )
                         click.echo(
                             f"Exported edited version of {p.original_filename} to {exported}"
                         )
-                    else:
+                    except FileNotFoundError as e:
                         click.echo(
-                            f"Error exporting {p.original_filename}, no files exported"
+                            f"Error exporting edited version of {p.original_filename}: {e}"
                         )
 
 
