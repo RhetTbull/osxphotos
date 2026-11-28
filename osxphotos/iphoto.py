@@ -1529,6 +1529,9 @@ class iPhotoPhotoInfo:
             render_options: an optional osxphotos.phototemplate.RenderOptions instance with options to pass to template renderer
 
         Returns: list of paths to photos exported
+
+        Raises:
+            FileNotFoundError: if no file was exported, for example if the requested version of the photo is missing
         """
 
         if kwargs:
@@ -1574,6 +1577,11 @@ class iPhotoPhotoInfo:
         )
 
         results = exporter.export(dest, filename=filename, options=options)
+        if not results.exported:
+            raise FileNotFoundError(
+                f"Could not export {'edited' if edited else 'original'} version of photo {self.uuid}: "
+                f"{results.error or 'file is missing'}"
+            )
         return results.exported
 
     def render_template(

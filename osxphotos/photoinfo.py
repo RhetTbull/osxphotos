@@ -1986,6 +1986,9 @@ class PhotoInfo:
 
         Returns:
             list of photos exported
+
+        Raises:
+            FileNotFoundError: if no file was exported, for example if the requested version of the photo is missing
         """
 
         exporter = PhotoExporter(self)
@@ -2029,6 +2032,11 @@ class PhotoInfo:
         )
 
         results = exporter.export(dest, filename=filename, options=options)
+        if not results.exported:
+            raise FileNotFoundError(
+                f"Could not export {'edited' if edited else 'original'} version of photo {self.uuid}: "
+                f"{results.error or 'file is missing'}"
+            )
         return results.exported
 
     def _get_album_uuids(self, project=False) -> list[str]:

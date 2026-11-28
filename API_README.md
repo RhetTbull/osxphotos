@@ -1531,6 +1531,8 @@ Export photo from the Photos library to another destination on disk.
 
 Returns: list of paths to exported files. More than one file could be exported, for example if live_photo=True, both the original image and the associated .mov file will be exported
 
+Raises: `FileNotFoundError` if no file was exported, for example if the requested version of the photo is missing from disk. [PhotoExporter.export()](#photoexporter-export) does not raise in this case and reports the file in `ExportResults.missing`.
+
 The json sidecar file can be used by exiftool to apply the metadata from the json file to the image.  For example:
 
 ```python

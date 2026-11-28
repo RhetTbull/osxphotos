@@ -97,14 +97,16 @@ def process_photo(
             print(
                 f"Exporting {'edited' if version else 'original'} photo {p.original_filename} ({p.uuid})"
             )
-            if exports := p.export(
-                tempdir,
-                live_photo=False,
-                edited=version,
-                use_photos_export=photos_export,
-            ):
-                exported.extend(exports)
-            else:
+            try:
+                exported.extend(
+                    p.export(
+                        tempdir,
+                        live_photo=False,
+                        edited=version,
+                        use_photos_export=photos_export,
+                    )
+                )
+            except FileNotFoundError:
                 print(
                     f"[red]Error exporting photo {p.original_filename} ({p.uuid})[/]",
                     file=sys.stderr,
