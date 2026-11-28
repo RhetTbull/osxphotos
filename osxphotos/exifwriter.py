@@ -503,6 +503,8 @@ class ExifWriter(_ExifMixin):
             if not face.name:
                 continue
             area = face.mwg_rs_area
+            if area.w <= 0 or area.h <= 0:
+                continue
             region = {
                 "Name": face.name,
                 "Type": "Face",

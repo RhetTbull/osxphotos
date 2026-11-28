@@ -115,7 +115,7 @@
     </mwg-rs:AppliedToDimensions>
     <mwg-rs:RegionList>
     <rdf:Bag>
-    % for face in photo.face_info:
+    % for face in [face for face in photo.face_info if face.mwg_rs_area.w > 0 and face.mwg_rs_area.h > 0]:
      <rdf:li rdf:parseType="Resource">
       <mwg-rs:Area rdf:parseType="Resource">
       <stArea:h>${'{0:.6f}'.format(face.mwg_rs_area.h)}</stArea:h>
@@ -140,7 +140,7 @@
     <MP:RegionInfo rdf:parseType="Resource">
      <MPRI:Regions>
       <rdf:Bag>
-      % for face in photo.face_info:
+      % for face in [face for face in photo.face_info if face.mpri_reg_rect.w > 0 and face.mpri_reg_rect.h > 0]:
        <rdf:li rdf:parseType="Resource">
        <MPReg:PersonDisplayName>${face.name}</MPReg:PersonDisplayName>
        <MPReg:Rectangle>${'{0:.6f}'.format(face.mpri_reg_rect.x)}, ${'{0:.6f}'.format(face.mpri_reg_rect.y)}, ${'{0:.6f}'.format(face.mpri_reg_rect.h)}, ${'{0:.6f}'.format(face.mpri_reg_rect.w)}</MPReg:Rectangle>
