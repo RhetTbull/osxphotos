@@ -1064,6 +1064,7 @@ The following template field substitutions are availabe for use the templating s
 * [rhettbull/exif2findertags](https://github.com/RhetTbull/exif2findertags): Read EXIF metadata from image and video files and convert it to macOS Finder tags and/or Finder comments and other extended attributes.
 * [rhettbull/photos_time_warp](https://github.com/RhetTbull/photos_time_warp): Batch adjust the date, time, or timezone of photos in Apple Photos.
 * [rhettbull/PhotoScript](https://github.com/RhetTbull/PhotoScript): python wrapper around Photos' applescript API allowing automation of Photos (including creation/deletion of items) from python.
+* [rscholz98/osxphotos-mcp](https://github.com/rscholz98/osxphotos-mcp): MCP server built on osxphotos that lets AI assistants such as Claude search, inspect and export photos from the Photos library; read-only by default.
 * [ndbroadbent/icloud_photos_downloader](https://github.com/ndbroadbent/icloud_photos_downloader): Download photos from iCloud.
 
 ## Contributing
