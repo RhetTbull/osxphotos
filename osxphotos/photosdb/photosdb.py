@@ -332,7 +332,9 @@ class PhotosDB:
         else:
             self._process_database5()
 
-        self._db_connection, _ = self.get_db_connection()
+        # shared connection used for all queries after the database is processed;
+        # may already have been created by execute() during processing
+        self._get_shared_db_connection()
 
         self._source = "Photos"
 
@@ -3031,7 +3033,7 @@ class PhotosDB:
         """Return the Core Data entity number for CollectionShare records in ZSHARE
         or None if the database does not have CollectionShare (Photos < 11, macOS < 26)
         """
-        _, c = self.get_db_connection()
+        c = self._get_shared_db_connection().cursor()
         try:
             row = c.execute(
                 "SELECT Z_ENT FROM Z_PRIMARYKEY WHERE Z_NAME = 'CollectionShare'"
@@ -3050,7 +3052,7 @@ class PhotosDB:
         are filtered by the CollectionShare entity. Assets reference their shared
         album via ZASSET.ZCOLLECTIONSHARE.
         """
-        _, c = self.get_db_connection()
+        c = self._get_shared_db_connection().cursor()
 
         asset_table = _DB_TABLE_NAMES[self.photos_version]["ASSET"]
         share_ent = self._collection_share_ent
@@ -3165,7 +3167,7 @@ class PhotosDB:
         (ZDATASTORESUBTYPE = 8) from the poster frame; the video may not be
         downloaded even if the poster frame is.
         """
-        _, c = self.get_db_connection()
+        c = self._get_shared_db_connection().cursor()
         asset_table = _DB_TABLE_NAMES[self.photos_version]["ASSET"]
         c.execute(
             f"""SELECT
@@ -3644,12 +3646,24 @@ class PhotosDB:
         """
         return photo_query(self, options)
 
-    def execute(self, sql: str, params: Any | None = None) -> sqlite3.Cursor:
-        """Execute sql statement and return cursor"""
+    def _get_shared_db_connection(self) -> sqlite3.Connection:
+        """Return the shared connection to the working copy of the Photos database,
+        creating it if needed.
+
+        Code that queries the database repeatedly (for example, once per photo) must
+        use this connection (or execute()) rather than get_db_connection(): each
+        sqlite3.Connection is in a reference cycle with its statement cache so an
+        unclosed connection is only freed by the cyclic garbage collector, which can
+        leak file descriptors until the process runs out (#2138).
+        """
         if not getattr(self, "_db_connection", None):
             self._db_connection, _ = self.get_db_connection()
+        return self._db_connection
+
+    def execute(self, sql: str, params: Any | None = None) -> sqlite3.Cursor:
+        """Execute sql statement and return cursor"""
         params = params or ()
-        return self._db_connection.cursor().execute(sql, params)
+        return self._get_shared_db_connection().cursor().execute(sql, params)
 
     def _duplicate_signature(self, uuid):
         """Compute a signature for finding possible duplicates"""

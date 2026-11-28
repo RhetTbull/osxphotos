@@ -1796,9 +1796,8 @@ class PhotoInfo:
             WHERE {asset_table}.ZUUID = ?
         """
 
-        _, cursor = self._db.get_db_connection()
         metadata = {}
-        if results := cursor.execute(sql_cloud_metadata, (self.uuid,)).fetchone():
+        if results := self._db.execute(sql_cloud_metadata, (self.uuid,)).fetchone():
             with contextlib.suppress(Exception):
                 metadata = plistlib.loads(results[0])
         return metadata
